@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewpoint" content="width=device-width">
-        <title>seriaLQuotes</title>
+        <title>SerialQuotes</title>
         <link href="./css/index.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
@@ -18,12 +18,48 @@
         
         <section class="results">
             <div class="serial">
-                <label>Serial</label>
-                <section class="serial"></section>
+                <div class="serial-submenu">
+                    <label>Serial</label>
+                    <div class="serial-filter">
+                        <input type="radio" id="serial-all" name="shows" value="all" checked="checked">
+                        <label>All</label>
+                        <input type="radio" id="serial-movies" name="shows" value="movies">
+                        <label>Movies</label>
+                        <input type="radio" id="serial-series" name="shows" value="series">
+                        <label>Series</label>
+                    </div>
+                    <div>
+                        <input type="text" id="serial-title" placeholder="Look for a title"> 
+                        <button id="serial-search">Search</button>
+                    </div>
+                </div>
+                <section class="serial-results">
+                    <div class="tv" id="123">
+                        <label class="tv-title">titulo</label>
+                        <label class="tv-description">descripcion</label>
+                        <label class="tv-type">serie</label>
+                    </div>
+                    <div class="tv" id="1234">
+                        <label class="tv-title">titulo2</label>
+                        <label class="tv-description">descripcion2</label>
+                        <label class="tv-type">pelicula</label>
+                    </div>
+                </section>
             </div>
             <div class="quotes">
                 <label>Quotes</label>
-                <section class="quotes"></section>
+                <section class="quotes-results">
+                    <div class="quote" id="345">
+                        <div class="quote-label">
+                            <label>"</label>
+                            <label class="quote-quote">blabla</label>
+                            <label>"</label>
+                        </div>
+                        <label class="quote-by">contribucion de</label>
+                        <label class="quote-from">de la serie</label>
+                        <label class="quote-date">fecha</label>
+                    </div>
+                </section>
             </div>
         </section>
 

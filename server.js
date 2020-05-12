@@ -5,11 +5,13 @@ const uuid = require( 'uuid' );
 const app = express();
 const jsonParser = bodyParser.json();
 //const validateAPIKEY = require( './middleware/validateAPIKEY' );
-const {Users,TV,Quotes,Comments} = require( "./Model" );
+const {Users,TV,Quotes,Comments} = require( "./model.js" );
 //const {Bookmarks} = require( "./bookmarksModel.js" );
 const mongoose = require( "mongoose" );
 const cors = require( './middleware/cors' );
-const {DATABASE_URL, PORT} = require('./config');
+//const {DATABASE_URL, PORT} = require('./config');
+const PORT = 8080;
+const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
 
 app.use( cors );
 app.use( express.static( "public" ) );
@@ -347,8 +349,8 @@ app.post( '/tv', jsonParser, (req,res)=>{
         return res.status(406).end();
     }
 
-    let id = uuid.v4();
-    let newTV = { id, title, type, description, status};
+    //let id = uuid.v4();
+    let newTV = { title, type, description, status};
     TV.createTV(newTV).then( result => {return res.status(201).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -557,8 +559,8 @@ app.patch( '/quote/:id', jsonParser, (req, res)=>{
         return res.status(406).end();
     }
 
-    let quote = {id, quote, from, by, date, status};
-    Quotes.editQuoteById(id, quote).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+    let quote2 = {id, quote, from, by, date, status};
+    Quotes.editQuoteById(id, quote2).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
 app.patch( '/comment/:id', jsonParser, (req, res)=>{

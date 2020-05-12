@@ -1,6 +1,7 @@
 body{
     margin: 0px;
     padding: 0px;
+    height: 100vh;
 }
 
 .menubar{
@@ -29,7 +30,7 @@ body{
 
 .results{
     display: flex;
-    
+    height: 100%;
 }
 
 .serial{
@@ -37,12 +38,22 @@ body{
     background-color: gold;
 }
 
+.serial-submenu{
+    display: flex;
+    justify-content: space-around;
+}
+
+.serial-filter{
+    display: flex;
+}
+
 .quotes{
     flex: 1;
-    background-color: indigo;
+    background-color: lightcoral;
 }
 
 footer{
     display: flex;
     background-color: forestgreen;
+    height: 60px;
 }

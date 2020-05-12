@@ -1,4 +1,55 @@
+import { response } from "express";
+
 const API_TOKEN = "2abbf7c3-245b-404f-9473-ade729ed4653";
+
+function fetchAllTV(){
+    let url = '/tv';
+    let settings = {
+        method: 'GET'
+    };
+    
+    let result = document.querySelector( '.serial-results' );
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            console.log(responseJSON);
+            if(!responseJSON[0]){
+                result.innerHTML = `<label class="error">No hay 'tv' disponibles</label>`;
+            }else{
+                result.innerHTML = "";
+                for (let i=0; i<responseJSON.length; i++){
+                    /*
+                    result.innerHTML += 
+                    `<div class="bookmark" id=${responseJSON[i].id}>
+                        <div class="header">
+                            <label class="title">${responseJSON[i].title}</label>
+                            <div>
+                                <button id="update-btn">Edit</button>
+                                <button id="delete-btn">Delete</button>
+                            </div>
+                        </div>
+                        <div class="info">
+                            <label class="description">${responseJSON[i].description}</label>
+                            <div class="ratingDiv">
+                                <label>Rating: </label><label class="rating">${responseJSON[i].rating}</label>
+                            </div>
+                            <a class="url" href="${responseJSON[i].url}">${responseJSON[i].url}</a>
+                        </div>
+                    </div>`;
+                    */
+                }
+            }
+        })
+        .catch( err=> {
+            console.log( err );
+            result.innerHTML = `<label class="error"> ${err.message}</label>`;
+        });
+}
 
 function fetchAllBookmarks(){
     let url = '/bookmarks';
@@ -305,7 +356,7 @@ function watchList(){
 }
 
 function init(){
-    
+    fetchAllTV();
 }
 
 init();
