@@ -36,20 +36,91 @@ body{
 .serial{
     flex: 4;
     background-color: gold;
+    border: solid;
 }
 
-.serial-submenu{
+.serial-submenu, .quotes-submenu{
     display: flex;
     justify-content: space-around;
+    border-bottom: solid;
+    height: 24px;
 }
 
 .serial-filter{
     display: flex;
 }
 
+.serial-results{
+    display: flex;
+    flex-wrap: wrap;
+    height: 95%;
+    overflow: overlay;
+}
+
+.tv{
+    display: flex;
+    flex-direction: column;
+    border: solid;
+    margin: 10px;
+    width: 150px;
+    height: 200px;
+}
+
+.tv-title, .tv-description, .tv-type{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 2px;
+}
+
+.tv-title{
+    font-size: larger;
+    font-weight: bold;
+}
+
 .quotes{
     flex: 1;
     background-color: lightcoral;
+    border: solid;
+    border-left: none;
+}
+
+.quote{
+    border: solid;
+    margin: 10px;
+    padding: 2px;
+    display: flex;
+    flex-direction: column;
+    width: 160px;
+}
+
+.quote-quote-label{
+    display: flex;
+    justify-content: space-between;
+}
+
+.quote-quote{
+  display: -webkit-box;
+  max-width: 100%;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: -webkit-center;
+}
+
+.quote-from-label, .quote-by-label{
+    display: flex;
+}
+
+.quote-from, .quote-by{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding-left: 3px;
+}
+
+.quote-date{
+    text-align: end;
 }
 
 footer{

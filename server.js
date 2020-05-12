@@ -331,8 +331,7 @@ app.post( '/users', jsonParser, (req,res)=>{
         return res.status(406).end();
     }
 
-    let id = uuid.v4();
-    let newUser = { id, username, password, admin};
+    let newUser = { username, password, admin};
     Users.createUser(newUser).then( result => {return res.status(201).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -342,15 +341,15 @@ app.post( '/tv', jsonParser, (req,res)=>{
     let title = req.body.title;
     let type = req.body.type;
     let description = req.body.description;
+    let image = req.body.image;
     let status = req.body.status;
 
-    if ( !title || !type || !description || !status ){
+    if ( !title || !type || !description || !image || !status ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    //let id = uuid.v4();
-    let newTV = { title, type, description, status};
+    let newTV = { title, type, description, image, status};
     TV.createTV(newTV).then( result => {return res.status(201).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -368,8 +367,7 @@ app.post( '/quote', jsonParser, (req,res)=>{
         return res.status(406).end();
     }
 
-    let id = uuid.v4();
-    let newQuote = { id, quote, from, by, date, status};
+    let newQuote = { quote, from, by, date, status};
     Quotes.createQuote(newQuote).then( result => {return res.status(201).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -386,8 +384,7 @@ app.post( '/comment', jsonParser, (req,res)=>{
         return res.status(406).end();
     }
 
-    let id = uuid.v4();
-    let newComment = { id, comment, from, by, date};
+    let newComment = { comment, from, by, date};
     Comments.createComment(newComment).then( result => {return res.status(201).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -505,7 +502,7 @@ app.patch( '/user/:id', jsonParser, (req, res)=>{
         return res.status(406).end();
     }
 
-    let user = {id, username, password, admin};
+    let user = {username, password, admin};
     Users.editUserById(id, user).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
@@ -522,7 +519,7 @@ app.patch( '/user/:username', jsonParser, (req, res)=>{
         return res.status(406).end();
     }
 
-    let user = {id, username, password, admin};
+    let user = {username, password, admin};
     Users.editUserByName(username, user).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
@@ -533,14 +530,15 @@ app.patch( '/tv/:id', jsonParser, (req, res)=>{
     let title = req.body.title;
     let type = req.body.type;
     let description = req.body.description;
+    let image = req.body.image;
     let status = req.body.status;
 
-    if ( !id || !title || !type || !description || !status ){
+    if ( !id || !title || !type || !description || !image || !status ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let tv = {id, title, type, description, status};
+    let tv = {title, type, description, image, status};
     TV.editTVById(id, tv).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
@@ -559,7 +557,7 @@ app.patch( '/quote/:id', jsonParser, (req, res)=>{
         return res.status(406).end();
     }
 
-    let quote2 = {id, quote, from, by, date, status};
+    let quote2 = {quote, from, by, date, status};
     Quotes.editQuoteById(id, quote2).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
@@ -577,7 +575,7 @@ app.patch( '/comment/:id', jsonParser, (req, res)=>{
         return res.status(406).end();
     }
 
-    let comment2 = {id, comment, from, by, date};
+    let comment2 = {comment, from, by, date};
     Comments.editCommentById(id, comment2).then( result => {return res.status(202).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
