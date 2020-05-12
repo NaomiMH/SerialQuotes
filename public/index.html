@@ -3,52 +3,41 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewpoint" content="width=device-width">
-        <title>Bookmarks App</title>
+        <title>seriaLQuotes</title>
         <link href="./css/index.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
-        <form class="get-bookmark-form">
-            <label class="titleform">Search for a bookmark</label>
-            <label for="bookmarkTitle">Title:</label>
-            <input type="text" id="get-bookmarkTitle"> 
-            <button id="get-submit-btn" type="submit">Get Bookmark</button>
-        </form>
-        <form class="add-bookmark-form">
-            <label class="titleform">Add a new bookmark to the list</label>
-            <label for="bookmarkTitle">Title:</label>
-            <input type="text" id="add-bookmarkTitle"> 
-            <label for="bookmarkDescription">Description:</label>
-            <input type="text" id="add-bookmarkDescription">   
-            <label for="bookmarkUrl">Url:</label>
-            <input type="text" id="add-bookmarkUrl">
-            <div>
-                <label for="bookmarkRating">Rating:</label>
-                <input type="number" id="add-bookmarkRating">
+        <section class="menubar">
+            <label>Homepage</label>
+            <div class="title">
+                <label>Serial</label>
+                <label>Quotes</label>
             </div>
-            <button id="add-submit-btn" type="submit">Add Bookmark</button>
-        </form>
-        <form class="update-bookmark-form">
-            <label class="titleform">Update a bookmark to the list</label>
-            <div class="update-bookmarkIdDiv">
-                <label>Id: </label>
-                <label class="update-bookmarkId"></label>
-            </div>
-            <label for="bookmarkTitle">Title:</label>
-            <input type="text" id="update-bookmarkTitle"> 
-            <label for="bookmarkDescription">Description:</label>
-            <input type="text" id="update-bookmarkDescription">   
-            <label for="bookmarkUrl">Url:</label>
-            <input type="text" id="update-bookmarkUrl">
-            <div>
-                <label for="bookmarkRating">Rating:</label>
-                <input type="number" id="update-bookmarkRating">
-            </div>
-            <button id="update-submit-btn" type="submit">Update Bookmark</button>
-            <button id="update-cancel-btn" type="cancel">Cancel</button>
-        </form>
-        <label class="listTitle">List of bookmarks</label>
-        <section class="results">
+            <label>Log in</label>
         </section>
-        <script src="./js/index.js"></script>
+        
+        <section class="results">
+            <div class="serial">
+                <label>Serial</label>
+                <section class="serial"></section>
+            </div>
+            <div class="quotes">
+                <label>Quotes</label>
+                <section class="quotes"></section>
+            </div>
+        </section>
+
+        <footer>
+            <div class="mapPage">
+                <label>Map Page</label>
+            </div>
+            <div class="aboutUs">
+                <label>About Us</label>
+            </div>
+            <div class="information">
+                <label>Information</label>
+            </div>
+            <script src="./js/index.js"></script>
+        </footer>
     </body>
 </html>

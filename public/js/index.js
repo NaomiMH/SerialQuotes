@@ -305,11 +305,7 @@ function watchList(){
 }
 
 function init(){
-    fetchAllBookmarks();
-    watchAddBookmarks();
-    watchGetBookmark();
-    watchUpdateBookmark();
-    watchList();
+    
 }
 
 init();
