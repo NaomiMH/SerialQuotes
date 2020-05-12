@@ -1,0 +1,74 @@
+.bookmark{
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    margin: 15px 0px 0px 20px;
+    border: solid;
+    width: 700px;
+}
+
+.title{
+    font-size: xx-large;
+    color: blueviolet;
+}
+
+.listTitle{
+    font-size: xxx-large;
+    color: darkslateblue;
+    font-weight: bold;
+    margin-left: 150px;
+}
+
+.description{
+    color: darkgrey;
+}
+
+.ratingDiv{
+    font-size: larger;
+}
+
+.header{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.info{
+    display: flex;
+    flex-direction: column;
+    height: 100px;
+    justify-content: space-around;
+}
+
+.update-bookmark-form, .add-bookmark-form, .get-bookmark-form {
+    display: flex;
+    flex-direction: column;
+    height: 300px;
+    justify-content: space-around;
+    border: solid;
+    margin: 20px 10px;
+    padding: 20px;
+}
+
+.get-bookmark-form{
+    height: 150px;
+}
+
+.titleform{
+    font-size: xx-large;
+    color: darkseagreen;
+    align-self: center;
+}
+
+.update-bookmark-form{
+    display: none;
+}
+
+.update-bookmarkIdDiv{
+    display: none;
+}
+
+section{
+    display:flex;
+    flex-direction: column;
+}
