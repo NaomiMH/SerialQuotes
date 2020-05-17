@@ -1,0 +1,111 @@
+body{
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+    -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar{
+    display: none;
+}
+
+.menubar{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background-color: darkred;
+    height: 60px;
+}
+
+.title{
+    display: flex;
+    font-size: 50px;
+    height: 60px;
+}
+
+.menubar > label{
+    padding: 0px 10px 10px 10px;
+    padding-top: 100%;
+}
+
+.menubar > label:hover, .title > label:hover{
+    cursor: pointer;
+    background-color: darkslategrey;
+}
+
+.results{
+    display: flex;
+    height: 100%;
+    background-color: lightgreen;
+    align-items: center;
+    justify-content: center;
+}
+
+.login{
+    display: flex;
+    flex-direction: column;
+    background-color: lightsalmon;
+    height: 300px;
+    width: 500px;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+.login-title, .signup-title{
+    font-size: xx-large;
+    font-weight: bold;
+}
+
+.signup-btn:hover, .login-btn:hover{
+    cursor: pointer;
+}
+
+.login-user-pass, .signup-user-pass{
+    text-align: -webkit-center;
+}
+
+.login-user-pass > button, .signup-user-pass > button{
+    margin: 10px;
+    width: 100px;
+    font-size: large;
+    text-align: center;
+}
+
+.login-username-label, .login-password-label, .signup-username-label, .signup-password-label{
+    text-align: right;
+    padding: 10px;
+}
+
+.login-error, .signup-error-user{
+    opacity: 0;
+}
+
+.signup{
+    display: none;
+    flex-direction: column;
+    background-color: lightsalmon;
+    height: 300px;
+    width: 500px;
+    align-items: center;
+    justify-content: space-evenly;
+}
+
+footer{
+    display: flex;
+    background-color: forestgreen;
+    justify-content: space-around;
+    padding: 2px 0px 5px 0px;
+}
+
+li{
+    list-style: none;
+}
+
+.mapPage{
+    display: flex;
+    flex-direction: column;
+}
+
+.mapPage > li:hover{
+    cursor: pointer;
+}

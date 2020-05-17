@@ -32,10 +32,6 @@ const tvCollectionSchema = mongoose.Schema({
     image: {
         type : String,
         required : true
-    },
-    status: {
-        type : String,
-        required : true
     }
 });
 
@@ -45,6 +41,14 @@ const quotesCollectionSchema = mongoose.Schema({
         required : true
     },
     from: {
+        type : String,
+        required : true
+    },
+    fromId: {
+        type : String,
+        required : true
+    },
+    type:{
         type : String,
         required : true
     },
@@ -67,7 +71,7 @@ const commentsCollectionSchema = mongoose.Schema({
         type : String,
         required : true
     },
-    from: {
+    fromId: {
         type : String,
         required : true
     },
@@ -81,40 +85,49 @@ const commentsCollectionSchema = mongoose.Schema({
     }
 });
 
-/*
-const bookmarksCollectionSchema = mongoose.Schema({
-    id : {
-        type : String,
-        required : true,
-        unique : true
-    },
-    title : {
+const achievementsCollectionSchema = mongoose.Schema({
+    type: {
         type : String,
         required : true
     },
-    description : {
+    about: {
         type : String,
         required : true
     },
-    url : {
+    aboutId: {
         type : String,
         required : true
     },
-    rating : {
-        type : Number,
+    date: {
+        type : Date,
         required : true
     }
 });
-*/
+
+const listCollectionSchema = mongoose.Schema({
+    userId: {
+        type : String,
+        required : true
+    },
+    list: [{
+        title: {
+            type : String,
+            required : true
+        },
+        tvId: {
+            type : String,
+            required : true
+        }
+    }]
+})
 
 const usersCollection = mongoose.model( "listOfUsers", usersCollectionSchema);
 const tvCollection = mongoose.model( "listOfTv", tvCollectionSchema);
 const quotesCollection = mongoose.model( "listOfQuotes", quotesCollectionSchema);
 const commentsCollection = mongoose.model( "listOfComments", commentsCollectionSchema);
-
-/*
-const bookmarksCollection = mongoose.model( "listOfBookmarks", bookmarksCollectionSchema);
-*/
+const seenCollection = mongoose.model("listOfSeenLists", listCollectionSchema);
+const wantCollection = mongoose.model("listOfWantLists", listCollectionSchema);
+const achievementsCollection = mongoose.model("listOfAchivements",achievementsCollectionSchema);
 
 const Users = {
     createUser(newUser){
@@ -123,23 +136,14 @@ const Users = {
     getAllUsers(){
         return usersCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    getUserById(id){
-        return usersCollection.find({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getUserByName(username){
-        return usersCollection.find({username}).then( response => {return response;} ).catch( err=>{return err;});
+    getUserBy(filter){
+        return usersCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editUserById(id,user){
         return usersCollection.updateOne({_id: id},{$set: user}).then( response => {return response;} ).catch( err=>{return err;});
     },
-    editUserByName(username,user){
-        return usersCollection.updateOne({username},{$set: user}).then( response => {return response;} ).catch( err=>{return err;});
-    },
     deleteUserById(id){
         return usersCollection.deleteOne({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    deleteUserByName(username){
-        return usersCollection.deleteOne({username}).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
 
@@ -150,17 +154,8 @@ const TV = {
     getAllTV(){
         return tvCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    getTVById(id){
-        return tvCollection.find({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getTVByTitle(title){
-        return tvCollection.find({title}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getTVByType(type){
-        return tvCollection.find({type}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getTVByStatus(status){
-        return tvCollection.find({status}).then( response => {return response;} ).catch( err=>{return err;});
+    getTVBy(filter){
+        return tvCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editTVById(id,tv){
         return tvCollection.updateOne({_id: id},{$set: tv}).then( response => {return response;} ).catch( err=>{return err;});
@@ -177,26 +172,14 @@ const Quotes = {
     getAllQuotes(){
         return quotesCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    getQuoteById(id){
-        return quotesCollection.find({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
+    getQuoteBy(filter){
+        return quotesCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getQuoteByFrom(from){
-        return quotesCollection.find({from}).then( response => {return response;} ).catch( err=>{return err;});
+    editQuoteBy(filter,quote){
+        return quotesCollection.update(filter,{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getQuoteByBy(by){
-        return quotesCollection.find({by}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getQuoteByDate(date){
-        return quotesCollection.find({date}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getQuoteByStatus(status){
-        return quotesCollection.find({status}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    editQuoteById(id,quote){
-        return quotesCollection.updateOne({_id: id},{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    deleteQuoteById(id){
-        return quotesCollection.deleteOne({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
+    deleteQuoteBy(filter){
+        return quotesCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
 
@@ -207,54 +190,72 @@ const Comments = {
     getAllComments(){
         return commentsCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    getCommentById(id){
-        return commentsCollection.find({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
+    getCommentBy(filter){
+        return commentsCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getCommentByFrom(from){
-        return commentsCollection.find({from}).then( response => {return response;} ).catch( err=>{return err;});
+    editCommentBy(filter,comment){
+        return commentsCollection.update(filter,{$set: comment}).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getCommentByBy(by){
-        return commentsCollection.find({by}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getCommentByDate(date){
-        return commentsCollection.find({date}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getCommentByStatus(status){
-        return commentsCollection.find({status}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    editCommentById(id,comment){
-        return commentsCollection.updateOne({_id: id},{$set: comment}).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    deleteCommentById(id){
-        return commentsCollection.deleteOne({_id: id}).then( response => {return response;} ).catch( err=>{return err;});
+    deleteCommentBy(filter){
+        return commentsCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
 
-/*
-const Bookmarks = {
-    createBookmark(newBookmark){
-        return bookmarksCollection.create( newBookmark ).then( createdStudent => {return createdStudent;} ).catch( err=>{return err;});
+const SeenLists = {
+    createList(newList){
+        return seenCollection.create( newList ).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getAllBookmarks(){
-        return bookmarksCollection.find().then( allBookmarks => {return allBookmarks;} ).catch( err=>{return err;});
+    getAllList(){
+        return seenCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    getBookmarks(title){
-        return bookmarksCollection.find({title : title}).then( findedBookmarks => {return findedBookmarks;} ).catch( err=>{return err;});
+    getListBy(filter){
+        return seenCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getBookmark(id){
-        return bookmarksCollection.find({id : id}).then( findedBookmarks => {return findedBookmarks;} ).catch( err=>{return err;});
+    editTitleByFromId(tvId,title){
+        return seenCollection.update({'list.tvId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
-    editBookmark(id,title,description,url,rating){
-        return bookmarksCollection.updateOne({id : id},{$set: {title:title,description:description,url:url,rating:rating}}).then( newBookmark => {return newBookmark;} ).catch( err=>{return err;});
+    addElementBy(filter,element){
+        return seenCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
     },
-    deleteBookmark(id){
-        return bookmarksCollection.deleteOne({id : id}).then( deletedBookmarks => {return deletedBookmarks;} ).catch( err=>{return err;});
+    deleteListBy(filter){
+        return seenCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
-*/
 
-module.exports = {Users,TV,Quotes,Comments};
+const WantLists = {
+    createList(newList){
+        return wantCollection.create( newList ).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    getAllList(){
+        return wantCollection.find().then( response => {return response;} ).catch( err=>{return err;});
+    },
+    getListBy(filter){
+        return wantCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    editTitleByFromId(tvId,title){
+        return wantCollection.update({'list.fromId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    addElementBy(filter,element){
+        return wantCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    deleteListBy(filter){
+        return wantCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
+    }
+};
 
-/*
-module.exports = {Bookmarks};
-*/
+const Achievements = {
+    createAchi(newAchi){
+        return achievementsCollection.create( newAchi ).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    getAllAchi(){
+        return achievementsCollection.find().then( response => {return response;} ).catch( err=>{return err;});
+    },
+    editAchiBy(filter,achi){
+        return achievementsCollection.updateOne(filter,{$set: achi}).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    deleteAchiBy(filter){
+        return achievementsCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
+    }
+};
+
+module.exports = {Users,TV,Quotes,Comments,SeenLists,WantLists,Achievements};

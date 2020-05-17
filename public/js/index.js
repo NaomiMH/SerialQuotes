@@ -1,7 +1,54 @@
-const API_TOKEN = "2abbf7c3-245b-404f-9473-ade729ed4653";
+const urlParams = new URLSearchParams(window.location.search);
+let user;
+
+function addTV(place,arrey){
+    for (let i=arrey.length-1; i>=0; i--){
+        place.innerHTML += 
+        `<div class="tv" id="${arrey[i]._id}">
+            <img alt="imagen"  height="120px" src="${arrey[i].image}">
+            <label class="tv-title">${arrey[i].title}</label>
+            <label class="tv-description">${arrey[i].description}</label>
+            <label class="tv-type">${arrey[i].type}</label>
+        </div>`;
+    }
+}
+
+function addQuotes(place,arrey){
+    for (let i=arrey.length-1; i>=0; i--){
+        place.innerHTML += 
+        `<div class="quote" id="${arrey[i]._id}">
+            <div class="quote-quote-label">
+                <label>"</label>
+                <label class="quote-quote">${arrey[i].quote}</label>
+                <label>"</label>
+            </div>
+            <div class="quote-by-label">
+                <label>By: </label>
+                <label class="quote-by">${arrey[i].by}</label>
+            </div>
+            <div class="quote-from-label">
+                <label>From: </label>
+                <label class="quote-from" id="${arrey[i].fromId}">${arrey[i].from}</label>
+            </div>
+            <label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+        </div>`;
+    }
+}
+
+function addAchi(place,arrey){
+    for (let i=arrey.length-1; i>=0; i--){
+        place.innerHTML += 
+        `<div class="achi" id="${arrey[i]._id}">
+            <label class="achi-title">${arrey[i].type}</label>
+            <label>${arrey[i].about}</label>
+            <label>${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+            <label class="to-go">${arrey[i].aboutId}</label>
+        </div>`;
+    }
+}
 
 function fetchAllTV(){
-    let url = '/tv';
+    let url = '/tvs';
     let settings = {
         method: 'GET'
     };
@@ -15,92 +62,26 @@ function fetchAllTV(){
             throw new Error( response.statusText );
         })
         .then( responseJSON => {
-            console.log(responseJSON);
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">No hay 'tv' disponibles</label>`;
+                result.innerHTML = `<label class="error">There arent 'tv' available.</label>`;
             }else{
                 result.innerHTML = "";
-                for (let i=0; i<responseJSON.length; i++){
-                    result.innerHTML += 
-                    `<div class="tv" id="${responseJSON[i].id}">
-                        <img alt="imagen"  height="120px" src="${responseJSON[i].image}">
-                        <label class="tv-title">${responseJSON[i].title}</label>
-                        <label class="tv-description">${responseJSON[i].description}</label>
-                        <label class="tv-type">${responseJSON[i].type}</label>
-                    </div>`;
-                }
+                addTV(result,responseJSON);
+                watchSerialResults();
             }
         })
         .catch( err=> {
-            console.log( err );
-            result.innerHTML = `<label class="error"> ${err.message}</label>`;
+            result.innerHTML = `<label class="error">${err.message}</label>`;
         });
 }
 
-function fetchAllBookmarks(){
-    let url = '/bookmarks';
+function fetchAllQuotes(){
+    let url = '/quotes';
     let settings = {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${API_TOKEN}`
-        }
-    }
-    
-    let result = document.querySelector( '.results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            console.log(responseJSON);
-            result.innerHTML = "";
-            for (let i=0; i<responseJSON.length; i++){
-                result.innerHTML += 
-                `<div class="bookmark" id=${responseJSON[i].id}>
-                    <div class="header">
-                        <label class="title">${responseJSON[i].title}</label>
-                        <div>
-                            <button id="update-btn">Edit</button>
-                            <button id="delete-btn">Delete</button>
-                        </div>
-                    </div>
-                    <div class="info">
-                        <label class="description">${responseJSON[i].description}</label>
-                        <div class="ratingDiv">
-                            <label>Rating: </label><label class="rating">${responseJSON[i].rating}</label>
-                        </div>
-                        <a class="url" href="${responseJSON[i].url}">${responseJSON[i].url}</a>
-                    </div>
-                </div>`;
-            }
-        })
-        .catch( err=> {
-            console.log( err );
-            result.innerHTML = `<div class="error"> ${err.message}</div>`;
-        });
-}
-
-function fetchAddBookmark( title, description, urlp, rating ){
-    let url = '/bookmarks';
-    let data = {
-        title: title,
-        description: description,
-        url: urlp,
-        rating: rating
+        method: 'GET'
     };
-    let settings = {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify( data )
-    }
     
-    let result = document.querySelector( '.results' );
+    let result = document.querySelector( '.quotes-results' );
     fetch( url, settings )
         .then( response => {
             if( response.ok ){
@@ -109,240 +90,283 @@ function fetchAddBookmark( title, description, urlp, rating ){
             throw new Error( response.statusText );
         })
         .then( responseJSON => {
-            console.log(responseJSON);
-            fetchAllBookmarks();
+            if(!responseJSON[0]){
+                result.innerHTML = `<label class="error">There arent 'quotes' available.</label>`;
+            }else{
+                result.innerHTML = "";
+                addQuotes(result,responseJSON);
+                watchQuotesResults();
+            }
         })
         .catch( err=> {
-            console.log( err );
-            result.innerHTML = `<div class="error"> ${err.message}</div>`;
+            result.innerHTML = `<label class="error">${err.message}</label>`;
         });
 }
 
-function fetchGetBookmark( title ){
-    let url = `/bookmark?title=${title}`;
-    let settings = {
-        method: 'GET',
-        headers: {
-            Authorization: `Bearer ${API_TOKEN}`
+function fetchUser(){
+    let userid = urlParams.get('id');
+    let result = document.querySelector('.acount');
+    if(userid){
+        let url = `/user?id=${userid}`;
+        let settings = {
+            method: 'GET'
         }
-    }
-    
-    let result = document.querySelector( '.results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            console.log(responseJSON);
-            result.innerHTML = "";
-            for (let i=0; i<responseJSON.length; i++){
-                result.innerHTML += 
-                `<div class="bookmark" id=${responseJSON[i].id}>
-                    <div class="header">
-                        <label class="title">${responseJSON[i].title}</label>
-                        <div>
-                            <button id="update-btn">Edit</button>
-                            <button id="delete-btn">Delete</button>
-                        </div>
-                    </div>
-                    <div class="info">
-                        <label class="description">${responseJSON[i].description}</label>
-                        <div class="ratingDiv">
-                            <label>Rating: </label><label class="rating">${responseJSON[i].rating}</label>
-                        </div>
-                        <a class="url" href="${responseJSON[i].url}">${responseJSON[i].url}</a>
-                    </div>
-                </div>`;
-            }
-        })
-        .catch( err=> {
-            console.log( err );
-            result.innerHTML = `<div class="error"> ${err.message}</div>`;
-        });
-}
-
-function fetchUpdateBookmark( id, title, description, urlp, rating ){
-    let url = `/bookmark/${id}`;
-
-    let data = {
-        id: id,
-        title: title,
-        description: description,
-        url: urlp,
-        rating: rating
-    };
-    let settings = {
-        method: 'PATCH',
-        headers: {
-            Authorization: `Bearer ${API_TOKEN}`,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify( data ),
-    }
-    
-    let result = document.querySelector( '.results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            console.log(responseJSON);
-            fetchAllBookmarks();
-        })
-        .catch( err=> {
-            console.log( err );
-            result.innerHTML = `<div class="error"> ${err.message}</div>`;
-        });
-}
-
-function fetchDeleteBookmark( id, title, description, urlp, rating ){
-    let url = `/bookmark/${id}`;
-
-    let settings = {
-        method: 'DELETE',
-        headers: {
-            Authorization: `Bearer ${API_TOKEN}`
-        }
-    }
-    
-    let result = document.querySelector( '.results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            console.log(responseJSON);
-            fetchAllBookmarks();
-        })
-        .catch( err=> {
-            console.log( err );
-            result.innerHTML = `<div class="error"> ${err.message}</div>`;
-        });
-}
-
-function watchAddBookmarks(){
-    let bookmarksForm = document.querySelector( '.add-bookmark-form' );
-
-    bookmarksForm.addEventListener( 'submit', (event)=>{
-        event.preventDefault();
-        let title = document.getElementById( 'add-bookmarkTitle' ).value;
-        let description = document.getElementById( 'add-bookmarkDescription' ).value;
-        let url = document.getElementById( 'add-bookmarkUrl' ).value;
-        let rating = document.getElementById( 'add-bookmarkRating' ).value;
-
-        fetchAddBookmark(title, description, url, rating);
-    });
-}
-
-function watchGetBookmark(){
-    let bookmarksForm = document.querySelector( '.get-bookmark-form' );
-
-    bookmarksForm.addEventListener( 'submit', (event)=>{
-        event.preventDefault();
-        let title = document.getElementById( 'get-bookmarkTitle' ).value;
-
-        fetchGetBookmark(title);
-    });
-}
-
-function watchUpdateBookmark(){
-    let bookmarksForm = document.querySelector( '#update-submit-btn' );
-
-    bookmarksForm.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        let id = document.querySelector( '.update-bookmarkId').innerHTML;
-        let title = document.getElementById( 'update-bookmarkTitle' ).value;
-        let description = document.getElementById( 'update-bookmarkDescription' ).value;
-        let url = document.getElementById( 'update-bookmarkUrl' ).value;
-        let rating = document.getElementById( 'update-bookmarkRating' ).value;
         
-        fetchUpdateBookmark(id, title, description, url, rating);
-
-        document.getElementById( 'update-bookmarkTitle' ).value = "";
-        document.getElementById( 'update-bookmarkDescription' ).value = "";
-        document.getElementById( 'update-bookmarkUrl' ).value = "";
-        document.getElementById( 'update-bookmarkRating' ).value = "";
-
-        let addForm = document.querySelector( '.get-bookmark-form' );
-        let updateForm = document.querySelector( '.update-bookmark-form' );
-        let getForm = document.querySelector( '.add-bookmark-form' );
-        let result = document.querySelector( '.results' );
-        let listTitle = document.querySelector( '.listTitle' );
-        updateForm.style.display = "none";
-        addForm.style.display = "flex";
-        getForm.style.display = "flex";
-        result.style.display = "flex";
-        listTitle.style.display = "flex";
-    });
-
-    let bookmarksForm2 = document.querySelector( '#update-cancel-btn' );
-
-    bookmarksForm2.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-
-        let addForm = document.querySelector( '.get-bookmark-form' );
-        let getForm = document.querySelector( '.add-bookmark-form' );
-        let updateForm = document.querySelector( '.update-bookmark-form' );
-        let result = document.querySelector( '.results' );
-        let listTitle = document.querySelector( '.listTitle' );
-        updateForm.style.display = "none";
-        addForm.style.display = "flex";
-        getForm.style.display = "flex";
-        result.style.display = "flex";
-        listTitle.style.display = "flex";
-    });
+        fetch( url, settings )
+            .then( response => {
+                if( response.ok ){
+                    return response.json();
+                }
+                throw new Error( response.statusText );
+            })
+            .then( responseJSON => {
+                result.innerHTML = "";
+                if(responseJSON[0]){
+                    result.innerHTML += 'My acount';
+                    user=responseJSON[0];
+                }
+            })
+            .catch( err=> {
+                result.innerHTML = `<div class="error"> ${err.message}</div>`;
+            });
+    }
 }
 
-function watchList(){
-    let bookmarksList = document.querySelector( '.results' );
-
-    bookmarksList.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-
-        if( event.target.matches( '#update-btn' ) ){
-            console.log("update")
-            let updateForm = document.querySelector( '.update-bookmark-form' );
-            let addForm = document.querySelector( '.get-bookmark-form' );
-            let getForm = document.querySelector( '.add-bookmark-form' );
-            let result = document.querySelector( '.results' );
-            let listTitle = document.querySelector( '.listTitle' );
-            addForm.style.display = "none";
-            getForm.style.display = "none";
-            result.style.display = "none";
-            listTitle.style.display = "none";
-            updateForm.style.display = "flex";
-
-            let id = event.target.parentNode.parentNode.parentNode.id;
-            let title = event.target.parentNode.parentNode.querySelector('.title').innerHTML;
-            let description = event.target.parentNode.parentNode.parentNode.querySelector('.description').innerHTML;
-            let url = event.target.parentNode.parentNode.parentNode.querySelector('.url').innerHTML;
-            let rating = event.target.parentNode.parentNode.parentNode.querySelector('.rating').innerHTML;
-
-            document.querySelector( '.update-bookmarkId').innerHTML = id;
-            document.getElementById('update-bookmarkTitle').value = title;
-            document.getElementById('update-bookmarkDescription').value = description;
-            document.getElementById( 'update-bookmarkUrl' ).value = url;
-            document.getElementById( 'update-bookmarkRating' ).value = rating;
+function fetchQuote(type,from){
+    let url = `/quote?`;
+    if(type){
+        url+= `type=${type}`;
+        if(from){
+            url+='&';
         }
-        if( event.target.matches( '#delete-btn' ) ){
-            console.log("delete");
-            let id = event.target.parentNode.parentNode.parentNode.id;
-            fetchDeleteBookmark(id);
+    }
+    if(from){
+        url+= `from=${from}`;
+    }
+    let settings = {
+        method: 'GET'
+    };
+    
+    let result = document.querySelector( '.quotes-results' );
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            if(!responseJSON[0]){
+                result.innerHTML = `<label class="error">There arent 'quotes' available.</label>`;
+            }else{
+                result.innerHTML = "";
+                addQuotes(result,responseJSON);
+                watchQuotesResults();
+            }
+        })
+        .catch( err=> {
+            result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
+function fetchTV(type,title){
+    let url = `/tv?`;
+    if(type){
+        url+=`type=${type}`;
+        if(title){
+            url+= `&`;
+        }
+    }
+    if(title){
+        url+=`title=${title}`;
+    }
+    let settings = {
+        method: 'GET'
+    };
+    
+    let result = document.querySelector( '.serial-results' );
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            if(!responseJSON[0]){
+                result.innerHTML = `<label class="error">There arent 'tv' available.</label>`;
+            }else{
+                result.innerHTML = "";
+                addTV(result,responseJSON);
+                watchSerialResults();
+            }
+        })
+        .catch( err=> {
+            result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
+function fetchAllAchi(){
+    let url = "/achievements";
+    let settings = {
+        method: 'GET'
+    };
+    
+    let result = document.querySelector( '.achievements' );
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            if(!responseJSON[0]){
+                result.innerHTML = `<label class="error">There arent 'achievements' available.</label>`;
+            }else{
+                result.innerHTML = "";
+                addAchi(result,responseJSON);
+            }
+        })
+        .catch( err=> {
+            result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
+function watchSerialResults(){
+    let serialList = document.querySelectorAll( '.tv' );
+    
+    for(let i=0; i<serialList.length; i++){
+        serialList[i].addEventListener( 'click', (event)=>{
+            event.preventDefault();
+            let id = event.currentTarget.id;
+            let userid = urlParams.get('id');
+            let nextpage = 'serial.html?';
+            if(userid){
+                nextpage += `id=${userid}&`;
+            }
+            nextpage += `show=${id}`;
+            location.href= nextpage;
+        });
+    }
+}
+
+function watchQuotesResults(){
+    let serialList = document.querySelectorAll( '.quote' );
+    
+    for(let i=0; i<serialList.length; i++){
+        serialList[i].addEventListener( 'click', (event)=>{
+            event.preventDefault();
+            let id = event.currentTarget.querySelector('.quote-from').id;
+            let userid = urlParams.get('id');
+            let nextpage = 'serial.html?';
+            if(userid){
+                nextpage += `id=${userid}&`;
+            }
+            nextpage += `show=${id}`;
+            location.href= nextpage;
+        });
+    }
+}
+
+function watchBtn(){
+    let userid = urlParams.get('id');
+    let btn = document.querySelector( '.acount' );
+
+    btn.addEventListener( 'click', (event)=>{
+        if(user){
+            location.href=`acount.html?id=${userid}`;
+        }
+        else{
+            location.href='login.html';
+        }
+    });
+
+    btn = document.querySelector( '.quotePage');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(user){
+            location.href=`quotes.html?id=${userid}`;
+        }
+        else{
+            location.href='quotes.html';
+        }
+    });
+
+    btn = document.querySelector( '.serialPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(user){
+            location.href=`serial.html?id=${userid}`;
+        }
+        else{
+            location.href='serial.html';
+        }
+    });
+
+    btn = document.querySelector( '.indexPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(user){
+            location.href=`index.html?id=${userid}`;
+        }
+        else{
+            location.href='index.html';
+        }
+    });
+
+    btn = document.querySelector('#serial-search');
+    
+    btn.addEventListener( 'click', (event)=>{
+        let search = document.querySelector( '.serial-search').value;
+        if( search != "" ){
+            let radioBtn = document.getElementsByName('filter');
+            if(radioBtn[1].checked){
+                fetchTV("Movie",search);
+                fetchQuote("Movie",search);
+            } else if(radioBtn[2].checked){
+                fetchTV("Serie",search);
+                fetchQuote("Serie",search);
+            } else {
+                fetchTV(undefined,search);
+                fetchQuote(undefined,search);
+            }
+        }
+    });
+
+    btn = document.querySelector('.serial-filter');
+    
+    btn.addEventListener( 'click', (event)=>{
+        let radioBtn = document.getElementsByName('filter');
+        if(event.target = "label"){
+            if(event.target.innerHTML == "All"){
+                radioBtn[0].checked = "checked";
+            } else if(event.target.innerHTML == "Movies"){
+                radioBtn[1].checked = "checked";
+            } else if(event.target.innerHTML == "Series"){
+                radioBtn[2].checked = "checked";
+            }
+        }
+        if(radioBtn[0].checked){
+            fetchAllTV();
+            fetchAllQuotes();
+        } else if(radioBtn[1].checked){
+            fetchTV("Movie");
+            fetchQuote("Movie");
+        } else if(radioBtn[2].checked){
+            fetchTV("Serie");
+            fetchQuote("Serie");
         }
     });
 }
 
 function init(){
+    fetchUser();
     fetchAllTV();
+    fetchAllQuotes();
+    fetchAllAchi();
+
+    watchBtn();
 }
 
 init();

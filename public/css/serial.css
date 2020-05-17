@@ -1,0 +1,308 @@
+body{
+    margin: 0px;
+    padding: 0px;
+    height: 100vh;
+    -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-webkit-scrollbar, .show::-webkit-scrollbar{
+    display: none;
+}
+
+.menubar{
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    background-color: darkred;
+    height: 60px;
+}
+
+.title{
+    display: flex;
+    font-size: 50px;
+    height: 60px;
+}
+
+.menubar > label{
+    padding: 0px 10px 10px 10px;
+    padding-top: 100%;
+}
+
+.menubar > label:hover, .title > label:hover{
+    cursor: pointer;
+    background-color: darkslategrey;
+}
+
+.achievements{
+    display: flex;
+    flex-direction: row;
+    overflow: overlay;
+    -ms-overflow-style: none;
+    border-left: solid;
+    background-color: olive;
+}
+
+.achi{
+    border-right: solid;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+}
+
+.achi:hover, .achi > label:hover{
+    background-color: mediumturquoise;
+    cursor: pointer;
+}
+
+.achi-title{
+    font-size: x-large;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.to-go{
+    display: none;
+}
+
+.results{
+    display: flex;
+    height: 100%;
+}
+
+.serial{
+    flex: 4;
+    background-color: gold;
+    border: solid;
+}
+
+.serial-submenu{
+    display: flex;
+    justify-content: space-around;
+    border-bottom: solid;
+    height: 24px;
+}
+
+.serial-filter{
+    display: flex;
+}
+
+#serial-create{
+    display: none;
+}
+
+.serial-results{
+    display: flex;
+    flex-wrap: wrap;
+    height: 95%;
+    overflow: overlay;
+    padding-right: 10px;
+    justify-content: space-around;
+    -ms-overflow-style: none;
+}
+
+.tv{
+    display: flex;
+    flex-direction: column;
+    border: solid;
+    margin: 10px;
+    width: 240px;
+    height: 400px;
+}
+
+.tv-title, .tv-description, .tv-type{
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    padding: 2px;
+}
+
+.tv-title{
+    font-size: x-large;
+    font-weight: bold;
+}
+
+.tv:hover, .tv-title:hover, .tv-description:hover, .tv-type:hover{
+    cursor: pointer;
+    background-color: lightgreen;
+}
+
+.admin-menu{
+    margin: 10px;
+    flex-direction: row-reverse;
+    display: flex;
+}
+
+.show{
+    display: flex;
+    flex-direction: column;
+    height: 95%;
+    overflow: overlay;
+    -ms-overflow-style: none;
+}
+
+.show-tv{
+    display: flex;
+    flex-direction: column;
+    padding-left: 10px;
+}
+
+.show-title{
+    font-size: xxx-large;
+    font-weight: bold;
+}
+
+.show-des-img{
+    display: flex;
+    align-items: center;
+    padding-top: 20px;
+}
+
+img{
+    width: 240px;
+    height: 300px;
+}
+
+.show-description{
+    margin: 20px;
+}
+
+.edit-tv, .create-tv{
+    display: none;
+    flex-direction: column;
+    border: solid;
+    margin: 20px;
+    width: 650px;
+    align-self: center;
+}
+
+.edit-tv > div, .edit-buttons, .create-tv > div, .create-buttons{
+    display: flex;
+    margin: 5px;
+}
+
+.edit-tv > div > label, .create-tv > div > label{
+    width: 90px;
+}
+
+.edit-tv > div > input, #edit-type, .edit-buttons > button, .create-tv > div > input, #create-type, .create-buttons > button{
+    flex: 1;
+}
+
+.quotes-submenu{
+    margin: 40px;
+    display: flex;
+    flex-direction: row;
+}
+
+.quote-title{
+    font-size: x-large;
+    font-weight: bold;
+    text-align: center;
+    flex:5;
+}
+
+#adding-quote{
+    opacity: 0;
+}
+
+.new-quote{
+    border: solid;
+    width: 650px;
+    padding: 10px;
+    align-self: center;
+    margin-bottom: 20px;
+}
+
+.new-quote > div{
+    display: flex;
+    flex-direction: row;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.new-quote > label, .edit-tv > label, .create-tv > label{
+    font-size: larger;
+    display: flex;
+    justify-content: center;
+}
+
+#new-quote{
+    flex:1;
+    margin-left: 10px;
+    margin-right: 10px;
+}
+
+#cancel-quote{
+    float: right;
+}
+
+.quotes-results{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.quote-edit-label, .comment-edit-label{
+    display: none;
+    margin-bottom: 5px;
+}
+
+.quote-edit{
+    flex: 1;
+}
+
+.comment-edit{
+    flex: 1;
+    margin-right: 5px;
+}
+
+.quote-type{
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.quote-comment{
+    margin: 10px;
+    border: solid;
+    border-bottom: none;
+    width: 700px;
+}
+
+.quote, .new-comment{
+    border-bottom: solid;
+    padding: 10px;
+}
+
+.comment {
+    border-bottom: solid;
+    padding: 10px 25px 10px 25px;
+}
+
+.quote-date, .comment-date{
+    float: right;
+}
+
+.new-comment-input{
+    width: 630px;
+}
+
+footer{
+    display: flex;
+    background-color: forestgreen;
+    justify-content: space-around;
+    padding: 2px 0px 5px 0px;
+}
+
+li{
+    list-style: none;
+}
+
+.mapPage{
+    display: flex;
+    flex-direction: column;
+}
+
+.mapPage > li:hover{
+    cursor: pointer;
+}

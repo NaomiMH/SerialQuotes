@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewpoint" content="width=device-width">
+        <title>SerialQuotes</title>
+        <link href="./css/serial.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <section class="menubar">
+            <label class="indexPage">Home</label>
+            <div class="title">
+                <label class="serialPage">Serial</label>
+                <label class="quotePage">Quotes</label>
+            </div>
+            <label class="acount">Log In</label>
+        </section>
+        <section class="achievements"></section>
+        <section class="results">
+            <div class="serial">
+                <div class="serial-submenu">
+                    <label>Serial</label>
+                    <div class="serial-filter">
+                        <input type="radio" id="serial-all" name="filter" value="all" checked="checked">
+                        <label>All</label>
+                        <input type="radio" id="serial-movies" name="filter" value="movies">
+                        <label>Movies</label>
+                        <input type="radio" id="serial-series" name="filter" value="series">
+                        <label>Series</label>
+                    </div>
+                    <div>
+                        <input type="text" class="serial-search" placeholder="Look for a title"> 
+                        <button id="serial-search">Search</button>
+                    </div>
+                    <button id="serial-create">Add Serie/Movie</button>
+                </div>
+                <form class="create-tv">
+                    <label>Add the information</label>
+                    <div>
+                        <label>Title:</label>
+                        <input type="text" id="create-title">
+                    </div>
+                    <div>
+                        <label>Type:</label>
+                        <select id="create-type">
+                            <option>Movie</option>
+                            <option>Serie</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>Description:</label>
+                        <input type="text" id="create-description">
+                    </div>
+                    <div>
+                        <label>Image link:</label>
+                        <input type="text" id="create-image">
+                    </div>
+                    <div class="create-buttons">
+                        <button id="create-cancel">Cancel</button>
+                        <button id="create-save">Save</button>
+                    </div>
+                </form>
+                <section class="show">
+                    <form class="edit-tv">
+                        <label>Edditing the information</label>
+                        <div>
+                            <label>Title:</label>
+                            <input type="text" id="edit-title">
+                        </div>
+                        <div>
+                            <label>Type:</label>
+                            <select id="edit-type">
+                                <option>Movie</option>
+                                <option>Serie</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Description:</label>
+                            <input type="text" id="edit-description">
+                        </div>
+                        <div>
+                            <label>Image link:</label>
+                            <input type="text" id="edit-image">
+                        </div>
+                        <div class="edit-buttons">
+                            <button id="edit-cancel">Cancel</button>
+                            <button id="edit-save">Save</button>
+                        </div>
+                    </form>
+                    <div class="quotes-submenu">
+                        <label class="quote-title">Quotes</label>
+                        <button class="quote-btn" id="adding-quote">Add a new quote</button>
+                    </div>
+                    <form class="new-quote">
+                        <label>Adding a new Quote</label>
+                        <div>
+                            <label>Quote:</label>
+                            <input type="text" id="new-quote">
+                            <button id="add-quote">Add</button>
+                        </div>
+                        <button id="cancel-quote">Cancel</button>
+                    </form>
+                    <section class="quotes-results"></section>
+                </section>
+                <section class="serial-results"></section>
+            </div>
+        </section>
+
+        <footer>
+            <div class="mapPage">
+                <label>Quick Links</label>
+                <li>List User</li>
+                <li>List Serial</li>
+                <li>List Quote</li>
+                <li>List Comment</li>
+            </div>
+            <div class="aboutUs">
+                <label>About Us</label>
+            </div>
+            <div class="information">
+                <label>Information</label>
+            </div>
+            <script src="./js/serial.js"></script>
+        </footer>
+    </body>
+</html>

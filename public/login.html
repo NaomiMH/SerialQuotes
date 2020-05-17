@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewpoint" content="width=device-width">
+        <title>Login</title>
+        <link href="./css/login.css" rel="stylesheet" type="text/css" />
+    </head>
+    <body>
+        <section class="menubar">
+            <label onclick="location.href='index.html'">Homepage</label>
+            <div class="title">
+                <label onclick="location.href='serial.html'">Serial</label>
+                <label onclick="location.href='quotes.html'">Quotes</label>
+            </div>
+            <label onclick="location.href='login.html'">Log in</label>
+        </section>
+        
+        <section class="results">
+            <div class="login">
+                <label class="login-title">Login</label>
+                <div class="signup-btn-label">
+                    <label>No acount?</label>
+                    <label class="signup-btn">Sign Up</label>
+                </div>
+                <label class="login-error">Invalid username and/or password</label>
+                <div class="login-user-pass">
+                    <div class="login-username-label">
+                        <label>Username</label>
+                        <input type="text" id="login-username">
+                    </div>
+                    <div class="login-password-label">
+                        <label>Password</label>
+                        <input type="password" id="login-password">
+                    </div>
+                    <button id="login-btn">Login</button>
+                </div>
+            </div>
+            <div class="signup">
+                <label class="signup-title">signup</label>
+                <div class="login-btn-label">
+                    <label>Do you have an acount?</label>
+                    <label class="login-btn">Log In</label>
+                </div>
+                <label class="signup-error-user">The username already exist</label>
+                <div class="signup-user-pass">
+                    <div class="signup-username-label">
+                        <label>Username</label>
+                        <input type="text" id="signup-username">
+                    </div>
+                    <div class="signup-password-label">
+                        <label>Password</label>
+                        <input type="password" id="signup-password">
+                    </div>
+                    <button id="signup-btn">signup</button>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="mapPage">
+                <label>Map Page</label>
+            </div>
+            <div class="aboutUs">
+                <label>About Us</label>
+            </div>
+            <div class="information">
+                <label>Information</label>
+            </div>
+            <script src="./js/login.js"></script>
+        </footer>
+    </body>
+</html>

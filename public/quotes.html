@@ -8,28 +8,28 @@
     </head>
     <body>
         <section class="menubar">
-            <label class="indexPage">Home</label>
+            <label onclick="location.href='index.html'">Homepage</label>
             <div class="title">
-                <label class="serialPage">Serial</label>
-                <label class="quotePage">Quotes</label>
+                <label onclick="location.href='serial.html'">Serial</label>
+                <label onclick="location.href='quotes.html'">Quotes</label>
             </div>
-            <label class="acount">Log In</label>
+            <label onclick="location.href='login.html'">Log in</label>
         </section>
-        <section class="achievements"></section>
+        
         <section class="results">
             <div class="serial">
                 <div class="serial-submenu">
                     <label>Serial</label>
                     <div class="serial-filter">
-                        <input type="radio" id="serial-all" name="filter" value="all" checked="checked">
+                        <input type="radio" id="serial-all" name="shows" value="all" checked="checked">
                         <label>All</label>
-                        <input type="radio" id="serial-movies" name="filter" value="movies">
+                        <input type="radio" id="serial-movies" name="shows" value="movies">
                         <label>Movies</label>
-                        <input type="radio" id="serial-series" name="filter" value="series">
+                        <input type="radio" id="serial-series" name="shows" value="series">
                         <label>Series</label>
                     </div>
                     <div>
-                        <input type="text" class="serial-search" placeholder="Look for a title"> 
+                        <input type="text" id="serial-title" placeholder="Look for a title"> 
                         <button id="serial-search">Search</button>
                     </div>
                 </div>
@@ -45,11 +45,7 @@
 
         <footer>
             <div class="mapPage">
-                <label>Quick Links</label>
-                <li>List User</li>
-                <li>List Serial</li>
-                <li>List Quote</li>
-                <li>List Comment</li>
+                <label>Map Page</label>
             </div>
             <div class="aboutUs">
                 <label>About Us</label>

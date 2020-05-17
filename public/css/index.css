@@ -2,6 +2,11 @@ body{
     margin: 0px;
     padding: 0px;
     height: 100vh;
+    -ms-overflow-style: none;
+}
+
+body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-webkit-scrollbar, .quotes-results::-webkit-scrollbar{
+    display: none;
 }
 
 .menubar{
@@ -28,6 +33,38 @@ body{
     background-color: darkslategrey;
 }
 
+.achievements{
+    display: flex;
+    flex-direction: row;
+    overflow: overlay;
+    -ms-overflow-style: none;
+    border-left: solid;
+    background-color: olive;
+}
+
+.achi{
+    border-right: solid;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+}
+
+.achi:hover, .achi > label:hover{
+    background-color: mediumturquoise;
+    cursor: pointer;
+}
+
+.achi-title{
+    font-size: x-large;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.to-go{
+    display: none;
+}
+
 .results{
     display: flex;
     height: 100%;
@@ -50,11 +87,18 @@ body{
     display: flex;
 }
 
+.serial-filter > label:hover, .serial-filter > input:hover{
+    cursor: pointer;
+}
+
 .serial-results{
     display: flex;
     flex-wrap: wrap;
     height: 95%;
     overflow: overlay;
+    padding-right: 10px;
+    justify-content: space-between;
+    -ms-overflow-style: none;
 }
 
 .tv{
@@ -85,13 +129,23 @@ body{
     border-left: none;
 }
 
+.quotes-results{
+    overflow: overlay;
+    height: 95%;
+    -ms-overflow-style: none;
+}
+
 .quote{
     border: solid;
     margin: 10px;
-    padding: 2px;
+    padding: 4px;
     display: flex;
     flex-direction: column;
-    width: 160px;
+}
+
+.tv:hover, .quote:hover, .tv-title:hover, .tv-description:hover, .tv-type:hover, .quote-quote-label > label:hover, .quote-from-label > label:hover, .quote-by-label > label:hover, .quote-date:hover{
+    cursor: pointer;
+    background-color: lightgreen;
 }
 
 .quote-quote-label{
@@ -126,5 +180,19 @@ body{
 footer{
     display: flex;
     background-color: forestgreen;
-    height: 60px;
+    justify-content: space-around;
+    padding: 2px 0px 5px 0px;
+}
+
+li{
+    list-style: none;
+}
+
+.mapPage{
+    display: flex;
+    flex-direction: column;
+}
+
+.mapPage > li:hover{
+    cursor: pointer;
 }
