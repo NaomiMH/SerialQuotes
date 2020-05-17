@@ -7,8 +7,7 @@ const jsonParser = bodyParser.json();
 const {Users,TV,Quotes,Comments,SeenLists,WantLists,Achievements} = require( "./model.js" );
 const mongoose = require( "mongoose" );
 const cors = require( './middleware/cors' );
-const PORT = 8080;
-const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
+const {DATABASE_URL, PORT} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );

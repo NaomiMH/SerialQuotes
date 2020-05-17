@@ -63,7 +63,7 @@ function fetchAllTV(){
         })
         .then( responseJSON => {
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There arent 'tv' available.</label>`;
+                result.innerHTML = `<label class="error">There isn't media available.</label>`;
             }else{
                 result.innerHTML = "";
                 addTV(result,responseJSON);
@@ -91,7 +91,7 @@ function fetchAllQuotes(){
         })
         .then( responseJSON => {
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There arent 'quotes' available.</label>`;
+                result.innerHTML = `<label class="error">There aren't 'quotes' available.</label>`;
             }else{
                 result.innerHTML = "";
                 addQuotes(result,responseJSON);
@@ -194,7 +194,7 @@ function fetchTV(type,title){
         })
         .then( responseJSON => {
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There arent 'tv' available.</label>`;
+                result.innerHTML = `<label class="error">There aren't Series available.</label>`;
             }else{
                 result.innerHTML = "";
                 addTV(result,responseJSON);
@@ -222,7 +222,7 @@ function fetchAllAchi(){
         })
         .then( responseJSON => {
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There arent 'achievements' available.</label>`;
+                result.innerHTML = `<label class="error">There aren't news available.</label>`;
             }else{
                 result.innerHTML = "";
                 addAchi(result,responseJSON);
@@ -361,12 +361,13 @@ function watchBtn(){
 }
 
 function init(){
+    
     fetchUser();
     fetchAllTV();
     fetchAllQuotes();
     fetchAllAchi();
-
     watchBtn();
+
 }
 
 init();

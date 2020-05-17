@@ -13,7 +13,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    background-color: darkred;
+    background-color: darkslateblue;
     height: 60px;
 }
 
@@ -72,7 +72,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
 
 .serial{
     flex: 4;
-    background-color: gold;
+    background-color: rgb(102, 122, 160);
     border: solid;
 }
 
@@ -124,7 +124,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
 
 .quotes{
     flex: 1;
-    background-color: lightcoral;
+    background-color: rgb(238, 155, 155);
     border: solid;
     border-left: none;
 }
