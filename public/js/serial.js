@@ -134,7 +134,7 @@ function addComment(place,arrey){
 
 function fetchUser(){
     let userid = urlParams.get('id');
-    let result = document.querySelector('.acount');
+    let result = document.querySelector('.account');
     if(userid){
         let url = `/user?id=${userid}`;
         let settings = {
@@ -151,7 +151,7 @@ function fetchUser(){
             .then( responseJSON => {
                 result.innerHTML = "";
                 if(responseJSON[0]){
-                    result.innerHTML += 'My acount';
+                    result.innerHTML += 'My account';
                     user=responseJSON[0];
                     let createbtn = document.querySelector('#serial-create');
                     if(user.admin){
@@ -562,11 +562,11 @@ function fetchCreateTV(title,type,description,image){
 
 function watchBtn(){
     let userid = urlParams.get('id');
-    let btn = document.querySelector( '.acount' );
+    let btn = document.querySelector( '.account' );
 
     btn.addEventListener( 'click', (event)=>{
         if(user){
-            location.href=`acount.html?id=${userid}`;
+            location.href=`account.html?id=${userid}`;
         }
         else{
             location.href='login.html';

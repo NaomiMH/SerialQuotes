@@ -4,10 +4,12 @@ const morgan = require( 'morgan' );
 const uuid = require( 'uuid' );
 const app = express();
 const jsonParser = bodyParser.json();
-const {Users,TV,Quotes,Comments,SeenLists,WantLists,Achievements} = require( "./model.js" );
+const {Users,TV,Quotes,Comments,SeenLists,WantLists,News} = require( "./model.js" );
 const mongoose = require( "mongoose" );
 const cors = require( './middleware/cors' );
-const {DATABASE_URL, PORT} = require('./config');
+const PORT = 8080;
+const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
+//const {DATABASE_URL, PORT} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
@@ -43,9 +45,9 @@ app.get( '/wantlists', (req,res)=>{
     WantLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.get( '/achievements', (req,res)=>{
-    console.log( "Getting all achievements" );
-    Achievements.getAllAchi().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+app.get( '/news', (req,res)=>{
+    console.log( "Getting all news" );
+    News.getAllNews().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.get( '/user', (req,res)=>{
@@ -270,16 +272,16 @@ app.post( '/user', jsonParser, (req,res)=>{
         let newList = {userId, list};
         SeenLists.createList(newList).then( result2 => {
             WantLists.createList(newList).then( result3 => {
-                let newAchi = {
+                let newNews = {
                     type: "New User",
                     about: username,
                     aboutId: userId,
                     date: Date()
                 }
-                Achievements.createAchi(newAchi).then( result4 => {
-                    Achievements.getAllAchi().then( result5 => {
+                News.createNews(newNews).then( result4 => {
+                    News.getAllNews().then( result5 => {
                         if(result5.length == 21){
-                            Achievements.deleteAchiBy({_id: result5[0]._id}).then( result6 => {
+                            News.deleteNewsBy({_id: result5[0]._id}).then( result6 => {
                                 return res.status(201).json( result );
                             }).catch( err => {res.statusMessage = "Step 6";return res.status(500).end();});
                         }
@@ -308,16 +310,16 @@ app.post( '/tv', jsonParser, (req,res)=>{
     console.log(newTV);
     TV.createTV(newTV).then( result => {
         console.log(result);
-        let newAchi = {
+        let newNews = {
             type: "New Serial",
             about: title,
             aboutId: result._id,
             date: Date()
         }
-        Achievements.createAchi(newAchi).then( result2 => {
-            Achievements.getAllAchi().then( result3 => {
+        News.createNews(newNews).then( result2 => {
+            News.getAllNews().then( result3 => {
                 if(result3.length == 21){
-                    Achievements.deleteAchiBy({_id: result3[0]._id}).then( result4 => {
+                    News.deleteNewsBy({_id: result3[0]._id}).then( result4 => {
                         return res.status(201).json( result );
                     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
                 }
@@ -346,16 +348,16 @@ app.post( '/quote', jsonParser, (req,res)=>{
 
     let newQuote = {quote, from, fromId, type, by, date, status};
     Quotes.createQuote(newQuote).then( result => {
-        let newAchi = {
+        let newNews = {
             type: "New Quote",
             about: quote,
             aboutId: result._id,
             date: Date()
         }
-        Achievements.createAchi(newAchi).then( result2 => {
-            Achievements.getAllAchi().then( result3 => {
+        News.createNews(newNews).then( result2 => {
+            News.getAllNews().then( result3 => {
                 if(result3.length == 21){
-                    Achievements.deleteAchiBy({_id: result3[0]._id}).then( result4 => {
+                    News.deleteNewsBy({_id: result3[0]._id}).then( result4 => {
                         return res.status(201).json( result );
                     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
                 }
@@ -380,16 +382,16 @@ app.post( '/comment', jsonParser, (req,res)=>{
 
     let newComment = {comment, fromId, by, date};
     Comments.createComment(newComment).then( result => {
-        let newAchi = {
+        let newNews = {
             type: "New Comment",
             about: comment,
             aboutId: result._id,
             date: Date()
         }
-        Achievements.createAchi(newAchi).then( result2 => {
-            Achievements.getAllAchi().then( result3 => {
+        News.createNews(newNews).then( result2 => {
+            News.getAllNews().then( result3 => {
                 if(result3.length == 21){
-                    Achievements.deleteAchiBy({_id: result3[0]._id}).then( result4 => {
+                    News.deleteNewsBy({_id: result3[0]._id}).then( result4 => {
                         return res.status(201).json( result );
                     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
                 }
@@ -412,7 +414,7 @@ app.delete( '/user/:id', (req, res)=>{
     SeenLists.deleteListBy({userId: id}).then( result2 => {
         WantLists.deleteListBy({userId: id}).then( result3 => {
             Users.deleteUserById(id).then( result => {
-                Achievements.deleteAchiBy({aboutId: id}).then( result4 => {
+                News.deleteNewsBy({aboutId: id}).then( result4 => {
                     return res.status(200).json( result );
                 }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -432,12 +434,12 @@ app.delete( '/tv/:id', (req, res)=>{
 
     Quotes.getQuoteBy({fromId: id}).then( result2 =>{
         for(let i=0; i<result2.length; i++){
-            Achievements.deleteAchiBy({aboutId: result2[i]._id}).then( result3 => {
+            News.deleteNewsBy({aboutId: result2[i]._id}).then( result3 => {
                 return res.status(200).json( result3 );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
             Comments.getCommentBy({fromId: result2[i]._id}).then( result4 => {
                 for(let j=0; j<result4.length; j++){
-                    Achievements.deleteAchiBy({aboutId: result4[j]._id}).then( result5 => {
+                    News.deleteNewsBy({aboutId: result4[j]._id}).then( result5 => {
                         return res.status(200).json( result5 );
                     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
                 }
@@ -449,7 +451,7 @@ app.delete( '/tv/:id', (req, res)=>{
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
     Quotes.deleteQuoteBy({fromId: id}).then( result7 =>{
         TV.deleteTVById(id).then( result => {
-            Achievements.deleteAchiBy({aboutId: id}).then( result8 =>{
+            News.deleteNewsBy({aboutId: id}).then( result8 =>{
                 return res.status(200).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -468,7 +470,7 @@ app.delete( '/quote/:id', (req, res)=>{
 
     Comments.deleteCommentsBy({fromId: id}).then( result2 => {
         Quotes.deleteQuoteBy({_id: id}).then( result => {
-            Achievements.deleteAchiBy({aboutId: id}).then( result3 => {
+            News.deleteNewsBy({aboutId: id}).then( result3 => {
                 return res.status(200).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -486,14 +488,14 @@ app.delete( '/comment/:id', (req, res)=>{
     }
 
     Comments.deleteCommentBy({_id: id}).then( result => {
-        Achievements.deleteAchiBy({aboutId: id}).then( result2 => {
+        News.deleteNewsBy({aboutId: id}).then( result2 => {
             return res.status(200).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.delete( '/achievement/:id', (req, res)=>{
-    console.log( "Removing a achievements by id");
+app.delete( '/news/:id', (req, res)=>{
+    console.log( "Removing a news by id");
     
     let id = req.params.id;
 
@@ -502,7 +504,7 @@ app.delete( '/achievement/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    Achievements.deleteAchiBy({_id: id}).then( result => {
+    News.deleteNewsBy({_id: id}).then( result => {
         return res.status(200).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
@@ -525,7 +527,7 @@ app.patch( '/user', jsonParser, (req, res)=>{
         if(username!=result2[0].username){
             Comments.editCommentBy({by: result2[0].username},{by:username}).then( result3 => {
                 Quotes.editQuoteBy({by: result2[0].username},{by:username}).then( result4 => {
-                    Achievements.editAchiBy({aboutId: id},{about: username}).then( result5 => {
+                    News.editNewsBy({aboutId: id},{about: username}).then( result5 => {
                         return res.status(200).json( result2 );
                     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
                 }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -563,15 +565,14 @@ app.patch( '/tv', jsonParser, (req, res)=>{
             WantLists.editTitleByFromId(id, {title: title}).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            Achievements.editAchiBy({aboutId: id}, {about: title}).then( result => {
+            News.editNewsBy({aboutId: id}, {about: title}).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }
-        return res.status(202).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    TV.editTVById(id, tv).then( result => {
-        return res.status(202).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        TV.editTVById(id, tv).then( result => {
+            return res.status(202).json( result );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database2";return res.status(500).end();});
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database3";return res.status(500).end();});
 });
 
 app.patch( '/quote', jsonParser, (req, res)=>{
@@ -596,7 +597,7 @@ app.patch( '/quote', jsonParser, (req, res)=>{
 
     let quote2 = {quote, from, fromId, by, date, status};
     Quotes.editQuoteBy({_id: id}, quote2).then( result => {
-        Achievements.editAchiBy({aboutId: id}, {about: quote}).then( result2 => {
+        News.editNewsBy({aboutId: id}, {about: quote}).then( result2 => {
             return res.status(202).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
@@ -618,7 +619,7 @@ app.patch( '/comment', jsonParser, (req, res)=>{
 
     let comment2 = {comment, fromId, by, date};
     Comments.editCommentBy({_id: id}, comment2).then( result => {
-        Achievements.editAchiBy({aboutId: id}, {about: comment}).then( result2 => {
+        News.editNewsBy({aboutId: id}, {about: comment}).then( result2 => {
             return res.status(202).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 

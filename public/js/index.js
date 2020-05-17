@@ -35,11 +35,11 @@ function addQuotes(place,arrey){
     }
 }
 
-function addAchi(place,arrey){
+function addNews(place,arrey){
     for (let i=arrey.length-1; i>=0; i--){
         place.innerHTML += 
-        `<div class="achi" id="${arrey[i]._id}">
-            <label class="achi-title">${arrey[i].type}</label>
+        `<div class="news-new" id="${arrey[i]._id}">
+            <label class="news-new-title">${arrey[i].type}</label>
             <label>${arrey[i].about}</label>
             <label>${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
             <label class="to-go">${arrey[i].aboutId}</label>
@@ -91,7 +91,7 @@ function fetchAllQuotes(){
         })
         .then( responseJSON => {
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There aren't 'quotes' available.</label>`;
+                result.innerHTML = `<label class="error">There aren't quotes available.</label>`;
             }else{
                 result.innerHTML = "";
                 addQuotes(result,responseJSON);
@@ -105,7 +105,7 @@ function fetchAllQuotes(){
 
 function fetchUser(){
     let userid = urlParams.get('id');
-    let result = document.querySelector('.acount');
+    let result = document.querySelector('.account');
     if(userid){
         let url = `/user?id=${userid}`;
         let settings = {
@@ -122,7 +122,7 @@ function fetchUser(){
             .then( responseJSON => {
                 result.innerHTML = "";
                 if(responseJSON[0]){
-                    result.innerHTML += 'My acount';
+                    result.innerHTML += 'My account';
                     user=responseJSON[0];
                 }
             })
@@ -194,7 +194,7 @@ function fetchTV(type,title){
         })
         .then( responseJSON => {
             if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There aren't Series available.</label>`;
+                result.innerHTML = `<label class="error">There aren't media available.</label>`;
             }else{
                 result.innerHTML = "";
                 addTV(result,responseJSON);
@@ -206,13 +206,13 @@ function fetchTV(type,title){
         });
 }
 
-function fetchAllAchi(){
-    let url = "/achievements";
+function fetchAllNews(){
+    let url = "/news";
     let settings = {
         method: 'GET'
     };
     
-    let result = document.querySelector( '.achievements' );
+    let result = document.querySelector( '.news' );
     fetch( url, settings )
         .then( response => {
             if( response.ok ){
@@ -221,11 +221,9 @@ function fetchAllAchi(){
             throw new Error( response.statusText );
         })
         .then( responseJSON => {
-            if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There aren't news available.</label>`;
-            }else{
+            if(responseJSON[0]){
                 result.innerHTML = "";
-                addAchi(result,responseJSON);
+                addNews(result,responseJSON);
             }
         })
         .catch( err=> {
@@ -271,11 +269,11 @@ function watchQuotesResults(){
 
 function watchBtn(){
     let userid = urlParams.get('id');
-    let btn = document.querySelector( '.acount' );
+    let btn = document.querySelector( '.account' );
 
     btn.addEventListener( 'click', (event)=>{
         if(user){
-            location.href=`acount.html?id=${userid}`;
+            location.href=`account.html?id=${userid}`;
         }
         else{
             location.href='login.html';
@@ -361,13 +359,12 @@ function watchBtn(){
 }
 
 function init(){
-    
     fetchUser();
     fetchAllTV();
     fetchAllQuotes();
-    fetchAllAchi();
-    watchBtn();
+    fetchAllNews();
 
+    watchBtn();
 }
 
 init();

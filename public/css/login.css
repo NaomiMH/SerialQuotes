@@ -13,7 +13,7 @@ body::-webkit-scrollbar{
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    background-color: darkred;
+    background-color: darkslateblue;
     height: 60px;
 }
 

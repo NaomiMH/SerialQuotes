@@ -85,7 +85,7 @@ const commentsCollectionSchema = mongoose.Schema({
     }
 });
 
-const achievementsCollectionSchema = mongoose.Schema({
+const newsCollectionSchema = mongoose.Schema({
     type: {
         type : String,
         required : true
@@ -127,7 +127,7 @@ const quotesCollection = mongoose.model( "listOfQuotes", quotesCollectionSchema)
 const commentsCollection = mongoose.model( "listOfComments", commentsCollectionSchema);
 const seenCollection = mongoose.model("listOfSeenLists", listCollectionSchema);
 const wantCollection = mongoose.model("listOfWantLists", listCollectionSchema);
-const achievementsCollection = mongoose.model("listOfAchivements",achievementsCollectionSchema);
+const newsCollection = mongoose.model("listOfNews",newsCollectionSchema);
 
 const Users = {
     createUser(newUser){
@@ -243,19 +243,19 @@ const WantLists = {
     }
 };
 
-const Achievements = {
-    createAchi(newAchi){
-        return achievementsCollection.create( newAchi ).then( response => {return response;} ).catch( err=>{return err;});
+const News = {
+    createNews(newNews){
+        return newsCollection.create( newNews ).then( response => {return response;} ).catch( err=>{return err;});
     },
-    getAllAchi(){
-        return achievementsCollection.find().then( response => {return response;} ).catch( err=>{return err;});
+    getAllNews(){
+        return newsCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    editAchiBy(filter,achi){
-        return achievementsCollection.updateOne(filter,{$set: achi}).then( response => {return response;} ).catch( err=>{return err;});
+    editNewsBy(filter,news){
+        return newsCollection.updateOne(filter,{$set: news}).then( response => {return response;} ).catch( err=>{return err;});
     },
-    deleteAchiBy(filter){
-        return achievementsCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
+    deleteNewsBy(filter){
+        return newsCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
 
-module.exports = {Users,TV,Quotes,Comments,SeenLists,WantLists,Achievements};
+module.exports = {Users,TV,Quotes,Comments,SeenLists,WantLists,News};

@@ -5,7 +5,7 @@ body{
     -ms-overflow-style: none;
 }
 
-body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-webkit-scrollbar, .quotes-results::-webkit-scrollbar{
+body::-webkit-scrollbar, .news::-webkit-scrollbar, .serial-results::-webkit-scrollbar, .quotes-results::-webkit-scrollbar{
     display: none;
 }
 
@@ -33,7 +33,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     background-color: darkslategrey;
 }
 
-.achievements{
+.news{
     display: flex;
     flex-direction: row;
     overflow: overlay;
@@ -42,7 +42,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     background-color: olive;
 }
 
-.achi{
+.news-new{
     border-right: solid;
     padding: 10px;
     display: flex;
@@ -50,12 +50,12 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     white-space: nowrap;
 }
 
-.achi:hover, .achi > label:hover{
+.news-new:hover, .news-new > label:hover{
     background-color: mediumturquoise;
     cursor: pointer;
 }
 
-.achi-title{
+.news-new-title{
     font-size: x-large;
     font-weight: bold;
     margin-bottom: 10px;
