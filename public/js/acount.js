@@ -287,6 +287,70 @@ function fetchUsers(place,admin){
         });
 }
 
+function fetchCreateTV(title,type,description,image){
+    let url = '/tv';
+    let data = {
+        title: title,
+        type: type,
+        description: description,
+        image: image
+    };
+    
+    let settings = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            location.reload();
+        })
+        .catch( err=> {
+            //result.innerHTML = `${err.message}`;
+        });
+}
+
+function fetchChangeQuote(id){
+    let url = '/tv';
+    let data = {
+        title: title,
+        type: type,
+        description: description,
+        image: image
+    };
+    
+    let settings = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            location.reload();
+        })
+        .catch( err=> {
+            //result.innerHTML = `${err.message}`;
+        });
+}
+
 function fetchDeleteById(page,id){
     let url = `/${page}/${id}`;
     let settings = {
@@ -357,6 +421,29 @@ function watchBtn(){
             location.href='index.html';
         }
     });
+
+    btn = document.querySelector('#create-save');
+    let createForm = document.querySelector('.create-tv');
+
+    btn.addEventListener( 'click',(event)=>{
+        event.preventDefault();
+        let title = createForm.querySelector('#create-title').value;
+        let type = createForm.querySelector('#create-type').value;
+        let description = createForm.querySelector('#create-description').value;
+        let image = createForm.querySelector('#create-image').value;
+
+        fetchCreateTV(title,type,description,image);
+    });
+
+    btn = document.querySelector('#create-cancel');
+    
+    btn.addEventListener( 'click',(event)=>{
+        event.preventDefault();
+        createForm.querySelector('#create-title').value = "";
+        createForm.querySelector('#create-type').value = "";
+        createForm.querySelector('#create-description').value = "";
+        createForm.querySelector('#create-image').value = "";
+    });
 }
 
 function loadingPage(){
@@ -407,7 +494,7 @@ function loadingPage(){
                     document.querySelector('.user-username').innerHTML = user.username;
                 }
                 else if(div.className == "quotes-type"){
-                    fetchQuote(div,"To be Approved");
+                    fetchQuote(div,"To be approved");
                 }
                 else if(div.className == "users-list"){
                     fetchUsers(div,false);
@@ -461,6 +548,9 @@ function watchFutureBtns(){
             }
             else if(event.target.parentNode.parentNode.className == "my-comments"){
                 fetchDeleteById('comment',id);
+            }
+            else if(event.target.parentNode.parentNode.className == "quotes-type"){
+                fetchApproveQuote(id);
             }
         }
     });
