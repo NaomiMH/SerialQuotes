@@ -28,7 +28,7 @@ function fetchUser(){
             .then( responseJSON => {
                 result.innerHTML = "";
                 if(responseJSON[0]){
-                    result.innerHTML += 'My account';
+                    result.innerHTML += 'Log Out';
                     user=responseJSON[0];
                     if(user.admin){
                         let admin = document.querySelector('.administrator');
@@ -108,8 +108,8 @@ function fetchAllNews(place){
         });
 }
 
-function fetchAllSeenList(place){
-    let url = `/seen?userId=${user._id}`;
+function fetchAllWatchedList(place){
+    let url = `/watched?userId=${user._id}`;
     let settings = {
         method: 'GET'
     };
@@ -140,8 +140,8 @@ function fetchAllSeenList(place){
         });
 }
 
-function fetchAllWantList(place){
-    let url = `/want?userId=${user._id}`;
+function fetchAllWishList(place){
+    let url = `/wish?userId=${user._id}`;
     let settings = {
         method: 'GET'
     };
@@ -379,7 +379,7 @@ function watchBtn(){
     btn.addEventListener( 'click', (event)=>{
         event.preventDefault();
         if(user){
-            location.href=`account.html?id=${userid}`;
+            location.href=`login.html`;
         }
         else{
             location.href='login.html';
@@ -475,11 +475,11 @@ function loadingPage(){
                         hide.id = "hide";
                     }
                 }
-                else if(div.className == "seen-list"){
-                    fetchAllSeenList(div);
+                else if(div.className == "watched-list"){
+                    fetchAllWatchedList(div);
                 }
-                else if(div.className == "want-list"){
-                    fetchAllWantList(div);
+                else if(div.className == "wish-list"){
+                    fetchAllWishList(div);
                 }
                 else if(div.className == "my-quotes"){
                     fetchAllQuotes(div);

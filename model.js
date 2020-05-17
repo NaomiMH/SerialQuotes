@@ -125,8 +125,8 @@ const usersCollection = mongoose.model( "listOfUsers", usersCollectionSchema);
 const tvCollection = mongoose.model( "listOfTv", tvCollectionSchema);
 const quotesCollection = mongoose.model( "listOfQuotes", quotesCollectionSchema);
 const commentsCollection = mongoose.model( "listOfComments", commentsCollectionSchema);
-const seenCollection = mongoose.model("listOfSeenLists", listCollectionSchema);
-const wantCollection = mongoose.model("listOfWantLists", listCollectionSchema);
+const watchedCollection = mongoose.model("listOfWatchedLists", listCollectionSchema);
+const wishCollection = mongoose.model("listOfWishLists", listCollectionSchema);
 const newsCollection = mongoose.model("listOfNews",newsCollectionSchema);
 
 const Users = {
@@ -201,45 +201,45 @@ const Comments = {
     }
 };
 
-const SeenLists = {
+const WatchedLists = {
     createList(newList){
-        return seenCollection.create( newList ).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.create( newList ).then( response => {return response;} ).catch( err=>{return err;});
     },
     getAllList(){
-        return seenCollection.find().then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
     getListBy(filter){
-        return seenCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editTitleByFromId(tvId,title){
-        return seenCollection.update({'list.tvId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.update({'list.tvId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return seenCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
-        return seenCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
 
-const WantLists = {
+const WishLists = {
     createList(newList){
-        return wantCollection.create( newList ).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.create( newList ).then( response => {return response;} ).catch( err=>{return err;});
     },
     getAllList(){
-        return wantCollection.find().then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
     getListBy(filter){
-        return wantCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editTitleByFromId(tvId,title){
-        return wantCollection.update({'list.fromId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.update({'list.fromId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return wantCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
-        return wantCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
     }
 };
 
@@ -258,4 +258,4 @@ const News = {
     }
 };
 
-module.exports = {Users,TV,Quotes,Comments,SeenLists,WantLists,News};
+module.exports = {Users,TV,Quotes,Comments,WatchedLists,WishLists,News};

@@ -4,7 +4,7 @@ const morgan = require( 'morgan' );
 const uuid = require( 'uuid' );
 const app = express();
 const jsonParser = bodyParser.json();
-const {Users,TV,Quotes,Comments,SeenLists,WantLists,News} = require( "./model.js" );
+const {Users,TV,Quotes,Comments,WatchedLists,WishLists,News} = require( "./model.js" );
 const mongoose = require( "mongoose" );
 const cors = require( './middleware/cors' );
 const PORT = 8080;
@@ -35,14 +35,14 @@ app.get( '/comments', (req,res)=>{
     Comments.getAllComments().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.get( '/seenlists', (req,res)=>{
-    console.log( "Getting all seen lists" );
-    SeenLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+app.get( '/watchedlists', (req,res)=>{
+    console.log( "Getting all watched lists" );
+    WatchedLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.get( '/wantlists', (req,res)=>{
-    console.log( "Getting all want lists" );
-    WantLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+app.get( '/Wishlists', (req,res)=>{
+    console.log( "Getting all Wish lists" );
+    WishLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.get( '/news', (req,res)=>{
@@ -199,8 +199,8 @@ app.get( '/comment', (req,res)=>{
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.get( '/seen', (req,res)=>{
-    console.log("Getting Seen List");
+app.get( '/watched', (req,res)=>{
+    console.log("Getting watched List");
     let id = req.query.id;
     let userId = req.query.userId;
     if ( !id && !userId ){
@@ -219,13 +219,13 @@ app.get( '/seen', (req,res)=>{
     }
     filter += '}';
     filter = JSON.parse(filter);
-    SeenLists.getListBy(filter).then( result => {
+    WatchedLists.getListBy(filter).then( result => {
         return res.status( 200 ).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.get( '/want', (req,res)=>{
-    console.log("Getting Want List");
+app.get( '/wish', (req,res)=>{
+    console.log("Getting wish List");
     let id = req.query.id;
     let userId = req.query.userId;
     if ( !id && !userId ){
@@ -244,7 +244,7 @@ app.get( '/want', (req,res)=>{
     }
     filter += '}';
     filter = JSON.parse(filter);
-    SeenLists.getListBy(filter).then( result => {
+    WatchedLists.getListBy(filter).then( result => {
         return res.status( 200 ).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
@@ -270,8 +270,8 @@ app.post( '/user', jsonParser, (req,res)=>{
         let userId = result._id;
         let list = [];
         let newList = {userId, list};
-        SeenLists.createList(newList).then( result2 => {
-            WantLists.createList(newList).then( result3 => {
+        WatchedLists.createList(newList).then( result2 => {
+            WishLists.createList(newList).then( result3 => {
                 let newNews = {
                     type: "New User",
                     about: username,
@@ -411,8 +411,8 @@ app.delete( '/user/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    SeenLists.deleteListBy({userId: id}).then( result2 => {
-        WantLists.deleteListBy({userId: id}).then( result3 => {
+    WatchedLists.deleteListBy({userId: id}).then( result2 => {
+        WishLists.deleteListBy({userId: id}).then( result3 => {
             Users.deleteUserById(id).then( result => {
                 News.deleteNewsBy({aboutId: id}).then( result4 => {
                     return res.status(200).json( result );
@@ -559,10 +559,10 @@ app.patch( '/tv', jsonParser, (req, res)=>{
             Quotes.editQuoteBy({fromId: id}, {from: title}).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            SeenLists.editTitleByFromId(id, {title: title}).then( result => {
+            WatchedLists.editTitleByFromId(id, {title: title}).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            WantLists.editTitleByFromId(id, {title: title}).then( result => {
+            WishLists.editTitleByFromId(id, {title: title}).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
             News.editNewsBy({aboutId: id}, {about: title}).then( result => {
