@@ -116,7 +116,8 @@ const listCollectionSchema = mongoose.Schema({
         },
         tvId: {
             type : String,
-            required : true
+            required : true,
+            unique : true
         }
     }]
 })
@@ -215,7 +216,10 @@ const WatchedLists = {
         return watchedCollection.update({'list.tvId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return watchedCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.update(filter,{list: {$push: element}}).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    deleteElementBy(filter,element){
+        return watchedCollection.update(filter,{list: {$pull: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
         return watchedCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
@@ -236,7 +240,10 @@ const WishLists = {
         return wishCollection.update({'list.fromId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return wishCollection.update(filter,{$push: element}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.update(filter,{list: {$push: element}}).then( response => {return response;} ).catch( err=>{return err;});
+    },
+    deleteElementBy(filter,element){
+        return wishCollection.update(filter,{list: {$pull: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
         return wishCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});

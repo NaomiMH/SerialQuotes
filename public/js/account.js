@@ -9,6 +9,14 @@ function addElement(place,id,title,message){
     </div>`;
 }
 
+function addElementUser(place,id,name,wish,watch,pass,message){
+    place.innerHTML += 
+    `<div class="element-label">
+        <label class="element" id=${id} name="${name}" pass="${pass}">${name} Wish: ${wish} Watched: ${watch} </label>
+        <button class="delete-element">${message}</button>
+    </div>`;
+}
+
 function fetchUser(){
     let userid = urlParams.get('id');
     let result = document.querySelector('.account');
@@ -42,7 +50,7 @@ function fetchUser(){
     }
 }
 
-function fetchChangeUser(username,password){
+function fetchChangeUser(id, username,password, admin){
     url = '/user';
     if(!password){
         password = user.password
@@ -50,13 +58,14 @@ function fetchChangeUser(username,password){
     if(!username){
         username = user.username
     }
-    data = {
-        id: user._id,
-        username: username,
-        password: password,
-        admin: user.admin
-    };
-    
+    if(admin==undefined){
+        admin = user.admin
+    }
+    if(!id){
+        id = user._id
+    }
+    data = {id,username,password,admin};
+
     settings = {
         method: 'PATCH',
         headers: {
@@ -276,14 +285,55 @@ function fetchUsers(place,admin){
             place.innerHTML = "";
             if(responseJSON[0]){
                 for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,responseJSON[i]._id,responseJSON[i].username,'Delete');
+                    let id = responseJSON[i]._id;
+                    let name = responseJSON[i].username;
+                    let pass = responseJSON[i].password;
+                    url = `/wish?userId=${id}`;
+                    
+                    fetch( url, settings )
+                        .then( response => {
+                            if( response.ok ){
+                                return response.json();
+                            }
+                            throw new Error( response.statusText );
+                        })
+                        .then( responseJSON => {
+                            if(responseJSON[0]){
+                                let wish = responseJSON[0].list.length;
+                                url = `/watched?userId=${id}`;
+                    
+                                fetch( url, settings )
+                                    .then( response => {
+                                        if( response.ok ){
+                                            return response.json();
+                                        }
+                                        throw new Error( response.statusText );
+                                    })
+                                    .then( responseJSON => {
+                                        if(responseJSON[0]){;
+                                            let watch = responseJSON[0].list.length;
+                                            message = "Upgrade";
+                                            if(admin){
+                                                message = "Degrade";
+                                            }
+                                            addElementUser(place,id,name,wish,watch,pass,message);
+                                        }
+                                    })
+                                    .catch( err=> {
+                                        //result.innerHTML = `<label class="error">${err.message}</label>`;
+                                    });
+                            }
+                        })
+                        .catch( err=> {
+                            //result.innerHTML = `<label class="error">${err.message}</label>`;
+                        });
                 }
             } else {
                 place.innerHTML = '<div class="element-label">No archivements found</div>';
             }
         })
         .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
+            //result.innerHTML = `<label class="error">${err.message}</label>`;
         });
 }
 
@@ -319,17 +369,12 @@ function fetchCreateTV(title,type,description,image){
         });
 }
 
-function fetchChangeQuote(id){
-    let url = '/tv';
-    let data = {
-        title: title,
-        type: type,
-        description: description,
-        image: image
-    };
+function fetchChangeQuote(id,status){
+    let url = `/quote`;
+    let data = {id,status};
     
     let settings = {
-        method: 'POST',
+        method: 'PATCH',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -365,7 +410,12 @@ function fetchDeleteById(page,id){
             throw new Error( response.statusText );
         })
         .then( responseJSON => {
-            location.reload();
+            if(page == 'user'){
+                console.log("complete");
+                location.href = 'index.html';
+            } else {
+                location.reload();
+            }
         })
         .catch( err=> {
             //result.innerHTML = `<label class="error">${err.message}</label>`;
@@ -444,6 +494,20 @@ function watchBtn(){
         createForm.querySelector('#create-description').value = "";
         createForm.querySelector('#create-image').value = "";
     });
+
+    btn = document.querySelector('#delete-account');
+    
+    btn.addEventListener( 'click',(event)=>{
+        event.preventDefault();
+        fetchDeleteById('user',user._id);
+    });
+
+    btn = document.querySelector('#delete-everything');
+    
+    btn.addEventListener( 'click',(event)=>{
+        event.preventDefault();
+        fetchChangeUser(user._id,user.username,user.password,false);
+    });
 }
 
 function loadingPage(){
@@ -508,6 +572,9 @@ function loadingPage(){
                 if(div.parentNode.parentNode.parentNode.className == "administrator"){
                     div.style.display = "none";
                 }
+                else if(div.className == "delete-account"){
+                    div.style.display = "none";
+                }
             }
         })
     }
@@ -522,7 +589,7 @@ function loadingPage(){
         } else if(document.querySelector('.new-password').id == "show"){
             password = document.querySelector('#new-password').value;
         }
-        fetchChangeUser(username,password);
+        fetchChangeUser(user._id,username,password);
     });
 
     view = document.querySelector('#user-cancel');
@@ -543,6 +610,7 @@ function watchFutureBtns(){
         event.preventDefault();
         if(event.target.className == "delete-element"){
             let id = event.target.parentNode.querySelector('.element').id;
+            console.log(event.target.parentNode.parentNode.className);
             if(event.target.parentNode.parentNode.className == "news-list"){
                 fetchDeleteById('news',id);
             }
@@ -550,7 +618,20 @@ function watchFutureBtns(){
                 fetchDeleteById('comment',id);
             }
             else if(event.target.parentNode.parentNode.className == "quotes-type"){
-                fetchApproveQuote(id);
+                fetchChangeQuote(id,'Approved');
+            }
+            else if(event.target.parentNode.parentNode.className == "administrator-list"){
+                let username = event.target.parentNode.querySelector('.element').getAttribute('name');
+                let password = event.target.parentNode.querySelector('.element').getAttribute('pass');
+                fetchChangeUser(id,username,password,false);
+            }
+            else if(event.target.parentNode.parentNode.className == "users-list"){
+                let username = event.target.parentNode.querySelector('.element').getAttribute('name');
+                let password = event.target.parentNode.querySelector('.element').getAttribute('pass');
+                fetchChangeUser(id,username,password,true);
+            }
+            else if(event.target.parentNode.parentNode.className == "my-quotes"){
+                fetchDeleteById('quote',id);
             }
         }
     });

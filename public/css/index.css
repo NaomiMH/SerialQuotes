@@ -107,7 +107,7 @@ body::-webkit-scrollbar, .news::-webkit-scrollbar, .serial-results::-webkit-scro
     border: solid;
     margin: 10px;
     width: 150px;
-    height: 200px;
+    height: 215px;
 }
 
 .tv-title, .tv-description, .tv-type{

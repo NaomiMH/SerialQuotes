@@ -1,15 +1,26 @@
 const urlParams = new URLSearchParams(window.location.search);
-let user;
+let user,wish,watch;
 
 function addTV(place,arrey){
     for (let i=arrey.length-1; i>=0; i--){
-        place.innerHTML += 
+        let temp = 
         `<div class="tv" id="${arrey[i]._id}">
             <img alt="imagen"  height="120px" src="${arrey[i].image}">
             <label class="tv-title">${arrey[i].title}</label>
             <label class="tv-description">${arrey[i].description}</label>
-            <label class="tv-type">${arrey[i].type}</label>
-        </div>`;
+            <label class="tv-type">${arrey[i].type}</label>`;
+        if(user){
+            console.log(wish);
+            if(wish){
+                temp += `<button id="add-wish">Wish</button>`;
+            }
+            else if(watch){
+                temp += `<button id="add-watch">Watched</button>`;
+            }
+        }
+        temp +=
+        `</div>`;
+        place.innerHTML += temp;
     }
 }
 
@@ -124,11 +135,50 @@ function fetchUser(){
                 if(responseJSON[0]){
                     result.innerHTML += 'My account';
                     user=responseJSON[0];
+                    let id = responseJSON[0]._id;
+                    url = `/wish?userId=${id}`;
+                    
+                    fetch( url, settings )
+                        .then( response => {
+                            if( response.ok ){
+                                return response.json();
+                            }
+                            throw new Error( response.statusText );
+                        })
+                        .then( responseJSON => {
+                            if(responseJSON[0]){
+                                console.log(responseJSON[0]);
+                                wish = responseJSON[0].list;
+                                url = `/watched?userId=${id}`;
+                    
+                                fetch( url, settings )
+                                    .then( response => {
+                                        if( response.ok ){
+                                            return response.json();
+                                        }
+                                        throw new Error( response.statusText );
+                                    })
+                                    .then( responseJSON => {
+                                        if(responseJSON[0]){;
+                                            watch = responseJSON[0].list;
+                                            fetchAllTV();
+                                        }
+                                    })
+                                    .catch( err=> {
+                                        //result.innerHTML = `<label class="error">${err.message}</label>`;
+                                    });
+                            }
+                        })
+                        .catch( err=> {
+                            //result.innerHTML = `<label class="error">${err.message}</label>`;
+                        });
                 }
             })
             .catch( err=> {
                 result.innerHTML = `<div class="error"> ${err.message}</div>`;
             });
+    } else{
+        fetchAllTV();
     }
 }
 
@@ -231,6 +281,36 @@ function fetchAllNews(){
         });
 }
 
+function fetchAdd(page,id,title){
+    let url = `/${page}`;
+    let data = {
+        userId: user._id,
+        tvId: id,
+        title: title
+    };
+    let settings = {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            console.log(responseJSON);
+        })
+        .catch( err=> {
+            //result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
 function watchSerialResults(){
     let serialList = document.querySelectorAll( '.tv' );
     
@@ -238,6 +318,11 @@ function watchSerialResults(){
         serialList[i].addEventListener( 'click', (event)=>{
             event.preventDefault();
             let id = event.currentTarget.id;
+            if(event.target.id == "add-wish"){
+                let title = event.currentTarget.querySelector('.tv-title').innerHTML;
+                fetchAdd('wish',id,title);
+            }
+            /*
             let userid = urlParams.get('id');
             let nextpage = 'serial.html?';
             if(userid){
@@ -245,6 +330,7 @@ function watchSerialResults(){
             }
             nextpage += `show=${id}`;
             location.href= nextpage;
+            */
         });
     }
 }
@@ -360,7 +446,6 @@ function watchBtn(){
 
 function init(){
     fetchUser();
-    fetchAllTV();
     fetchAllQuotes();
     fetchAllNews();
 

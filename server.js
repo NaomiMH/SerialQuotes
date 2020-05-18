@@ -244,7 +244,7 @@ app.get( '/wish', (req,res)=>{
     }
     filter += '}';
     filter = JSON.parse(filter);
-    WatchedLists.getListBy(filter).then( result => {
+    WishLists.getListBy(filter).then( result => {
         return res.status( 200 ).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
@@ -368,7 +368,7 @@ app.post( '/quote', jsonParser, (req,res)=>{
 });
 
 app.post( '/comment', jsonParser, (req,res)=>{
-    console.log( "Adding a new comment to the list");
+    console.log( "Adding a new comment");
 
     let comment = req.body.comment;
     let fromId = req.body.fromId;
@@ -444,7 +444,7 @@ app.delete( '/tv/:id', (req, res)=>{
                     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
                 }
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            Comments.deleteCommentsBy({fromId: result2[i]._id}).then( result6 => {
+            Comments.deleteCommentBy({fromId: result2[i]._id}).then( result6 => {
                 return res.status(200).json( result6 );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }
@@ -468,10 +468,17 @@ app.delete( '/quote/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    Comments.deleteCommentsBy({fromId: id}).then( result2 => {
-        Quotes.deleteQuoteBy({_id: id}).then( result => {
-            News.deleteNewsBy({aboutId: id}).then( result3 => {
-                return res.status(200).json( result );
+    Comments.getCommentBy({fromId: id}).then( result4 => {
+        for(let j=0; j<result4.length; j++){
+            News.deleteNewsBy({aboutId: result4[j]._id}).then( result5 => {
+                return res.status(200).json( result5 );
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }
+        Comments.deleteCommentBy({fromId: id}).then( result2 => {
+            Quotes.deleteQuoteBy({_id: id}).then( result => {
+                News.deleteNewsBy({aboutId: id}).then( result3 => {
+                    return res.status(200).json( result );
+                }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -517,7 +524,7 @@ app.patch( '/user', jsonParser, (req, res)=>{
     let password = req.body.password;
     let admin = req.body.admin;
 
-    if ( !id || !username || !password || !admin ){
+    if ( !id || !username || !password || admin==undefined ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
@@ -586,16 +593,48 @@ app.patch( '/quote', jsonParser, (req, res)=>{
     let date = req.body.date;
     let status = req.body.status;
 
-    if ( !id || !quote || !from || !fromId || !by || !date ){
+    if ( !id && !quote && !from && !fromId && !by && !date ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    if(!status){
-        status = "To be approved";
+    let quote2 = '{';
+    if(quote){
+        quote2 += `"quote":"${quote}"`;
+        if( from || fromId || by || date || status){
+            quote2 += `,`;
+        }
     }
-
-    let quote2 = {quote, from, fromId, by, date, status};
+    if(from){
+        quote2 += `"from":"${from}"`;
+        if( fromId || by || date || status){
+            quote2 += `,`;
+        }
+    }
+    if(fromId){
+        quote2 += `"fromId":"${fromId}"`;
+        if( by || date || status){
+            quote2 += `,`;
+        }
+    }
+    if(by){
+        quote2 += `"by":"${by}"`;
+        if( date || status){
+            quote2 += `,`;
+        }
+    }
+    if(date){
+        quote2 += `"date":"${date}"`;
+        if( status){
+            quote2 += `,`;
+        }
+    }
+    if(status){
+        quote2 += `"status":"${status}"`;
+    }
+    quote2 += '}';
+    quote2 = JSON.parse(quote2);
+    
     Quotes.editQuoteBy({_id: id}, quote2).then( result => {
         News.editNewsBy({aboutId: id}, {about: quote}).then( result2 => {
             return res.status(202).json( result );
@@ -623,6 +662,46 @@ app.patch( '/comment', jsonParser, (req, res)=>{
             return res.status(202).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+});
+
+app.patch( '/wish', jsonParser, (req,res)=>{
+    console.log( "Adding a new element to the list");
+
+    let userId = req.body.userId;
+    let tvId = req.body.tvId;
+    let title = req.body.title;
+
+    if ( !userId || !tvId || !title ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    let newElement = {tvId, title};
+    WishLists.addElementBy({userId},newElement).then( result => {
+        return res.status(201).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
+app.patch( '/watch', jsonParser, (req,res)=>{
+    console.log( "Adding a new element to the list");
+
+    let userId = req.body.userId;
+    let tvId = req.body.tvId;
+    let title = req.body.title;
+
+    if ( !userId || !tvId || !title ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    let newElement = {tvId, title};
+    let filter = {userId,'list.fromId': tvId};
+    WishLists.deleteElementBy(filter,newElement).then( result => {
+        return res.status(201).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    WatchedLists.addElementBy({userId},newElement).then( result => {
+        return res.status(201).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.listen( PORT, ()=>{
