@@ -7,9 +7,9 @@ const jsonParser = bodyParser.json();
 const {Users,TV,Quotes,Comments,WatchedLists,WishLists,News} = require( "./model.js" );
 const mongoose = require( "mongoose" );
 const cors = require( './middleware/cors' );
-const PORT = 8080;
-const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
-//const {DATABASE_URL, PORT} = require('./config');
+//const PORT = 8080;
+//const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
+const {DATABASE_URL, PORT} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
@@ -28,6 +28,12 @@ app.get( '/tvs', (req,res)=>{
 app.get( '/quotes', (req,res)=>{
     console.log( "Getting all quotes" );
     Quotes.getAllQuotes().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
+app.get( '/random', (req,res)=>{
+    console.log( "Getting a random quote" );
+    Quotes.getRandomQuotes().then( result => {
+    return res.status(200).json(result);}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.get( '/comments', (req,res)=>{

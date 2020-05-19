@@ -12,9 +12,9 @@ function addTV(place,arrey){
         if(user){
             if(!watch.find( tv => tv.tvId === arrey[i]._id)){
                 if(!wish.find( tv => tv.tvId === arrey[i]._id)){
-                    temp += `<button class="listBtn" id="add-wish">Add to Wish list</button>`;
+                    temp += `<button class="listBtn" id="add-wish"></button>`;
                 } else {
-                    temp += `<button class="listBtn" id="add-watch">Add to Watched list</button>`;
+                    temp += `<button class="listBtn" id="add-watch"></button>`;
                 }
             }
         }

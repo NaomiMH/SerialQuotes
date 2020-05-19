@@ -172,6 +172,15 @@ const Quotes = {
     getAllQuotes(){
         return quotesCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
+    getRandomQuotes(){
+
+
+        return quotesCollection.find().then( response => {
+            do {
+                x = Math.floor(Math.random() * (response.length - 1));
+            } while (response[x].status != "Approved");
+            return response[x];} ).catch( err=>{return err;});
+    },
     getQuoteBy(filter){
         return quotesCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },

@@ -9,12 +9,23 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     display: none;
 }
 
+
 .menubar{
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    background-color: darkred;
+    background-image: url('https://cdn.pixabay.com/photo/2015/09/17/10/30/banner-943866_1280.jpg');
+    size: 100%;
     height: 60px;
+}
+.indexPage{
+    background-image: url('https://cdn.pixabay.com/photo/2017/07/11/00/24/house-2492054_960_720.png');
+    background-size: 100%;
+    background-position: bottom;
+    border-style: outset;
+    background-repeat: no-repeat;
+    height: 40px;
+    width: 40px;
 }
 
 .title{
@@ -28,9 +39,18 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     padding-top: 100%;
 }
 
+.menubar > label{
+    padding: 0px 10px 10px 10px;
+    padding-top: 100%;
+}
+
 .menubar > label:hover, .title > label:hover{
     cursor: pointer;
-    background-color: darkslategrey;
+    border-style: inset;
+}
+
+.menubar > label, .title > label{
+    border-style: outset;
 }
 
 .results{
