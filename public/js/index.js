@@ -10,11 +10,12 @@ function addTV(place,arrey){
             <label class="tv-description">${arrey[i].description}</label>
             <label class="tv-type">${arrey[i].type}</label>`;
         if(user){
-            if(!wish.find( tv => tv.tvId === arrey[i]._id) && !watch.find( tv => tv.tvId === arrey[i]._id)){
-                temp += `<button id="add-wish">Wish</button>`;
-            }
-            else if(!watch.find( tv => tv.tvId === arrey[i]._id)){
-                temp += `<button id="add-watch">Watched</button>`;
+            if(!watch.find( tv => tv.tvId === arrey[i]._id)){
+                if(!wish.find( tv => tv.tvId === arrey[i]._id)){
+                    temp += `<button class="listBtn" id="add-wish">Add to Wish list</button>`;
+                } else {
+                    temp += `<button class="listBtn" id="add-watch">Add to Watched list</button>`;
+                }
             }
         }
         temp +=
@@ -126,7 +127,6 @@ function fetchUser(){
             method: 'GET'
         }
         
-        console.log("2");
         fetch( url, settings )
             .then( response => {
                 if( response.ok ){
@@ -141,7 +141,6 @@ function fetchUser(){
                     user=responseJSON[0];
                     let id = responseJSON[0]._id;
                     url = `/wish?userId=${id}`;
-                    console.log("3");
                     
                     fetch( url, settings )
                         .then( response => {
@@ -151,9 +150,7 @@ function fetchUser(){
                             throw new Error( response.statusText );
                         })
                         .then( responseJSON => {
-                            console.log(responseJSON);
                             if(responseJSON[0]){
-                                console.log(responseJSON[0]);
                                 wish = responseJSON[0].list;
                                 url = `/watched?userId=${id}`;
                     
@@ -166,7 +163,6 @@ function fetchUser(){
                                     })
                                     .then( responseJSON => {
                                         if(responseJSON[0]){
-                                            console.log("1");
                                             watch = responseJSON[0].list;
                                             fetchAllTV();
                                         }
@@ -331,7 +327,6 @@ function watchSerialResults(){
             }
             else if(event.target.id == "add-watch"){
                 let title = event.currentTarget.querySelector('.tv-title').innerHTML;
-                console.log(title);
                 fetchAdd('watch',id,title);
             }
             else{

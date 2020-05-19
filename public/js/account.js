@@ -411,7 +411,6 @@ function fetchDeleteById(page,id){
         })
         .then( responseJSON => {
             if(page == 'user'){
-                console.log("complete");
                 location.href = 'index.html';
             } else {
                 location.reload();
@@ -640,37 +639,48 @@ function watchFutureBtns(){
         event.preventDefault();
         if(event.target.className == "delete-element"){
             let id = event.target.parentNode.querySelector('.element').id;
-            console.log(event.target.parentNode.parentNode.className);
-            if(event.target.parentNode.parentNode.className == "news-list"){
+            let type = event.target.parentNode.parentNode.className;
+            if(type == "news-list"){
                 fetchDeleteById('news',id);
             }
-            else if(event.target.parentNode.parentNode.className == "my-comments"){
+            else if(type == "my-comments"){
                 fetchDeleteById('comment',id);
             }
-            else if(event.target.parentNode.parentNode.className == "quotes-type"){
+            else if(type == "quotes-type"){
                 fetchChangeQuote(id,'Approved');
             }
-            else if(event.target.parentNode.parentNode.className == "administrator-list"){
+            else if(type == "administrator-list"){
                 let username = event.target.parentNode.querySelector('.element').getAttribute('name');
                 let password = event.target.parentNode.querySelector('.element').getAttribute('pass');
                 fetchChangeUser(id,username,password,false);
             }
-            else if(event.target.parentNode.parentNode.className == "users-list"){
+            else if(type == "users-list"){
                 let username = event.target.parentNode.querySelector('.element').getAttribute('name');
                 let password = event.target.parentNode.querySelector('.element').getAttribute('pass');
                 fetchChangeUser(id,username,password,true);
             }
-            else if(event.target.parentNode.parentNode.className == "my-quotes"){
+            else if(type == "my-quotes"){
                 fetchDeleteById('quote',id);
             }
-            else if(event.target.parentNode.parentNode.className == "wish-list"){
+            else if(type == "wish-list"){
                 let title = event.target.parentNode.querySelector('.element').innerHTML;
                 fetchDeleteElement('wish',id,title);
             }
-            else if(event.target.parentNode.parentNode.className == "watched-list"){
+            else if(type == "watched-list"){
                 let title = event.target.parentNode.querySelector('.element').innerHTML;
                 fetchDeleteElement('watch',id,title);
             }
+        }
+        else if(event.target.className == "element"){
+            let id = event.target.id;
+            let type = event.target.parentNode.parentNode.className;
+            if(type == "wish-list"){
+                location.href = `serial.html?id=${user._id}&show=${id}`;
+            }
+            else if(type == "watched-list"){
+                location.href = `serial.html?id=${user._id}&show=${id}`;
+            }
+            console.log(event.target.className);
         }
     });
 }

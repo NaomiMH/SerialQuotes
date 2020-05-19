@@ -10,11 +10,12 @@ function addTV(place,arrey){
             <label class="tv-description">${arrey[i].description}</label>
             <label class="tv-type">${arrey[i].type}</label>`;
         if(user){
-            if(!wish.find( tv => tv.tvId === arrey[i]._id) && !watch.find( tv => tv.tvId === arrey[i]._id)){
-                temp += `<button id="add-wish">Wish</button>`;
-            }
-            else if(!watch.find( tv => tv.tvId === arrey[i]._id)){
-                temp += `<button id="add-watch">Watched</button>`;
+            if(!watch.find( tv => tv.tvId === arrey[i]._id)){
+                if(!wish.find( tv => tv.tvId === arrey[i]._id)){
+                    temp += `<button id="add-wish">Add to Wish list</button>`;
+                } else {
+                    temp += `<button id="add-watch">Add to Watched list</button>`;
+                }
             }
         }
         temp +=
@@ -34,11 +35,12 @@ function addInfoTv(place,object){
                     <button id="edit-TV">Edit</button>
                 </div>`;
         }
-        if(!wish.find( tv => tv.tvId === object._id) && !watch.find( tv => tv.tvId === object._id)){
-            temp += `<button class="listBtn" id="add-wish">Add to Wish list</button>`;
-        }
-        else if(!watch.find( tv => tv.tvId === arrey[i]._id)){
-            temp += `<button class="listBtn" id="add-watch">Add to Watched list</button>`;
+        if(!watch.find( tv => tv.tvId === object._id)){
+            if(!wish.find( tv => tv.tvId === object._id)){
+                temp += `<button class="listBtn" id="add-wish">Add to Wish list</button>`;
+            } else {
+                temp += `<button class="listBtn" id="add-watch">Add to Watched list</button>`;
+            }
         }
     }
     temp +=
@@ -256,7 +258,6 @@ function fetchAllTV(){
 }
 
 function fetchTV(type,title,titleId){
-    console.log("aaaa");
     let url = `/tv?`;
     if(type){
         url+=`type=${type}`;
@@ -279,7 +280,6 @@ function fetchTV(type,title,titleId){
     
     let resultTitle = document.querySelector( '.serial-results' );
     let resultId = document.querySelector( '.show' );
-    console.log("dd");
     fetch( url, settings )
         .then( response => {
             if( response.ok ){
@@ -295,9 +295,7 @@ function fetchTV(type,title,titleId){
                     watchSerialResults();
                 }
                 if(titleId){
-                    console.log("m");
                     addInfoTv(resultId,responseJSON[0]);
-                    console.log("1");
                     fetchQuote(titleId);
                 }
             }
@@ -628,6 +626,36 @@ function fetchCreateTV(title,type,description,image){
         });
 }
 
+function fetchAdd(page,id,title){
+    let url = `/${page}`;
+    let data = {
+        userId: user._id,
+        tvId: id,
+        title: title
+    };
+    let settings = {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            location.reload();
+        })
+        .catch( err=> {
+            //result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
 function watchBtn(){
     let userid = urlParams.get('id');
     let btn = document.querySelector( '.account' );
@@ -716,10 +744,13 @@ function watchBtn(){
 
 function watchFutereBtns(){
     let userid = urlParams.get('id');
+    let showId = urlParams.get('show');
 
-    if(userid){
-        let btnAddQuote = document.querySelector( '#adding-quote');
-        btnAddQuote.style.opacity = 1;
+    if(user){
+        if(watch.find( tv => tv.tvId === showId)){
+            let btnAddQuote = document.querySelector( '#adding-quote');
+            btnAddQuote.style.opacity = 1;
+        }
     }
 
     let area = document.querySelector( '.show' );
@@ -847,6 +878,17 @@ function watchFutereBtns(){
             let addForm = document.querySelector( '.new-quote');
             addForm.style.display = "none";
         }
+        else if(event.target.id == "add-wish"){
+            let title = document.querySelector('.show-title').innerHTML;
+            let id = document.querySelector('.show-tv').id;
+            fetchAdd('wish',id,title);
+        }
+        else if(event.target.id == "add-watch"){
+            let title = document.querySelector('.show-title').innerHTML;
+            let id = document.querySelector('.show-tv').id;
+            fetchAdd('watch',id,title);
+        }
+        console.log(event.target.id);
     });
 }
 

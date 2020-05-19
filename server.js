@@ -268,8 +268,8 @@ app.post( '/user', jsonParser, (req,res)=>{
     let newUser = {username, password, admin};
     Users.createUser(newUser).then( result => {
         let userId = result._id;
-        let list = [];
-        let newList = {userId, list};
+        //let list = [];
+        let newList = {userId}//, list};
         WatchedLists.createList(newList).then( result2 => {
             console.log(result2);
             WishLists.createList(newList).then( result3 => {
