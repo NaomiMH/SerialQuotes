@@ -116,8 +116,7 @@ const listCollectionSchema = mongoose.Schema({
         },
         tvId: {
             type : String,
-            required : true,
-            unique : true
+            required : true
         }
     }]
 })
@@ -212,14 +211,14 @@ const WatchedLists = {
     getListBy(filter){
         return watchedCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
-    editTitleByFromId(tvId,title){
-        return watchedCollection.update({'list.tvId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
+    editTitleByFromId(filter,title){
+        return watchedCollection.update(filter,{$set: {'list.$.title': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return watchedCollection.update(filter,{list: {$push: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.update(filter,{$push: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteElementBy(filter,element){
-        return watchedCollection.update(filter,{list: {$pull: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.update(filter,{$pull: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
         return watchedCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
@@ -236,14 +235,14 @@ const WishLists = {
     getListBy(filter){
         return wishCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
-    editTitleByFromId(tvId,title){
-        return wishCollection.update({'list.fromId': tvId},{$set: {'list.$.from': title}}).then( response => {return response;} ).catch( err=>{return err;});
+    editTitleByFromId(filter,title){
+        return wishCollection.update(filter,{$set: {'list.$.title': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return wishCollection.update(filter,{list: {$push: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.update(filter,{$push: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteElementBy(filter,element){
-        return wishCollection.update(filter,{list: {$pull: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.update(filter,{$pull: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
         return wishCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});

@@ -10,11 +10,10 @@ function addTV(place,arrey){
             <label class="tv-description">${arrey[i].description}</label>
             <label class="tv-type">${arrey[i].type}</label>`;
         if(user){
-            console.log(wish);
-            if(wish){
+            if(!wish.find( tv => tv.tvId === arrey[i]._id) && !watch.find( tv => tv.tvId === arrey[i]._id)){
                 temp += `<button id="add-wish">Wish</button>`;
             }
-            else if(watch){
+            else if(!watch.find( tv => tv.tvId === arrey[i]._id)){
                 temp += `<button id="add-watch">Watched</button>`;
             }
         }
@@ -22,6 +21,10 @@ function addTV(place,arrey){
         `</div>`;
         place.innerHTML += temp;
     }
+}
+
+function encuentraTv(arrey,id){
+    return arrey.tvId === id;
 }
 
 function addQuotes(place,arrey){
@@ -123,6 +126,7 @@ function fetchUser(){
             method: 'GET'
         }
         
+        console.log("2");
         fetch( url, settings )
             .then( response => {
                 if( response.ok ){
@@ -137,6 +141,7 @@ function fetchUser(){
                     user=responseJSON[0];
                     let id = responseJSON[0]._id;
                     url = `/wish?userId=${id}`;
+                    console.log("3");
                     
                     fetch( url, settings )
                         .then( response => {
@@ -146,6 +151,7 @@ function fetchUser(){
                             throw new Error( response.statusText );
                         })
                         .then( responseJSON => {
+                            console.log(responseJSON);
                             if(responseJSON[0]){
                                 console.log(responseJSON[0]);
                                 wish = responseJSON[0].list;
@@ -159,23 +165,24 @@ function fetchUser(){
                                         throw new Error( response.statusText );
                                     })
                                     .then( responseJSON => {
-                                        if(responseJSON[0]){;
+                                        if(responseJSON[0]){
+                                            console.log("1");
                                             watch = responseJSON[0].list;
                                             fetchAllTV();
                                         }
                                     })
                                     .catch( err=> {
-                                        //result.innerHTML = `<label class="error">${err.message}</label>`;
+                                        cosole.log(err.message);
                                     });
                             }
                         })
                         .catch( err=> {
-                            //result.innerHTML = `<label class="error">${err.message}</label>`;
+                            cosole.log(err.message);
                         });
                 }
             })
             .catch( err=> {
-                result.innerHTML = `<div class="error"> ${err.message}</div>`;
+                cosole.log(err.message);
             });
     } else{
         fetchAllTV();
@@ -289,7 +296,7 @@ function fetchAdd(page,id,title){
         title: title
     };
     let settings = {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
@@ -304,7 +311,7 @@ function fetchAdd(page,id,title){
             throw new Error( response.statusText );
         })
         .then( responseJSON => {
-            console.log(responseJSON);
+            location.reload();
         })
         .catch( err=> {
             //result.innerHTML = `<label class="error">${err.message}</label>`;
@@ -322,15 +329,20 @@ function watchSerialResults(){
                 let title = event.currentTarget.querySelector('.tv-title').innerHTML;
                 fetchAdd('wish',id,title);
             }
-            /*
-            let userid = urlParams.get('id');
-            let nextpage = 'serial.html?';
-            if(userid){
-                nextpage += `id=${userid}&`;
+            else if(event.target.id == "add-watch"){
+                let title = event.currentTarget.querySelector('.tv-title').innerHTML;
+                console.log(title);
+                fetchAdd('watch',id,title);
             }
-            nextpage += `show=${id}`;
-            location.href= nextpage;
-            */
+            else{
+                let userid = urlParams.get('id');
+                let nextpage = 'serial.html?';
+                if(userid){
+                    nextpage += `id=${userid}&`;
+                }
+                nextpage += `show=${id}`;
+                location.href= nextpage;
+            }
         });
     }
 }

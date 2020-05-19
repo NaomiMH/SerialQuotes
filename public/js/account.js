@@ -422,6 +422,36 @@ function fetchDeleteById(page,id){
         });
 }
 
+function fetchDeleteElement(page,id,title){
+    let url = `/${page}`;
+    let data = {
+        userId: user._id,
+        tvId: id,
+        title: title
+    };
+    let settings = {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            location.reload();
+        })
+        .catch( err=> {
+            //result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
 function watchBtn(){
     let userid = urlParams.get('id');
     let btn = document.querySelector( '.account' );
@@ -632,6 +662,14 @@ function watchFutureBtns(){
             }
             else if(event.target.parentNode.parentNode.className == "my-quotes"){
                 fetchDeleteById('quote',id);
+            }
+            else if(event.target.parentNode.parentNode.className == "wish-list"){
+                let title = event.target.parentNode.querySelector('.element').innerHTML;
+                fetchDeleteElement('wish',id,title);
+            }
+            else if(event.target.parentNode.parentNode.className == "watched-list"){
+                let title = event.target.parentNode.querySelector('.element').innerHTML;
+                fetchDeleteElement('watch',id,title);
             }
         }
     });

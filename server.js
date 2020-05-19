@@ -271,7 +271,9 @@ app.post( '/user', jsonParser, (req,res)=>{
         let list = [];
         let newList = {userId, list};
         WatchedLists.createList(newList).then( result2 => {
+            console.log(result2);
             WishLists.createList(newList).then( result3 => {
+                console.log(result3);
                 let newNews = {
                     type: "New User",
                     about: username,
@@ -401,6 +403,45 @@ app.post( '/comment', jsonParser, (req,res)=>{
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
+app.post( '/wish', jsonParser, (req,res)=>{
+    console.log( "Adding a new element to the list");
+
+    let userId = req.body.userId;
+    let tvId = req.body.tvId;
+    let title = req.body.title;
+
+    if ( !userId || !tvId || !title ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    let newElement = {tvId, title};
+    WishLists.addElementBy({userId},newElement).then( result => {
+        return res.status(201).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
+app.post( '/watch', jsonParser, (req,res)=>{
+    console.log( "Adding a new element to the list");
+
+    let userId = req.body.userId;
+    let tvId = req.body.tvId;
+    let title = req.body.title;
+
+    if ( !userId || !tvId || !title ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    let newElement = {tvId, title};
+    console.log(newElement);
+    WishLists.deleteElementBy({userId},newElement).then( result => {
+        WatchedLists.addElementBy({userId},newElement).then( result => {
+            return res.status(201).json( result );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
 app.delete( '/user/:id', (req, res)=>{
     console.log( "Removing a user by id");
     
@@ -513,6 +554,42 @@ app.delete( '/news/:id', (req, res)=>{
 
     News.deleteNewsBy({_id: id}).then( result => {
         return res.status(200).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
+app.delete( '/wish', jsonParser, (req,res)=>{
+    console.log( "Deleteing a element from the list");
+
+    let userId = req.body.userId;
+    let tvId = req.body.tvId;
+    let title = req.body.title;
+
+    if ( !userId || !tvId || !title ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    let newElement = {tvId, title};
+    WishLists.deleteElementBy({userId},newElement).then( result => {
+        return res.status(201).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
+app.delete( '/watch', jsonParser, (req,res)=>{
+    console.log( "Deleteing a element from the list");
+
+    let userId = req.body.userId;
+    let tvId = req.body.tvId;
+    let title = req.body.title;
+
+    if ( !userId || !tvId || !title ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    let newElement = {tvId, title};
+    WatchedLists.deleteElementBy({userId},newElement).then( result => {
+        return res.status(201).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -662,46 +739,6 @@ app.patch( '/comment', jsonParser, (req, res)=>{
             return res.status(202).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
-});
-
-app.patch( '/wish', jsonParser, (req,res)=>{
-    console.log( "Adding a new element to the list");
-
-    let userId = req.body.userId;
-    let tvId = req.body.tvId;
-    let title = req.body.title;
-
-    if ( !userId || !tvId || !title ){
-        res.statusMessage = "One of the parameters is missing.";
-        return res.status(406).end();
-    }
-
-    let newElement = {tvId, title};
-    WishLists.addElementBy({userId},newElement).then( result => {
-        return res.status(201).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
-app.patch( '/watch', jsonParser, (req,res)=>{
-    console.log( "Adding a new element to the list");
-
-    let userId = req.body.userId;
-    let tvId = req.body.tvId;
-    let title = req.body.title;
-
-    if ( !userId || !tvId || !title ){
-        res.statusMessage = "One of the parameters is missing.";
-        return res.status(406).end();
-    }
-
-    let newElement = {tvId, title};
-    let filter = {userId,'list.fromId': tvId};
-    WishLists.deleteElementBy(filter,newElement).then( result => {
-        return res.status(201).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    WatchedLists.addElementBy({userId},newElement).then( result => {
-        return res.status(201).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.listen( PORT, ()=>{

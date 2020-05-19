@@ -33,38 +33,6 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     background-color: darkslategrey;
 }
 
-.achievements{
-    display: flex;
-    flex-direction: row;
-    overflow: overlay;
-    -ms-overflow-style: none;
-    border-left: solid;
-    background-color: olive;
-}
-
-.achi{
-    border-right: solid;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
-    white-space: nowrap;
-}
-
-.achi:hover, .achi > label:hover{
-    background-color: mediumturquoise;
-    cursor: pointer;
-}
-
-.achi-title{
-    font-size: x-large;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-
-.to-go{
-    display: none;
-}
-
 .results{
     display: flex;
     height: 100%;
@@ -131,6 +99,13 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     margin: 10px;
     flex-direction: row-reverse;
     display: flex;
+}
+
+.listBtn{
+    margin-right: 100px;
+    margin-left: auto;
+    height: 30px;
+    width: 150px;
 }
 
 .show{

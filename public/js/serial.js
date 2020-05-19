@@ -1,15 +1,25 @@
 const urlParams = new URLSearchParams(window.location.search);
-let user;
+let user,wish,watch;
 
 function addTV(place,arrey){
     for (let i=arrey.length-1; i>=0; i--){
-        place.innerHTML += 
+        let temp = 
         `<div class="tv" id="${arrey[i]._id}">
-            <img alt="imagen"  src="${arrey[i].image}">
+            <img alt="imagen" src="${arrey[i].image}">
             <label class="tv-title">${arrey[i].title}</label>
             <label class="tv-description">${arrey[i].description}</label>
-            <label class="tv-type">${arrey[i].type}</label>
-        </div>`;
+            <label class="tv-type">${arrey[i].type}</label>`;
+        if(user){
+            if(!wish.find( tv => tv.tvId === arrey[i]._id) && !watch.find( tv => tv.tvId === arrey[i]._id)){
+                temp += `<button id="add-wish">Wish</button>`;
+            }
+            else if(!watch.find( tv => tv.tvId === arrey[i]._id)){
+                temp += `<button id="add-watch">Watched</button>`;
+            }
+        }
+        temp +=
+        `</div>`;
+        place.innerHTML += temp;
     }
 }
 
@@ -23,6 +33,12 @@ function addInfoTv(place,object){
                     <button id="delete-TV">Delete All</button>
                     <button id="edit-TV">Edit</button>
                 </div>`;
+        }
+        if(!wish.find( tv => tv.tvId === object._id) && !watch.find( tv => tv.tvId === object._id)){
+            temp += `<button class="listBtn" id="add-wish">Add to Wish list</button>`;
+        }
+        else if(!watch.find( tv => tv.tvId === arrey[i]._id)){
+            temp += `<button class="listBtn" id="add-watch">Add to Watched list</button>`;
         }
     }
     temp +=
@@ -134,6 +150,7 @@ function addComment(place,arrey){
 
 function fetchUser(){
     let userid = urlParams.get('id');
+    let tvShow = urlParams.get('show');
     let result = document.querySelector('.account');
     if(userid){
         let url = `/user?id=${userid}`;
@@ -157,11 +174,58 @@ function fetchUser(){
                     if(user.admin){
                         createbtn.style.display = "block";
                     }
+                    let id = responseJSON[0]._id;
+                    url = `/wish?userId=${id}`;
+                    
+                    fetch( url, settings )
+                        .then( response => {
+                            if( response.ok ){
+                                return response.json();
+                            }
+                            throw new Error( response.statusText );
+                        })
+                        .then( responseJSON => {
+                            if(responseJSON[0]){
+                                wish = responseJSON[0].list;
+                                url = `/watched?userId=${id}`;
+                    
+                                fetch( url, settings )
+                                    .then( response => {
+                                        if( response.ok ){
+                                            return response.json();
+                                        }
+                                        throw new Error( response.statusText );
+                                    })
+                                    .then( responseJSON => {
+                                        if(responseJSON[0]){
+                                            watch = responseJSON[0].list;
+                                            if(tvShow){
+                                                fetchTV(undefined,undefined,tvShow);
+                                                watchFutereBtns();
+                                            }
+                                            else {
+                                                fetchAllTV();
+                                            }
+                                        }
+                                    })
+                                    .catch( err=> {
+                                        //result.innerHTML = `<label class="error">${err.message}</label>`;
+                                    });
+                            }
+                        })
+                        .catch( err=> {
+                            //result.innerHTML = `<label class="error">${err.message}</label>`;
+                        });
                 }
             })
             .catch( err=> {
-                result.innerHTML = `<div class="error">${err.message}</div>`;
+                result.innerHTML = `<div class="error"> ${err.message}</div>`;
             });
+    } else{
+        if(tvShow){
+            fetchTV(undefined,undefined,tvShow);
+            watchFutereBtns();
+        }
     }
 }
 
@@ -192,6 +256,7 @@ function fetchAllTV(){
 }
 
 function fetchTV(type,title,titleId){
+    console.log("aaaa");
     let url = `/tv?`;
     if(type){
         url+=`type=${type}`;
@@ -214,6 +279,7 @@ function fetchTV(type,title,titleId){
     
     let resultTitle = document.querySelector( '.serial-results' );
     let resultId = document.querySelector( '.show' );
+    console.log("dd");
     fetch( url, settings )
         .then( response => {
             if( response.ok ){
@@ -229,7 +295,9 @@ function fetchTV(type,title,titleId){
                     watchSerialResults();
                 }
                 if(titleId){
+                    console.log("m");
                     addInfoTv(resultId,responseJSON[0]);
+                    console.log("1");
                     fetchQuote(titleId);
                 }
             }
@@ -840,13 +908,9 @@ function loadingPage(){
         submenu.style.display = "none";
         results.style.display = "none";
         addForm.style.display = "none";
-        fetchTV(undefined,undefined,titleId);
-        watchFutereBtns();
     } else{
         let show = document.querySelector( '.show' );
         show.style.display = "none";
-
-        fetchAllTV();
         
         watchCreateBtn();
     }
