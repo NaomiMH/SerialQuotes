@@ -3,7 +3,7 @@ let user,wish,watch;
 
 function addQuote(place,object){
     let temp =
-    `<div class="quote" id="${object._id}>
+    `<div class="quote" id="${object._id}">
         <div class="quote-quote-label">
             <label>"</label>
             <label class="quote-quote">${object.quote}</label>
@@ -121,7 +121,6 @@ function fetchAllQuotes(){
     };
     
     let recentQuotes = document.querySelector('.recent-quotes');
-    let commentQuotes = document.querySelector('.comment-quotes');
     fetch( url, settings )
         .then( response => {
             if( response.ok ){
@@ -132,8 +131,6 @@ function fetchAllQuotes(){
         .then( responseJSON => {
             if(responseJSON[0]){
                 addQuotes(recentQuotes,responseJSON);
-                list = [];
-                //for()
             } else {
                 seriesQuotes.innerHTML = `<div class="quote">No entries</div>`
             }
@@ -184,6 +181,23 @@ function fetchQuotesBy(){
             } else {
                 seriesQuotes.innerHTML = `<div class="quote">No entries</div>`
             }
+        })
+        .catch( err=> {
+            //result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+
+    url = '/random';
+
+    let randomQuotes = document.querySelector('.random-quotes');
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            addQuote(randomQuotes,responseJSON);
         })
         .catch( err=> {
             //result.innerHTML = `<label class="error">${err.message}</label>`;

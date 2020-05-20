@@ -175,6 +175,9 @@ const Quotes = {
     getQuoteBy(filter){
         return quotesCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
+    getRandomQuotes(){
+        return quotesCollection.find().then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
+    },
     editQuoteBy(filter,quote){
         return quotesCollection.updateMany(filter,{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
     },
@@ -192,9 +195,6 @@ const Comments = {
     },
     getCommentBy(filter){
         return commentsCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
-    },
-    getRandomQuotes(){
-        return quotesCollection.find().then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
     },
     editCommentBy(filter,comment){
         return commentsCollection.updateMany(filter,{$set: comment}).then( response => {return response;} ).catch( err=>{return err;});
