@@ -131,8 +131,35 @@ function watchLogInBtns(){
     });
 }
 
+function watchBtn(){
+    let btn = document.querySelector( '.account' );
+
+    btn.addEventListener( 'click', (event)=>{
+        location.href='login.html';
+    });
+
+    btn = document.querySelector( '.quotePage');
+
+    btn.addEventListener( 'click', (event)=>{
+        location.href='quotes.html';
+    });
+
+    btn = document.querySelector( '.serialPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        location.href='serial.html';
+    });
+
+    btn = document.querySelector( '.indexPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        location.href='index.html';
+    });
+}
+
 function init(){
     watchLogInBtns();
+    watchBtn();
 }
 
 init();

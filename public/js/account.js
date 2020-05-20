@@ -106,10 +106,10 @@ function fetchAllNews(place){
             place.innerHTML = "";
             if(responseJSON[0]){
                 for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,responseJSON[i]._id,`${responseJSON[i].type}:${responseJSON[i].about}`,'Delete');
+                    addElement(place,responseJSON[i]._id,`${responseJSON[i].type}: ${responseJSON[i].about}`,'Delete');
                 }
             } else {
-                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                place.innerHTML = '<div class="element-label">No news found</div>';
             }
         })
         .catch( err=> {
@@ -198,7 +198,7 @@ function fetchAllQuotes(place){
             place.innerHTML = "";
             if(responseJSON[0]){
                 for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,responseJSON[i]._id,responseJSON[i].quote,'Delete');
+                    addElement(place,`${responseJSON[i]._id} fromId="${responseJSON[i].fromId}"`,responseJSON[i].quote,'Delete');
                 }
             } else {
                 place.innerHTML = '<div class="element-label">No archivements found</div>';
@@ -226,7 +226,28 @@ function fetchAllComments(place){
             place.innerHTML = "";
             if(responseJSON[0]){
                 for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,responseJSON[i]._id,responseJSON[i].comment,'Delete');
+                    let id = responseJSON[i]._id;
+                    let comment = responseJSON[i].comment;
+                    url = `/quotes?fromId=${id}`;
+                    
+                    fetch( url, settings )
+                        .then( response => {
+                            if( response.ok ){
+                                return response.json();
+                            }
+                            throw new Error( response.statusText );
+                        })
+                        .then( responseJSON => {
+                            place.innerHTML = "";
+                            if(responseJSON[0]){
+                                addElement(place,`${id} fromId="${responseJSON[0].fromId}"`,comment,'Delete');
+                            } else {
+                                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                            }
+                        })
+                        .catch( err=> {
+                            //result.innerHTML = `<label class="error">${err.message}</label>`;
+                        });
                 }
             } else {
                 place.innerHTML = '<div class="element-label">No archivements found</div>';
@@ -254,7 +275,7 @@ function fetchQuote(place,status){
             place.innerHTML = "";
             if(responseJSON[0]){
                 for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,responseJSON[i]._id,responseJSON[i].quote,'Approve');
+                    addElement(place,`${responseJSON[i]._id} fromId="${responseJSON[i].fromId}"`,responseJSON[i].quote,'Approve');
                 }
             } else {
                 place.innerHTML = '<div class="element-label">No archivements found</div>';
@@ -680,7 +701,19 @@ function watchFutureBtns(){
             else if(type == "watched-list"){
                 location.href = `serial.html?id=${user._id}&show=${id}`;
             }
-            console.log(event.target.className);
+            else if(type == "my-quotes"){
+                let tv = event.target.getAttribute('fromId');
+                location.href = `serial.html?id=${user._id}&show=${tv}`;
+            }
+            else if(type == "my-comments"){
+                let tv = event.target.getAttribute('fromId');
+                location.href = `serial.html?id=${user._id}&show=${tv}`;
+            }
+            else if(type == "quotes-type"){
+                let tv = event.target.getAttribute('fromId');
+                location.href = `serial.html?id=${user._id}&show=${tv}`;
+            }
+            console.log(event.target.parentNode.parentNode.className);
         }
     });
 }

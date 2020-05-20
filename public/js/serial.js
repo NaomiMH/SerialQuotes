@@ -12,9 +12,9 @@ function addTV(place,arrey){
         if(user){
             if(!watch.find( tv => tv.tvId === arrey[i]._id)){
                 if(!wish.find( tv => tv.tvId === arrey[i]._id)){
-                    temp += `<button id="add-wish">Add to Wish list</button>`;
+                    temp += `<button id="add-wish"></button>`;
                 } else {
-                    temp += `<button id="add-watch">Add to Watched list</button>`;
+                    temp += `<button id="add-watch"></button>`;
                 }
             }
         }
@@ -35,17 +35,22 @@ function addInfoTv(place,object){
                     <button id="edit-TV">Edit</button>
                 </div>`;
         }
+    }
+    temp +=
+            `<label class="show-title">${object.title}</label>
+            <div>
+                <label class="show-type">${object.type}</label>`;
+    if(user){
         if(!watch.find( tv => tv.tvId === object._id)){
             if(!wish.find( tv => tv.tvId === object._id)){
-                temp += `<button class="listBtn" id="add-wish">Add to Wish list</button>`;
+                temp += `<button class="listBtn" id="add-wish"></button>`;
             } else {
-                temp += `<button class="listBtn" id="add-watch">Add to Watched list</button>`;
+                temp += `<button class="listBtn" id="add-watch"></button>`;
             }
         }
     }
     temp +=
-            `<label class="show-title">${object.title}</label>
-            <label class="show-type">${object.type}</label>
+            `</div>
             <div class="show-des-img">
                 <img class="show-img" alt="imagen" src="${object.image}">
                 <labe class="show-description">${object.description}</label>

@@ -5,7 +5,7 @@ body{
     -ms-overflow-style: none;
 }
 
-body::-webkit-scrollbar{
+body::-webkit-scrollbar, .recent-quotes::-webkit-scrollbar, .comment-quotes::-webkit-scrollbar, .serial-quotes::-webkit-scrollbar, .movies-quotes::-webkit-scrollbar{
     display: none;
 }
 
@@ -57,59 +57,48 @@ body::-webkit-scrollbar{
 
 .results{
     display: flex;
+    flex-direction: column;
     height: 100%;
     background-color: beige;
-    align-items: center;
-    justify-content: center;
 }
 
-.login{
+.results > label{
+    font-size: xx-large;
+    margin: 20px;
+}
+
+.recent-quotes, .comment-quotes, .serial-quotes, .movies-quotes{
+    display: flex;
+    flex-direction: row;
+    margin-left: 30px;
+    overflow: overlay;
+    -ms-overflow-style: none;
+}
+
+.quote{
+    border: solid;
+    margin: 10px;
     display: flex;
     flex-direction: column;
-    background-color: lightsalmon;
-    height: 300px;
+    padding: 0px 5px 0px 5px;
+}
+
+.quote-quote-label{
+    display: flex;
     width: 500px;
-    align-items: center;
-    justify-content: space-evenly;
 }
 
-.login-title, .signup-title{
-    font-size: xx-large;
-    font-weight: bold;
+.quote-quote{
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-align: -webkit-center;
+  margin: 0px 5px 0px 5px;
 }
 
-.signup-btn:hover, .login-btn:hover{
-    cursor: pointer;
-}
-
-.login-user-pass, .signup-user-pass{
-    text-align: -webkit-center;
-}
-
-.login-user-pass > button, .signup-user-pass > button{
-    margin: 10px;
-    width: 100px;
-    font-size: large;
-    text-align: center;
-}
-
-.login-username-label, .login-password-label, .signup-username-label, .signup-password-label{
+.quote-date{
     text-align: right;
-    padding: 10px;
-}
-
-.login-error, .signup-error-user{
-    opacity: 0;
-}
-
-.signup{
-    display: none;
-    flex-direction: column;
-    background-color: lightsalmon;
-    height: 300px;
-    width: 500px;
-    align-items: center;
-    justify-content: space-evenly;
 }
 
 footer{

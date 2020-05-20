@@ -4,48 +4,35 @@
         <meta charset="utf-8">
         <meta name="viewpoint" content="width=device-width">
         <title>SerialQuotes</title>
-        <link href="./css/index.css" rel="stylesheet" type="text/css" />
+        <link href="./css/quotes.css" rel="stylesheet" type="text/css" />
     </head>
     <body>
         <section class="menubar">
-            <label onclick="location.href='index.html'"></label>
+            <label class="indexPage">Home</label>
             <div class="title">
-                <label onclick="location.href='serial.html'">Serial</label>
-                <label onclick="location.href='quotes.html'">Quotes</label>
+                <label class="serialPage">Serial</label>
+                <label class="quotePage">Quotes</label>
             </div>
-            <label onclick="location.href='login.html'">Log In</label>
+            <label class="account">Log In</label>
         </section>
-        
         <section class="results">
-            <div class="serial">
-                <div class="serial-submenu">
-                    <label>Serial</label>
-                    <div class="serial-filter">
-                        <input type="radio" id="serial-all" name="shows" value="all" checked="checked">
-                        <label>All</label>
-                        <input type="radio" id="serial-movies" name="shows" value="movies">
-                        <label>Movies</label>
-                        <input type="radio" id="serial-series" name="shows" value="series">
-                        <label>Series</label>
-                    </div>
-                    <div>
-                        <input type="text" id="serial-title" placeholder="Look for a title"> 
-                        <button id="serial-search">Search</button>
-                    </div>
-                </div>
-                <section class="serial-results"></section>
-            </div>
-            <div class="quotes">
-                <div class="quotes-submenu">
-                    <label>Quotes</label>
-                </div>
-                <section class="quotes-results"></section>
-            </div>
+            <label>The most recent quotes</label>
+            <div class="recent-quotes"></div>
+            <label>The most comment quotes</label>
+            <div class="comment-quotes"></div>
+            <label>Quotes from series</label>
+            <div class="serial-quotes"></div>
+            <label>Quotes from movies</label>
+            <div class="movies-quotes"></div>
         </section>
 
         <footer>
             <div class="mapPage">
-                <label>Map Page</label>
+                <label>Quick Links</label>
+                <li>List User</li>
+                <li>List Serial</li>
+                <li>List Quote</li>
+                <li>List Comment</li>
             </div>
             <div class="aboutUs">
                 <label>About Us</label>
@@ -53,7 +40,7 @@
             <div class="information">
                 <label>Information</label>
             </div>
-            <script src="./js/index.js"></script>
+            <script src="./js/quotes.js"></script>
         </footer>
     </body>
 </html>

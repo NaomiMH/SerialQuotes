@@ -172,20 +172,11 @@ const Quotes = {
     getAllQuotes(){
         return quotesCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
-    getRandomQuotes(){
-
-
-        return quotesCollection.find().then( response => {
-            do {
-                x = Math.floor(Math.random() * (response.length - 1));
-            } while (response[x].status != "Approved");
-            return response[x];} ).catch( err=>{return err;});
-    },
     getQuoteBy(filter){
         return quotesCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editQuoteBy(filter,quote){
-        return quotesCollection.update(filter,{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
+        return quotesCollection.updateMany(filter,{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteQuoteBy(filter){
         return quotesCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
@@ -202,8 +193,11 @@ const Comments = {
     getCommentBy(filter){
         return commentsCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
+    getRandomQuotes(){
+        return quotesCollection.find().then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
+    },
     editCommentBy(filter,comment){
-        return commentsCollection.update(filter,{$set: comment}).then( response => {return response;} ).catch( err=>{return err;});
+        return commentsCollection.updateMany(filter,{$set: comment}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteCommentBy(filter){
         return commentsCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
@@ -221,13 +215,13 @@ const WatchedLists = {
         return watchedCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editTitleByFromId(filter,title){
-        return watchedCollection.update(filter,{$set: {'list.$.title': title}}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.updateMany(filter,{$set: {'list.$.title': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return watchedCollection.update(filter,{$push: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.updateMany(filter,{$push: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteElementBy(filter,element){
-        return watchedCollection.update(filter,{$pull: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return watchedCollection.updateMany(filter,{$pull: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
         return watchedCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
@@ -245,13 +239,13 @@ const WishLists = {
         return wishCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     editTitleByFromId(filter,title){
-        return wishCollection.update(filter,{$set: {'list.$.title': title}}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.updateMany(filter,{$set: {'list.$.title': title}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     addElementBy(filter,element){
-        return wishCollection.update(filter,{$push: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.updateMany(filter,{$push: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteElementBy(filter,element){
-        return wishCollection.update(filter,{$pull: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
+        return wishCollection.updateMany(filter,{$pull: {list: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteListBy(filter){
         return wishCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});
@@ -266,7 +260,7 @@ const News = {
         return newsCollection.find().then( response => {return response;} ).catch( err=>{return err;});
     },
     editNewsBy(filter,news){
-        return newsCollection.updateOne(filter,{$set: news}).then( response => {return response;} ).catch( err=>{return err;});
+        return newsCollection.updateMany(filter,{$set: news}).then( response => {return response;} ).catch( err=>{return err;});
     },
     deleteNewsBy(filter){
         return newsCollection.remove(filter).then( response => {return response;} ).catch( err=>{return err;});

@@ -5,7 +5,7 @@ function addTV(place,arrey){
     for (let i=arrey.length-1; i>=0; i--){
         let temp = 
         `<div class="tv" id="${arrey[i]._id}">
-            <img alt="imagen"  height="120px" src="${arrey[i].image}">
+            <img alt="imagen" src="${arrey[i].image}">
             <label class="tv-title">${arrey[i].title}</label>
             <label class="tv-description">${arrey[i].description}</label>
             <label class="tv-type">${arrey[i].type}</label>`;
@@ -22,10 +22,6 @@ function addTV(place,arrey){
         `</div>`;
         place.innerHTML += temp;
     }
-}
-
-function encuentraTv(arrey,id){
-    return arrey.tvId === id;
 }
 
 function addQuotes(place,arrey){
@@ -53,11 +49,9 @@ function addQuotes(place,arrey){
 function addNews(place,arrey){
     for (let i=arrey.length-1; i>=0; i--){
         place.innerHTML += 
-        `<div class="news-new" id="${arrey[i]._id}">
+        `<div class="news-new" id="${arrey[i]._id}" go="${arrey[i].aboutId}">
             <label class="news-new-title">${arrey[i].type}</label>
             <label>${arrey[i].about}</label>
-            <label>${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
-            <label class="to-go">${arrey[i].aboutId}</label>
         </div>`;
     }
 }
@@ -185,16 +179,22 @@ function fetchUser(){
     }
 }
 
-function fetchQuote(type,from){
+function fetchQuote(type,from,id){
     let url = `/quote?`;
     if(type){
         url+= `type=${type}`;
-        if(from){
+        if(from || id){
             url+='&';
         }
     }
     if(from){
         url+= `from=${from}`;
+        if(id){
+            url+='&';
+        }
+    }
+    if(id){
+        url+= `id=${id}`;
     }
     let settings = {
         method: 'GET'
@@ -213,8 +213,12 @@ function fetchQuote(type,from){
                 result.innerHTML = `<label class="error">There arent 'quotes' available.</label>`;
             }else{
                 result.innerHTML = "";
-                addQuotes(result,responseJSON);
-                watchQuotesResults();
+                if(id){
+                    location.href = `serial.html?id=${user._id}&show=${responseJSON[0].fromId}`;
+                }else{
+                    addQuotes(result,responseJSON);
+                    watchQuotesResults();
+                }
             }
         })
         .catch( err=> {
@@ -314,6 +318,29 @@ function fetchAdd(page,id,title){
         });
 }
 
+function fetchComment(id){
+    let url = `/comment?id=${id}`;
+    let settings = {
+        method: 'GET'
+    };
+    
+    fetch( url, settings )
+        .then( response => {
+            if( response.ok ){
+                return response.json();
+            }
+            throw new Error( response.statusText );
+        })
+        .then( responseJSON => {
+            if(responseJSON[0]){
+                fetchQuote(undefined,undefined,responseJSON[0].fromId);
+            }
+        })
+        .catch( err=> {
+            //result.innerHTML = `<label class="error">${err.message}</label>`;
+        });
+}
+
 function watchSerialResults(){
     let serialList = document.querySelectorAll( '.tv' );
     
@@ -358,6 +385,31 @@ function watchQuotesResults(){
             location.href= nextpage;
         });
     }
+}
+
+function watchNewsResults(){
+    let newsList = document.querySelector( '.news' );
+    
+    newsList.addEventListener( 'click',(event)=>{
+        let object = event.target;
+        if(event.target.parentNode.className == "news-new"){
+            object = event.target.parentNode;
+        }
+        if(object){
+            let type = object.querySelector('.news-new-title').innerHTML;
+            let id = object.getAttribute('go');
+            if(type == "New Serial"){
+                location.href = `serial.html?id=${user._id}&show=${id}`;
+            }
+            else if(type == "New Quote"){
+                fetchQuote(undefined,undefined,id);
+            }
+            else if(type == "New Comment"){
+                fetchComment(id);
+            }
+        }
+        //console.log(event.target.parentNode.className);
+    });
 }
 
 function watchBtn(){
@@ -457,6 +509,7 @@ function init(){
     fetchAllNews();
 
     watchBtn();
+    watchNewsResults();
 }
 
 init();

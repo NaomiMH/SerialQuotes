@@ -9,23 +9,13 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     display: none;
 }
 
-
 .menubar{
     display: flex;
     align-items: flex-end;
     justify-content: space-between;
-    background-image: url('https://cdn.pixabay.com/photo/2015/09/17/10/30/banner-943866_1280.jpg');
-    size: 100%;
+    background-color: #5b5b5b;
+    color: white;
     height: 60px;
-}
-.indexPage{
-    background-image: url('https://cdn.pixabay.com/photo/2017/07/11/00/24/house-2492054_960_720.png');
-    background-size: 100%;
-    background-position: bottom;
-    border-style: outset;
-    background-repeat: no-repeat;
-    height: 40px;
-    width: 40px;
 }
 
 .title{
@@ -34,28 +24,40 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     height: 60px;
 }
 
-.menubar > label{
+.account{
     padding: 0px 10px 10px 10px;
     padding-top: 100%;
+    background-color: #212121;
+    border-bottom-left-radius: 10px;
 }
 
-.menubar > label{
+.indexPage{
     padding: 0px 10px 10px 10px;
     padding-top: 100%;
+    background-color: #212121;
+    border-bottom-right-radius: 10px;
 }
 
-.menubar > label:hover, .title > label:hover{
+.menubar > label:hover{
     cursor: pointer;
-    border-style: inset;
+    background-color: rgb(168, 82, 82);
 }
 
-.menubar > label, .title > label{
-    border-style: outset;
+.serialPage:hover{
+    cursor: pointer;
+    background-color: #212121;
+    border-bottom-left-radius: 10px;
+}
+
+.quotePage:hover{
+    cursor: pointer;
+    background-color: #212121;
+    border-bottom-right-radius: 10px;
 }
 
 .results{
     height: 100%;
-    background-color: orange;
+    background-color: beige;
     overflow: overlay;
     -ms-overflow-style: none;
 }
@@ -64,7 +66,7 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     display: flex;
     flex-direction: column;
     padding: 10px;
-    background-color: lightyellow;
+    background-color: yellowgreen;
 }
 
 .results > .administrator{
@@ -166,20 +168,19 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
 
 footer{
     display: flex;
-    background-color: forestgreen;
+    background-color: #5b5b5b;
+    color: white;
     justify-content: space-around;
     padding: 2px 0px 5px 0px;
 }
 
 li{
     list-style: none;
+    padding: 0px 15px 0px 15px;
 }
 
-.mapPage{
-    display: flex;
-    flex-direction: column;
-}
-
-.mapPage > li:hover{
+li:hover{
     cursor: pointer;
+    background-color: #212121;
+    border-radius: 10px;
 }

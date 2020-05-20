@@ -7,9 +7,9 @@ const jsonParser = bodyParser.json();
 const {Users,TV,Quotes,Comments,WatchedLists,WishLists,News} = require( "./model.js" );
 const mongoose = require( "mongoose" );
 const cors = require( './middleware/cors' );
-//const PORT = 8080;
-//const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
-const {DATABASE_URL, PORT} = require('./config');
+const PORT = 8080;
+const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
+//const {DATABASE_URL, PORT} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
@@ -28,12 +28,6 @@ app.get( '/tvs', (req,res)=>{
 app.get( '/quotes', (req,res)=>{
     console.log( "Getting all quotes" );
     Quotes.getAllQuotes().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
-app.get( '/random', (req,res)=>{
-    console.log( "Getting a random quote" );
-    Quotes.getRandomQuotes().then( result => {
-    return res.status(200).json(result);}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.get( '/comments', (req,res)=>{
@@ -170,6 +164,14 @@ app.get( '/quote', (req,res)=>{
     filter = JSON.parse(filter);
     Quotes.getQuoteBy(filter).then( result => {
         return res.status( 200 ).json( result );
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+});
+
+app.get( '/random', (req,res)=>{
+    console.log( "Getting a random quote" );
+    
+    Quotes.getRandomQuotes().then( result => {
+        return res.status(200).json(result);
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
@@ -649,10 +651,10 @@ app.patch( '/tv', jsonParser, (req, res)=>{
             Quotes.editQuoteBy({fromId: id}, {from: title}).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            WatchedLists.editTitleByFromId(id, {title: title}).then( result => {
+            WatchedLists.editTitleByFromId({"list.tvId": id}, title).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            WishLists.editTitleByFromId(id, {title: title}).then( result => {
+            WishLists.editTitleByFromId({"list.tvId": id}, title).then( result => {
                 return res.status(202).json( result );
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
             News.editNewsBy({aboutId: id}, {about: title}).then( result => {
