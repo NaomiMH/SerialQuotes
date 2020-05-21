@@ -718,12 +718,16 @@ app.patch( '/quote', jsonParser, (req, res)=>{
         quote2 += `"status":"${status}"`;
     }
     quote2 += '}';
+    console.log(quote2);
     quote2 = JSON.parse(quote2);
     
     Quotes.editQuoteBy({_id: id}, quote2).then( result => {
-        News.editNewsBy({aboutId: id}, {about: quote}).then( result2 => {
-            return res.status(202).json( result );
-        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+        if(quote){
+            News.editNewsBy({aboutId: id}, {about: quote}).then( result2 => {
+                return res.status(202).json( result );
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+        }
+        return res.status(202).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
 });
 
