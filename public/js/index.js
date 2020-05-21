@@ -399,7 +399,12 @@ function watchNewsResults(){
             let type = object.querySelector('.news-new-title').innerHTML;
             let id = object.getAttribute('go');
             if(type == "New Serial"){
-                location.href = `serial.html?id=${user._id}&show=${id}`;
+                let temp = `serial.html?`;
+                if(user){
+                    temp += `id=${user._id}&`;
+                }
+                temp += `show=${id}`;
+                location.href = temp;
             }
             else if(type == "New Quote"){
                 fetchQuote(undefined,undefined,id);

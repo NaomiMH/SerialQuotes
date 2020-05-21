@@ -234,6 +234,8 @@ function fetchUser(){
         if(tvShow){
             fetchTV(undefined,undefined,tvShow);
             watchFutereBtns();
+        } else {
+            fetchAllTV();
         }
     }
 }
