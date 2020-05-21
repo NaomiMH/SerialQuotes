@@ -152,10 +152,10 @@ const TV = {
         return tvCollection.create( newTv ).then( response => {return response;} ).catch( err=>{return err;});
     },
     getAllTV(){
-        return tvCollection.find().then( response => {return response;} ).catch( err=>{return err;});
+        return tvCollection.find({},{__v:0}).then( response => {return response;} ).catch( err=>{return err;});
     },
     getTVBy(filter){
-        return tvCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
+        return tvCollection.find(filter,{__v:0}).then( response => {return response;} ).catch( err=>{return err;});
     },
     editTVById(id,tv){
         return tvCollection.updateOne({_id: id},{$set: tv}).then( response => {return response;} ).catch( err=>{return err;});
@@ -176,7 +176,7 @@ const Quotes = {
         return quotesCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     getRandomQuotes(){
-        return quotesCollection.find().then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
+        return quotesCollection.find({},{status:0, __v:0}).then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
     },
     editQuoteBy(filter,quote){
         return quotesCollection.updateMany(filter,{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
