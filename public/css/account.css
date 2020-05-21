@@ -60,20 +60,31 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     background-color: beige;
     overflow: overlay;
     -ms-overflow-style: none;
+    padding-bottom: 20px;
 }
 
 .results > div{
     display: flex;
     flex-direction: column;
     padding: 10px;
-    background-color: yellowgreen;
+    background-color: #5b5b5b;
+}
+
+.results > div:hover{
+    background-color: rgb(244,238,177);
+    border-radius: 10px;
 }
 
 .results > .administrator{
     display: none;
     flex-direction: column;
     padding: 10px;
-    background-color: mediumpurple;
+    background-color: #5b5b5b;
+}
+
+.results > .administrator:hover{
+    background-color: rgb(244,238,177);
+    border-radius: 10px;
 }
 
 .results > div > label, .subtitle{
@@ -85,11 +96,23 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     padding: 10px;
     display: none;
     flex-direction: column;
-    background-color: mediumaquamarine;
+    background-color: rgb(244,238,177);
+    border-radius: 10px;
 }
 
 .administrator > div > div{
     padding: 10px;
+}
+
+.administrator > div > div > div{
+    padding: 10px;
+    background-color: #5b5b5b;
+    border-radius: 10px;
+    color: white;
+}
+
+.administrator > div > div:hover{
+    background-color: #5b5b5b;
 }
 
 .user-username{
@@ -121,11 +144,19 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
 }
 
 .element-label{
-    border: solid;
     padding: 10px 20px 10px 20px;
     margin: 10px;
     display: flex;
     flex-direction: row;
+    background-color: rgb(255, 128, 128);
+    border-radius: 10px;
+    border: outset;
+}
+
+.element-label:hover{
+    cursor: pointer;
+    border: inset;
+    background-color: rgb(168, 82, 82);
 }
 
 #show{

@@ -5,7 +5,7 @@ body{
     -ms-overflow-style: none;
 }
 
-body::-webkit-scrollbar, .recent-quotes::-webkit-scrollbar, .comment-quotes::-webkit-scrollbar, .serial-quotes::-webkit-scrollbar, .movies-quotes::-webkit-scrollbar{
+body::-webkit-scrollbar, .recent-quotes::-webkit-scrollbar, .serial-quotes::-webkit-scrollbar, .movies-quotes::-webkit-scrollbar{
     display: none;
 }
 
@@ -60,6 +60,7 @@ body::-webkit-scrollbar, .recent-quotes::-webkit-scrollbar, .comment-quotes::-we
     flex-direction: column;
     height: 100%;
     background-color: beige;
+    padding-bottom: 20px;
 }
 
 .results > label{
@@ -67,20 +68,59 @@ body::-webkit-scrollbar, .recent-quotes::-webkit-scrollbar, .comment-quotes::-we
     margin: 20px;
 }
 
-.recent-quotes, .comment-quotes, .serial-quotes, .movies-quotes{
+.random-quotes{
+    display: flex;
+    justify-content: center;
+}
+
+.recent-quotes, .serial-quotes, .movies-quotes{
     display: flex;
     flex-direction: row;
-    margin-left: 30px;
+    padding-left: 30px;
     overflow: overlay;
     -ms-overflow-style: none;
+    background-color: #5b5b5b;
+}
+
+.random-quotes > .quote{
+    background-color: #5b5b5b;
+    color: white;
+    width: 700px;
+    font-size: x-large;
+    border: outset;
+}
+
+.random-quotes > .quote:hover{
+    background-color: #212121;
+    border: inset;
+}
+
+.serial-quotes > .quote{
+    background-color: rgb(244,238,177);
+}
+
+.serial-quotes > .quote:hover{
+    background-color: rgb(255, 128, 128);
+    border: inset;
+}
+
+.movies-quotes > .quote:hover, .recent-quotes > .quote:hover{
+    background-color: rgb(244,238,177);
+    border: inset;
 }
 
 .quote{
-    border: solid;
     margin: 10px;
     display: flex;
     flex-direction: column;
-    padding: 0px 5px 0px 5px;
+    padding: 0px 10px 0px 10px;
+    background-color: rgb(255, 128, 128);
+    border-radius: 10px;
+    border: outset;
+}
+
+.quote:hover, .quote > label:hover, .quote > div > label:hover{
+    cursor: pointer;
 }
 
 .quote-quote-label{

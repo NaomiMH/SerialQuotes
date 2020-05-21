@@ -558,6 +558,44 @@ function watchBtn(){
         event.preventDefault();
         fetchChangeUser(user._id,user.username,user.password,false);
     });
+
+    btn = document.querySelector('.mapPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            let temp = `${event.target.getAttribute('go')}.html`
+            if(user){
+                temp += `?id=${user._id}`;
+            }
+            location.href = temp;
+        }
+    });
+
+    btn = document.querySelector('.aboutUs');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            let temp = `page.html?`;
+            if(user){
+                temp += `id=${user._id}&`;
+            }
+            temp += `show=${event.target.getAttribute('go')}`;
+            location.href = temp;
+        }
+    });
+
+    btn = document.querySelector('.information');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            let temp = `page.html?`;
+            if(user){
+                temp += `id=${user._id}&`;
+            }
+            temp += `show=${event.target.getAttribute('go')}`;
+            location.href = temp;
+        }
+    });
 }
 
 function loadingPage(){

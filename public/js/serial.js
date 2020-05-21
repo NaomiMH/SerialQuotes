@@ -5,7 +5,7 @@ function addTV(place,arrey){
     for (let i=arrey.length-1; i>=0; i--){
         let temp = 
         `<div class="tv" id="${arrey[i]._id}">
-            <img alt="imagen" src="${arrey[i].image}">
+            <img alt="image" src="${arrey[i].image}">
             <label class="tv-title">${arrey[i].title}</label>
             <label class="tv-description">${arrey[i].description}</label>
             <label class="tv-type">${arrey[i].type}</label>`;
@@ -52,7 +52,9 @@ function addInfoTv(place,object){
     temp +=
             `</div>
             <div class="show-des-img">
-                <img class="show-img" alt="imagen" src="${object.image}">
+                <div class="image">
+                    <img class="show-img" alt="image" src="${object.image}">
+                </div>
                 <labe class="show-description">${object.description}</label>
             </div>
         </div>`;
@@ -742,6 +744,44 @@ function watchBtn(){
             fetchTV("Movie");
         } else if(radioBtn[2].checked){
             fetchTV("Serie");
+        }
+    });
+
+    btn = document.querySelector('.mapPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            let temp = `${event.target.getAttribute('go')}.html`
+            if(user){
+                temp += `?id=${user._id}`;
+            }
+            location.href = temp;
+        }
+    });
+
+    btn = document.querySelector('.aboutUs');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            let temp = `page.html?`;
+            if(user){
+                temp += `id=${user._id}&`;
+            }
+            temp += `show=${event.target.getAttribute('go')}`;
+            location.href = temp;
+        }
+    });
+
+    btn = document.querySelector('.information');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            let temp = `page.html?`;
+            if(user){
+                temp += `id=${user._id}&`;
+            }
+            temp += `show=${event.target.getAttribute('go')}`;
+            location.href = temp;
         }
     });
 }

@@ -155,6 +155,30 @@ function watchBtn(){
     btn.addEventListener( 'click', (event)=>{
         location.href='index.html';
     });
+
+    btn = document.querySelector('.mapPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            location.href = `${event.target.getAttribute('go')}.html`;
+        }
+    });
+
+    btn = document.querySelector('.aboutUs');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
+        }
+    });
+
+    btn = document.querySelector('.information');
+
+    btn.addEventListener( 'click', (event)=>{
+        if(event.target.tagName == "LI"){
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
+        }
+    });
 }
 
 function init(){

@@ -70,7 +70,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     justify-content: space-around;
     height: 24px;
     background-color: #5b5b5b;
-    color: blanchedalmond;
+    color: white;
     padding: 3px;
 }
 
@@ -181,22 +181,47 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
 .show-tv{
     display: flex;
     flex-direction: column;
-    padding-left: 10px;
 }
 
 .show-title{
     font-size: xxx-large;
     font-weight: bold;
+    padding-left: 10px;
+}
+
+.show-type{
+    background-color: rgb(255, 128, 128);
+    border-top-right-radius: 10px;
+    border-bottom-right-radius: 10px;
+    padding: 4px 10px 4px 10px;
+    font-size: x-large;
 }
 
 .show-des-img{
     display: flex;
     align-items: center;
-    padding-top: 20px;
+    justify-content: center;
+    padding: 20px 0px 20px 10px;
+    border-bottom-right-radius: 10px;
+    border-top-right-radius: 10px;
+}
+
+.image{
+    background-color: white;
+    padding: 10px;
+    padding-bottom: 30px;
+    border: outset;
+}
+
+.image > img{
+    width: 400px;
+    height: 400px;
+    border-radius: 10px;
 }
 
 .show-description{
-    margin: 20px;
+    margin: 60px;
+    width: 600px;
 }
 
 .edit-tv, .create-tv{
@@ -206,6 +231,9 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     margin: 20px;
     width: 650px;
     align-self: center;
+    border-radius: 10px;
+    background-color: #212121;
+    color: white;
 }
 
 .edit-tv > div, .edit-buttons, .create-tv > div, .create-buttons{
@@ -244,6 +272,9 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
     padding: 10px;
     align-self: center;
     margin-bottom: 20px;
+    background-color: #212121;
+    color: white;
+    border-radius: 10px;
 }
 
 .new-quote > div{
@@ -296,19 +327,29 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
 
 .quote-comment{
     margin: 10px;
-    border: solid;
-    border-bottom: none;
     width: 700px;
+    background-color: #5b5b5b;
+    padding: 10px;
+    border-radius: 10px;
 }
 
-.quote, .new-comment{
-    border-bottom: solid;
+.quote{
     padding: 10px;
+    margin: 10px;
+    background-color: rgb(255, 128, 128);
+    border-radius: 10px;
+}
+
+.new-comment{
+    padding: 10px;
+    color: white;
 }
 
 .comment {
-    border-bottom: solid;
     padding: 10px 25px 10px 25px;
+    background-color: rgb(244,238,177);
+    border-radius: 10px;
+    margin: 10px;
 }
 
 .quote-date, .comment-date{
