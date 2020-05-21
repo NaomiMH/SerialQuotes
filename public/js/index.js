@@ -214,7 +214,12 @@ function fetchQuote(type,from,id){
             }else{
                 result.innerHTML = "";
                 if(id){
-                    location.href = `serial.html?id=${user._id}&show=${responseJSON[0].fromId}`;
+                    let temp = `serial.html?`;
+                    if(user){
+                        temp += `id=${user._id}&`;
+                    }
+                    temp += `show=${responseJSON[0].fromId}`;
+                    location.href = temp;
                 }else{
                     addQuotes(result,responseJSON);
                     watchQuotesResults();

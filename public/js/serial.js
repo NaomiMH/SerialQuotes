@@ -228,7 +228,7 @@ function fetchUser(){
                 }
             })
             .catch( err=> {
-                result.innerHTML = `<div class="error"> ${err.message}</div>`;
+                //result.innerHTML = `<div class="error"> ${err.message}</div>`;
             });
     } else{
         if(tvShow){
