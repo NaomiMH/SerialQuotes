@@ -176,7 +176,7 @@ const Quotes = {
         return quotesCollection.find(filter).then( response => {return response;} ).catch( err=>{return err;});
     },
     getRandomQuotes(){
-        return quotesCollection.find({},{status:0, __v:0}).then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
+        return quotesCollection.find({},{__v:0}).then( response => {do {x = Math.floor(Math.random() * (response.length - 1));} while (response[x].status != "Approved");return response[x];} ).catch( err=>{return err;});
     },
     editQuoteBy(filter,quote){
         return quotesCollection.updateMany(filter,{$set: quote}).then( response => {return response;} ).catch( err=>{return err;});
