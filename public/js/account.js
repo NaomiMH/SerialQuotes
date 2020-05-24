@@ -1,528 +1,196 @@
 const urlParams = new URLSearchParams(window.location.search);
 let user;
 
-function addElement(place,id,title,message){
-    place.innerHTML += 
+function addElement(place,id,title,botton){
+    let temp = 
     `<div class="element-label">
-        <label class="element" id=${id}>${title}</label>
-        <button class="delete-element">${message}</button>
-    </div>`;
-}
-
-function addElementUser(place,id,name,wish,watch,pass,message){
-    place.innerHTML += 
-    `<div class="element-label">
-        <label class="element" id=${id} name="${name}" pass="${pass}">${name} Wish: ${wish} Watched: ${watch} </label>
-        <button class="delete-element">${message}</button>
-    </div>`;
-}
-
-function fetchUser(){
-    let userid = urlParams.get('id');
-    let result = document.querySelector('.account');
-    if(userid){
-        let url = `/user?id=${userid}`;
-        let settings = {
-            method: 'GET'
-        }
-        
-        fetch( url, settings )
-            .then( response => {
-                if( response.ok ){
-                    return response.json();
-                }
-                throw new Error( response.statusText );
-            })
-            .then( responseJSON => {
-                result.innerHTML = "";
-                if(responseJSON[0]){
-                    result.innerHTML += 'Log Out';
-                    user=responseJSON[0];
-                    if(user.admin){
-                        let admin = document.querySelector('.administrator');
-                        admin.style.display = "flex";
-                    }
-                }
-            })
-            .catch( err=> {
-                result.innerHTML = `<div class="error"> ${err.message}</div>`;
-            });
+        <label class="element" id=${id}>${title}</label>`;
+    if(botton){
+        temp +=
+        `<button class="delete-element">${botton}</button>`;
     }
+    temp +=
+    `</div>`;
+    place.innerHTML += temp;
 }
 
-function fetchChangeUser(id, username,password, admin){
+function addElement2(place,id,message,botton,botton2){
+    place.innerHTML += 
+    `<div class="element-label">
+        <label class="element" id=${id}>${message}</label>
+        <button class="grade-element">${botton}</button>
+        <button class="delete-element">${botton2}</button>
+    </div>`;
+}
+
+function fetchUpdate(data){
+    //unique
+    //user
+    //token needed
+    //new token
     url = '/user';
-    if(!password){
-        password = user.password
-    }
-    if(!username){
-        username = user.username
-    }
-    if(admin==undefined){
-        admin = user.admin
-    }
-    if(!id){
-        id = user._id
-    }
-    data = {id,username,password,admin};
 
     settings = {
         method: 'PATCH',
         headers: {
+            token: localStorage.getItem( 'token' ),
             'Content-Type': 'application/json'
         },
         body: JSON.stringify( data )
     };
     
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            location.reload();
-        })
-        .catch( err=> {
-            result.style.opacity = 1;
-        });
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        if(data.id == user.id){
+            localStorage.clear();
+            localStorage.setItem('token',responseJSON);
+        }
+        location.reload();
+        //validateToken();
+    }).catch( err=> {
+        result.style.opacity = 1;
+    });
 }
 
-function fetchAllNews(place){
-    let url = "/news";
+function fetchBy(page, place, next){
+    //origin index edited
+    //tv or quote or comment
+    //no token
+    let url = `/${page}`;
     let settings = {
         method: 'GET'
     };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                for(let i=responseJSON.length-1; i>=0; i--){
-                    addElement(place,responseJSON[i]._id,`${responseJSON[i].type}: ${responseJSON[i].about}`,'Delete');
-                }
-            } else {
-                place.innerHTML = '<div class="element-label">No news found</div>';
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
+
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        next(place, responseJSON);
+    }).catch( err=> {
+        console.log(err.message);
+    });
 }
 
-function fetchAllWatchedList(place){
-    let url = `/watched?userId=${user._id}`;
+function fetchByToken(page, place, next){
+    //unique
+    //user
+    //token needed
+    let url = `/${page}`;
     let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                let cant = responseJSON[0].list.length;
-                if(cant==0){
-                    place.innerHTML = '<div class="element-label"> Empty </div>';
-                } else {
-                    for(let i=0; i<cant; i++){
-                        addElement(place,responseJSON[0].list[i].tvId,responseJSON[0].list[i].title,'Delete');
-                    }
-                }
-                
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchAllWishList(place){
-    let url = `/wish?userId=${user._id}`;
-    let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                let cant = responseJSON[0].list.length;
-                if(cant==0){
-                    place.innerHTML = '<div class="element-label"> Empty </div>';
-                } else {
-                    for(let i=0; i<cant; i++){
-                        addElement(place,responseJSON[0].list[i].tvId,responseJSON[0].list[i].title,'Delete');
-                    }
-                }
-                
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchAllQuotes(place){
-    let url = `/quotes?by=${user.username}`;
-    let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,`${responseJSON[i]._id} fromId="${responseJSON[i].fromId}"`,responseJSON[i].quote,'Delete');
-                }
-            } else {
-                place.innerHTML = '<div class="element-label">No quotes found</div>';
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchAllComments(place){
-    let url = `/comment?by=${user.username}`;
-    let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                for(let i=0; i<responseJSON.length; i++){
-                    let id = responseJSON[i]._id;
-                    let comment = responseJSON[i].comment;
-                    url = `/quotes?fromId=${id}`;
-                    
-                    fetch( url, settings )
-                        .then( response => {
-                            if( response.ok ){
-                                return response.json();
-                            }
-                            throw new Error( response.statusText );
-                        })
-                        .then( responseJSON => {
-                            place.innerHTML = "";
-                            if(responseJSON[0]){
-                                addElement(place,`${id} fromId="${responseJSON[0].fromId}"`,comment,'Delete');
-                            } else {
-                                place.innerHTML = '<div class="element-label">No quote from comment found</div>';
-                            }
-                        })
-                        .catch( err=> {
-                            //result.innerHTML = `<label class="error">${err.message}</label>`;
-                        });
-                }
-            } else {
-                place.innerHTML = '<div class="element-label">No comments found</div>';
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchQuote(place,status){
-    let url = `/quote?status=${status}`;
-    let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                for(let i=0; i<responseJSON.length; i++){
-                    addElement(place,`${responseJSON[i]._id} fromId="${responseJSON[i].fromId}"`,responseJSON[i].quote,'Approve');
-                }
-            } else {
-                place.innerHTML = '<div class="element-label">No quotes found</div>';
-            }
-        })
-        .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchUsers(place,admin){
-    let url = `/user?admin=${admin}`;
-    if(admin==undefined){
-        url = '/users';
-    }
-    let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            place.innerHTML = "";
-            if(responseJSON[0]){
-                for(let i=0; i<responseJSON.length; i++){
-                    let id = responseJSON[i]._id;
-                    let name = responseJSON[i].username;
-                    let pass = responseJSON[i].password;
-                    url = `/wish?userId=${id}`;
-                    
-                    fetch( url, settings )
-                        .then( response => {
-                            if( response.ok ){
-                                return response.json();
-                            }
-                            throw new Error( response.statusText );
-                        })
-                        .then( responseJSON => {
-                            if(responseJSON[0]){
-                                let wish = responseJSON[0].list.length;
-                                url = `/watched?userId=${id}`;
-                    
-                                fetch( url, settings )
-                                    .then( response => {
-                                        if( response.ok ){
-                                            return response.json();
-                                        }
-                                        throw new Error( response.statusText );
-                                    })
-                                    .then( responseJSON => {
-                                        if(responseJSON[0]){;
-                                            let watch = responseJSON[0].list.length;
-                                            message = "Upgrade";
-                                            if(admin){
-                                                message = "Degrade";
-                                            }
-                                            addElementUser(place,id,name,wish,watch,pass,message);
-                                        }
-                                    })
-                                    .catch( err=> {
-                                        //result.innerHTML = `<label class="error">${err.message}</label>`;
-                                    });
-                            }
-                        })
-                        .catch( err=> {
-                            //result.innerHTML = `<label class="error">${err.message}</label>`;
-                        });
-                }
-            } else {
-                place.innerHTML = '<div class="element-label">No users found</div>';
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchCreateTV(title,type,description,image){
-    let url = '/tv';
-    let data = {
-        title: title,
-        type: type,
-        description: description,
-        image: image
-    };
-    
-    let settings = {
-        method: 'POST',
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify( data )
+            token: localStorage.getItem( 'token' )
+        }
     };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            location.reload();
-        })
-        .catch( err=> {
-            //result.innerHTML = `${err.message}`;
-        });
+
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        next(place, responseJSON);
+    }).catch( err=> {
+        console.log(err.message);
+    });
 }
 
-function fetchChangeQuote(id,status){
-    let url = `/quote`;
-    let data = {id,status};
+function fetchEdit(page,data,next){
+    //origin serial
+    //tv or quote or comment
+    //token needed
+    let url = `/${page}`;
     
     let settings = {
         method: 'PATCH',
         headers: {
+            token: localStorage.getItem( 'token' ),
             'Content-Type': 'application/json'
         },
         body: JSON.stringify( data )
     };
     
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        if(next){
+            next();
+        } else {
             location.reload();
-        })
-        .catch( err=> {
-            //result.innerHTML = `${err.message}`;
-        });
+        }
+    }).catch( err=> {
+        //result.innerHTML = `${err.message}`;
+    });
 }
 
-function fetchDeleteById(page,id){
+function fetchDelete(page,id){
+    //origin serial
+    //news or comment or quote or tv or user
+    //token needed
     let url = `/${page}/${id}`;
-    let settings = {
-        method: 'DELETE'
-    };
     
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(page == 'user'){
-                location.href = 'index.html';
-            } else {
-                location.reload();
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchDeleteElement(page,id,title){
-    let url = `/${page}`;
-    let data = {
-        userId: user._id,
-        tvId: id,
-        title: title
-    };
     let settings = {
         method: 'DELETE',
         headers: {
+            token: localStorage.getItem( 'token' )
+        }
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        //loadingPage();
+        location.reload();
+    }).catch( err=> {
+        //result.innerHTML = `${err.message}`;
+    });
+}
+
+function fetchDeleteElement(page,data){
+    //origin serial
+    //wish or watch or tv
+    //token needed
+    //new token
+    let url = `/${page}`;
+    
+    let settings = {
+        method: 'DELETE',
+        headers: {
+            token: localStorage.getItem( 'token' ),
             'Content-Type': 'application/json'
         },
         body: JSON.stringify( data )
     };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            location.reload();
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
+    console.log(data);
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        localStorage.clear();
+        localStorage.setItem('token',responseJSON);
+        //validateToken();
+        location.reload();
+    }).catch( err=> {
+        //result.innerHTML = `${err.message}`;
+    });
 }
 
-function watchBtn(){
-    let userid = urlParams.get('id');
-    let btn = document.querySelector( '.account' );
-
-    btn.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        if(user){
-            location.href=`login.html`;
-        }
-        else{
-            location.href='login.html';
-        }
-    });
-
-    btn = document.querySelector( '.quotePage');
-
-    btn.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        if(user){
-            location.href=`quotes.html?id=${userid}`;
-        }
-        else{
-            location.href='quotes.html';
-        }
-    });
-
-    btn = document.querySelector( '.serialPage');
-
-    btn.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        if(user){
-            location.href=`serial.html?id=${userid}`;
-        }
-        else{
-            location.href='serial.html';
-        }
-    });
-
-    btn = document.querySelector( '.indexPage');
-
-    btn.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        if(user){
-            location.href=`index.html?id=${userid}`;
-        }
-        else{
-            location.href='index.html';
-        }
-    });
-
-    btn = document.querySelector('#create-save');
+function watchAdminBtn(){
+    let btn = document.querySelector('#create-save');
     let createForm = document.querySelector('.create-tv');
 
     btn.addEventListener( 'click',(event)=>{
@@ -532,7 +200,7 @@ function watchBtn(){
         let description = createForm.querySelector('#create-description').value;
         let image = createForm.querySelector('#create-image').value;
 
-        fetchCreateTV(title,type,description,image);
+        //fetchCreateTV(title,type,description,image);
     });
 
     btn = document.querySelector('#create-cancel');
@@ -545,60 +213,199 @@ function watchBtn(){
         createForm.querySelector('#create-image').value = "";
     });
 
-    btn = document.querySelector('#delete-account');
-    
-    btn.addEventListener( 'click',(event)=>{
-        event.preventDefault();
-        fetchDeleteById('user',user._id);
-    });
-
     btn = document.querySelector('#delete-everything');
     
     btn.addEventListener( 'click',(event)=>{
         event.preventDefault();
-        fetchChangeUser(user._id,user.username,user.password,false);
-    });
-
-    btn = document.querySelector('.mapPage');
-
-    btn.addEventListener( 'click', (event)=>{
-        if(event.target.tagName == "LI"){
-            let temp = `${event.target.getAttribute('go')}.html`
-            if(user){
-                temp += `?id=${user._id}`;
-            }
-            location.href = temp;
-        }
-    });
-
-    btn = document.querySelector('.aboutUs');
-
-    btn.addEventListener( 'click', (event)=>{
-        if(event.target.tagName == "LI"){
-            let temp = `page.html?`;
-            if(user){
-                temp += `id=${user._id}&`;
-            }
-            temp += `show=${event.target.getAttribute('go')}`;
-            location.href = temp;
-        }
-    });
-
-    btn = document.querySelector('.information');
-
-    btn.addEventListener( 'click', (event)=>{
-        if(event.target.tagName == "LI"){
-            let temp = `page.html?`;
-            if(user){
-                temp += `id=${user._id}&`;
-            }
-            temp += `show=${event.target.getAttribute('go')}`;
-            location.href = temp;
-        }
+        let data = {};
+        data.id = user.id;
+        data.admin = false;
+        fetchUpdate(data);
     });
 }
 
+function watchBtn(place,element,page,next){
+    //delete edit
+    let btns = place.querySelectorAll(`${element}`);
+    for(let i=0; i<btns.length; i++){
+        btns[i].addEventListener('click',(event)=>{
+            event.preventDefault();
+            let id;
+            if(element == '#delete-account'){
+                id = user.id;
+            } else {
+                id = event.target.parentNode.querySelector('.element').id;
+            }
+            if(page == 'wish' || page == 'watch'){
+                id = {tvId:id};
+                next(page,id);
+            } else if(page == 'quote2'){
+                next('quote',{id,status: "Approved"});
+            } else if(page == 'quote' || page == 'comment' || page == 'news'){
+                next(page,id);
+            } else if(page == true || page == false){
+                next({id,admin: page});
+            } else {
+                next(page,id);
+            }
+        });
+    }
+}
+
+function loadpage(step,arrey){
+    //origin index
+    if(step == 'quote'){
+        location.href= `serial.html?show=${arrey[0].fromId}`;
+    } else if(step == 'comment'){
+        fetchBy(`quote?id=${arrey[0].fromId}`,'quote',loadpage);
+    }
+}
+
+function watchElement(place,element,topic){
+    //delete edit
+    let btns = place.querySelectorAll(`.${element}`);
+    for(let i=0; i<btns.length; i++){
+        btns[i].addEventListener('click',(event)=>{
+            event.preventDefault();
+            let id = event.target.id;
+            if(topic == "serial"){
+                location.href= `serial.html?show=${id}`;
+            }
+            else if(topic == "quote"){
+                fetchBy(`quote?id=${id}`,'quote',loadpage);
+            }
+            else if(topic == "comment"){
+                fetchBy(`comment?id=${id}`,'comment',loadpage);
+            }
+        });
+    }
+}
+
+function watchInter(place){
+    if(place.className == 'quotes-type'){
+        watchBtn(place,'.delete-element','quote2',fetchEdit);
+        //watchBtn(place,'grade-element','quote3',fetchEdit);
+    } else if(place.className == 'my-quotes'){
+        watchBtn(place,'.delete-element','quote',fetchDelete);
+        watchElement(place,'element','quote');
+    } else if(place.className == 'wish-list'){
+        watchBtn(place,'.delete-element','wish',fetchDeleteElement);
+        watchElement(place,'element','serial');
+    } else if(place.className == 'watched-list'){
+        watchBtn(place,'.delete-element','watch',fetchDeleteElement);
+        watchElement(place,'element','serial');
+    } else if(place.className == 'like-list'){
+        //fill(place,arrey,'title');
+    } else if(place.className == 'my-comments'){
+        watchBtn(place,'.delete-element','comment',fetchDelete);
+        watchElement(place,'element','comment');
+    } else if(place.className == 'news-list'){
+        watchBtn(place,'.delete-element','news',fetchDelete);
+    } else if(place.className == 'users-list'){
+        watchBtn(place,'.delete-element','user',fetchDelete);
+        watchBtn(place,'.grade-element',true,fetchUpdate);
+    } else if(place.className == 'administrator-list'){
+        watchBtn(place,'.delete-element',false,fetchUpdate);
+    }
+}
+
+function fill(place,arrey,tipe,botton){
+    if(!arrey[0]){
+        addElement(place,0,"No elements to show");
+    } else {
+        for(let i=arrey.length-1; i>=0; i--){
+            if(tipe == 'username'){
+                let message = `${arrey[i].username}  wish: ${arrey[i].wish.length}  watch: ${arrey[i].watch.length}  like: ${arrey[i].like.length}`;
+                if(botton=='Upgrade'){
+                    addElement2(place,arrey[i]._id,message,botton,'Delete');
+                } else {
+                    addElement(place,arrey[i]._id,message,botton);
+                }
+            } else if(tipe == 'quote' && place.className == 'quotes-type'){
+                addElement2(place,arrey[i]._id,arrey[i].quote,'Edit','Approve');
+            } else {
+                let message;
+                let id = arrey[i]._id;
+                if(tipe == 'quote'){
+                    message = arrey[i].quote;
+                } else if(tipe == 'comment'){
+                    message = arrey[i].comment;
+                } else if(tipe == 'title'){
+                    id = arrey[i].tvId;
+                    message = arrey[i].title;
+                } else if(tipe == 'about'){
+                    message = `${arrey[i].type}: ${arrey[i].about}`;
+                    id = `${arrey[i]._id} go="${arrey[i].aboutId}"`
+                }
+                addElement(place,id,message,botton);
+            }
+        }
+        watchInter(place);
+    }
+}
+
+function inter(place,arrey){
+    if(place.className == 'quotes-type'){
+        fill(place,arrey,'quote','Approve');
+    } else if(place.className == 'my-quotes'){
+        fill(place,arrey,'quote','Delete');
+    } else if(place.className == 'wish-list' || place.className == 'watched-list'){
+        fill(place,arrey,'title','Delete');
+    } else if(place.className == 'like-list'){
+        fill(place,arrey,'title');
+    } else if(place.className == 'my-comments'){
+        fill(place,arrey,'comment','Delete');
+    } else if(place.className == 'news-list'){
+        fill(place,arrey,'about','Delete');
+    } else if(place.className == 'users-list'){
+        fill(place,arrey,'username','Upgrade');
+    } else if(place.className == 'administrator-list'){
+        fill(place,arrey,'username','Degrade');
+    }
+}
+
 function loadingPage(){
+    let admin = document.querySelector('.administrator');
+    document.querySelector('.user-username').innerHTML = user.username;
+    if(user.admin){
+        admin.style.display = 'flex';
+        watchAdminBtn();
+        let british = document.querySelector('.quotes-type');
+        british.innerHTML = "";
+        fetchBy(`quote?status=To be approved`,british,inter);
+        british = document.querySelector('.news-list');
+        british.innerHTML = "";
+        fetchBy(`news`,british,inter);
+        british = document.querySelector('.users-list')
+        british.innerHTML = "";
+        fetchByToken(`user?admin=false`,british,inter);
+        british = document.querySelector('.administrator-list');
+        british.innerHTML = "";
+        fetchByToken(`user?admin=true`,british,inter);
+    } else {
+        admin.style.display = 'none';
+    }
+    watchBtns();
+    let area = document.querySelector('.wish-list');
+    area.innerHTML = "";
+    inter(area,user.wish);
+    area = document.querySelector('.watched-list');
+    area.innerHTML = "";
+    inter(area,user.watch);
+    area = document.querySelector('.like-list');
+    area.innerHTML = "";
+    inter(area,user.like);
+    area = document.querySelector('.my-quotes');
+    area.innerHTML = "";
+    fetchBy(`quote?byId=${user.id}`,area,inter);
+    area = document.querySelector('.my-comments');
+    area.innerHTML = "";
+    fetchBy(`comment?byId=${user.id}`,area,inter);
+    area = document.querySelector('.delete-account');
+    watchBtn(area,'#delete-account','user',fetchDelete);
+}
+
+function watchBtns(){
     let view = document.getElementsByClassName('subtitle');
     for(let i=0; i<view.length; i++){
         view[i].addEventListener('click',(event)=>{
@@ -616,45 +423,13 @@ function loadingPage(){
                 if(div.className == "new-username"){
                     div.querySelector('input').value = "";
                     let hide = document.querySelector('.new-password');
-                    if(hide.id == "show"){
-                        hide.id = "hide";
-                    }
+                    hide.id = "hide";
                 }
                 else if(div.className == "new-password"){
                     div.querySelector('input').value = "";
                     let hide = document.querySelector('.new-username');
-                    if(hide.id == "show"){
-                        hide.id = "hide";
-                    }
+                    hide.id = "hide";
                 }
-                else if(div.className == "watched-list"){
-                    fetchAllWatchedList(div);
-                }
-                else if(div.className == "wish-list"){
-                    fetchAllWishList(div);
-                }
-                else if(div.className == "my-quotes"){
-                    fetchAllQuotes(div);
-                }
-                else if(div.className == "my-comments"){
-                    fetchAllComments(div);
-                }
-                else if(div.className == "news-list"){
-                    fetchAllNews(div);
-                }
-                else if(div.className == "my-information"){
-                    document.querySelector('.user-username').innerHTML = user.username;
-                }
-                else if(div.className == "quotes-type"){
-                    fetchQuote(div,"To be approved");
-                }
-                else if(div.className == "users-list"){
-                    fetchUsers(div,false);
-                }
-                else if(div.className == "administrator-list"){
-                    fetchUsers(div,true);
-                }
-                
             } else{
                 div.id = "hide";
                 if(div.parentNode.parentNode.parentNode.className == "administrator"){
@@ -671,30 +446,20 @@ function loadingPage(){
 
     view.addEventListener( 'click', (event)=>{
         event.preventDefault();
-        let username,password;
+        let data = {};
+        data.id = user.id;
         if(document.querySelector('.new-username').id == "show"){
-            username = document.querySelector('#new-username').value;
+            data.username = document.querySelector('#new-username').value;
         } else if(document.querySelector('.new-password').id == "show"){
-            password = document.querySelector('#new-password').value;
+            data.password = document.querySelector('#new-password').value;
         }
-        fetchChangeUser(user._id,username,password);
+        fetchUpdate(data);
     });
-
-    view = document.querySelector('#user-cancel');
+    
+    /*
+    view = document.querySelector('.results');
 
     view.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        document.querySelector('#new-username').value = "";
-        document.querySelector('.new-username').id = "hide";
-        document.querySelector('.new-password').id == "hide";
-        document.querySelector('#new-password').value = "";
-    });
-}
-
-function watchFutureBtns(){
-    let section = document.querySelector('.results');
-
-    section.addEventListener( 'click', (event)=>{
         event.preventDefault();
         if(event.target.className == "delete-element"){
             let id = event.target.parentNode.querySelector('.element').id;
@@ -721,14 +486,6 @@ function watchFutureBtns(){
             else if(type == "my-quotes"){
                 fetchDeleteById('quote',id);
             }
-            else if(type == "wish-list"){
-                let title = event.target.parentNode.querySelector('.element').innerHTML;
-                fetchDeleteElement('wish',id,title);
-            }
-            else if(type == "watched-list"){
-                let title = event.target.parentNode.querySelector('.element').innerHTML;
-                fetchDeleteElement('watch',id,title);
-            }
         }
         else if(event.target.className == "element"){
             let id = event.target.id;
@@ -753,15 +510,96 @@ function watchFutureBtns(){
             }
             console.log(event.target.parentNode.parentNode.className);
         }
+    });*/
+}
+
+function validateToken(){
+    //origin index
+    //token needed
+    let url = '/valid/token';
+    let settings = {
+        method: 'GET',
+        headers: {
+            token: localStorage.getItem( 'token' )
+        }
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        user = responseJSON.userData;
+        localStorage.setItem('token',responseJSON.token);
+        loadingPage();
+    }).catch( err=> {
+        location.href = 'login.html';
+    });
+}
+
+function watchMoveBtn(){
+    //origin index edited
+    let btn = document.querySelector( '.account' );
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        localStorage.clear();
+        location.href= `login.html`;
+    });
+
+    btn = document.querySelector( '.quotePage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        location.href='quotes.html';
+    });
+
+    btn = document.querySelector( '.serialPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        location.href='serial.html';
+    });
+
+    btn = document.querySelector( '.indexPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        location.href='index.html';
+    });
+
+    btn = document.querySelector('.mapPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        if(event.target.tagName == "LI"){
+            location.href = `${event.target.getAttribute('go')}.html`;
+        }
+    });
+
+    btn = document.querySelector('.aboutUs');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        if(event.target.tagName == "LI"){
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
+        }
+    });
+
+    btn = document.querySelector('.information');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        if(event.target.tagName == "LI"){
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
+        }
     });
 }
 
 function init(){
-    fetchUser();
- 
-    watchBtn();
-    loadingPage();
-    watchFutureBtns();
+    watchMoveBtn();
+    validateToken();
 }
 
 init();

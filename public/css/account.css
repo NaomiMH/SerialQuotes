@@ -125,6 +125,7 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
 .new-username, .new-password{
     display: none;
     justify-content: center;
+    margin-bottom: 10px;
 }
 
 .subtitle:hover, .element:hover{

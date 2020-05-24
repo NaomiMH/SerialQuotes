@@ -1,352 +1,160 @@
 const urlParams = new URLSearchParams(window.location.search);
-let user,wish,watch;
+let user;
 
 function addTV(place,arrey){
-    for (let i=arrey.length-1; i>=0; i--){
-        let temp = 
-        `<div class="tv" id="${arrey[i]._id}">
-            <img alt="image" src="${arrey[i].image}">
-            <label class="tv-title">${arrey[i].title}</label>
-            <label class="tv-description">${arrey[i].description}</label>
-            <label class="tv-type">${arrey[i].type}</label>`;
-        if(user){
-            if(!watch.find( tv => tv.tvId === arrey[i]._id)){
-                if(!wish.find( tv => tv.tvId === arrey[i]._id)){
-                    temp += `<button class="listBtn" id="add-wish"></button>`;
-                } else {
-                    temp += `<button class="listBtn" id="add-watch"></button>`;
+    //origin index
+    if(!arrey[0]){
+        place.innerHTML += 'No information available';
+    } else {
+        for (let i=arrey.length-1; i>=0; i--){
+            let temp = 
+            `<div class="tv" id="${arrey[i]._id}">
+                <img alt="image" src="${arrey[i].image}">
+                <label class="tv-title">${arrey[i].title}</label>
+                <label class="tv-description">${arrey[i].description}</label>
+                <label class="tv-type">${arrey[i].type}</label>`;
+            if(user){
+                if(!user.watch.find( tv => tv.tvId === arrey[i]._id)){
+                    if(!user.wish.find( tv => tv.tvId === arrey[i]._id)){
+                        temp += `<button id="add-wish"></button>`;
+                    } else {
+                        temp += `<button id="add-watch"></button>`;
+                    }
                 }
             }
+            temp +=
+            `</div>`;
+            place.innerHTML += temp;
         }
-        temp +=
-        `</div>`;
-        place.innerHTML += temp;
+        watchSerialResults();
     }
 }
 
 function addQuotes(place,arrey){
-    for (let i=arrey.length-1; i>=0; i--){
-        place.innerHTML += 
-        `<div class="quote" id="${arrey[i]._id}">
-            <div class="quote-quote-label">
-                <label>"</label>
-                <label class="quote-quote">${arrey[i].quote}</label>
-                <label>"</label>
-            </div>
-            <div class="quote-by-label">
-                <label>By: </label>
-                <label class="quote-by">${arrey[i].by}</label>
-            </div>
-            <div class="quote-from-label">
-                <label>From: </label>
-                <label class="quote-from" id="${arrey[i].fromId}">${arrey[i].from}</label>
-            </div>
-            <label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
-        </div>`;
+    //origin index
+    if(!arrey[0]){
+        place.innerHTML += 'No information available';
+    } else {
+        for (let i=arrey.length-1; i>=0; i--){
+            place.innerHTML += 
+            `<div class="quote" id="${arrey[i]._id}">
+                <div class="quote-quote-label">
+                    <label>"</label>
+                    <label class="quote-quote">${arrey[i].quote}</label>
+                    <label>"</label>
+                </div>
+                <div class="quote-by-label">
+                    <label>By: </label>
+                    <label class="quote-by" id=${arrey[i].byId}>${arrey[i].by}</label>
+                </div>
+                <div class="quote-from-label">
+                    <label>From: </label>
+                    <label class="quote-from" id="${arrey[i].fromId}">${arrey[i].from}</label>
+                </div>
+                <label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+            </div>`;
+        }
+        watchQuotesResults();
     }
 }
 
 function addNews(place,arrey){
-    for (let i=arrey.length-1; i>=0; i--){
-        place.innerHTML += 
-        `<div class="news-new" id="${arrey[i]._id}" go="${arrey[i].aboutId}">
-            <label class="news-new-title">${arrey[i].type}</label>
-            <label>${arrey[i].about}</label>
-        </div>`;
-    }
-}
-
-function fetchAllTV(){
-    let url = '/tvs';
-    let settings = {
-        method: 'GET'
-    };
-    
-    let result = document.querySelector( '.serial-results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There isn't media available.</label>`;
-            }else{
-                result.innerHTML = "";
-                addTV(result,responseJSON);
-                watchSerialResults();
-            }
-        })
-        .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchAllQuotes(){
-    let url = '/quotes';
-    let settings = {
-        method: 'GET'
-    };
-    
-    let result = document.querySelector( '.quotes-results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There aren't quotes available.</label>`;
-            }else{
-                result.innerHTML = "";
-                addQuotes(result,responseJSON);
-                watchQuotesResults();
-            }
-        })
-        .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchUser(){
-    let userid = urlParams.get('id');
-    let result = document.querySelector('.account');
-    if(userid){
-        let url = `/user?id=${userid}`;
-        let settings = {
-            method: 'GET'
+    //unique
+    if(arrey[0]){
+        for (let i=arrey.length-1; i>=0; i--){
+            place.innerHTML += 
+            `<div class="news-new" id="${arrey[i]._id}" go="${arrey[i].aboutId}">
+                <label class="news-new-title">${arrey[i].type}</label>
+                <label>${arrey[i].about}</label>
+            </div>`;
         }
-        
-        fetch( url, settings )
-            .then( response => {
-                if( response.ok ){
-                    return response.json();
-                }
-                throw new Error( response.statusText );
-            })
-            .then( responseJSON => {
-                result.innerHTML = "";
-                if(responseJSON[0]){
-                    result.innerHTML += 'My account';
-                    user=responseJSON[0];
-                    let id = responseJSON[0]._id;
-                    url = `/wish?userId=${id}`;
-                    
-                    fetch( url, settings )
-                        .then( response => {
-                            if( response.ok ){
-                                return response.json();
-                            }
-                            throw new Error( response.statusText );
-                        })
-                        .then( responseJSON => {
-                            if(responseJSON[0]){
-                                wish = responseJSON[0].list;
-                                url = `/watched?userId=${id}`;
-                    
-                                fetch( url, settings )
-                                    .then( response => {
-                                        if( response.ok ){
-                                            return response.json();
-                                        }
-                                        throw new Error( response.statusText );
-                                    })
-                                    .then( responseJSON => {
-                                        if(responseJSON[0]){
-                                            watch = responseJSON[0].list;
-                                            fetchAllTV();
-                                        }
-                                    })
-                                    .catch( err=> {
-                                        cosole.log(err.message);
-                                    });
-                            }
-                        })
-                        .catch( err=> {
-                            cosole.log(err.message);
-                        });
-                }
-            })
-            .catch( err=> {
-                cosole.log(err.message);
-            });
-    } else{
-        fetchAllTV();
+        watchNewsResults();
     }
 }
 
-function fetchQuote(type,from,id){
-    let url = `/quote?`;
-    if(type){
-        url+= `type=${type}`;
-        if(from || id){
-            url+='&';
-        }
-    }
-    if(from){
-        url+= `from=${from}`;
-        if(id){
-            url+='&';
-        }
-    }
-    if(id){
-        url+= `id=${id}`;
-    }
-    let settings = {
-        method: 'GET'
-    };
-    
-    let result = document.querySelector( '.quotes-results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There arent 'quotes' available.</label>`;
-            }else{
-                result.innerHTML = "";
-                if(id){
-                    let temp = `serial.html?`;
-                    if(user){
-                        temp += `id=${user._id}&`;
-                    }
-                    temp += `show=${responseJSON[0].fromId}`;
-                    location.href = temp;
-                }else{
-                    addQuotes(result,responseJSON);
-                    watchQuotesResults();
-                }
-            }
-        })
-        .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchTV(type,title){
-    let url = `/tv?`;
-    if(type){
-        url+=`type=${type}`;
-        if(title){
-            url+= `&`;
-        }
-    }
-    if(title){
-        url+=`title=${title}`;
-    }
-    let settings = {
-        method: 'GET'
-    };
-    
-    let result = document.querySelector( '.serial-results' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(!responseJSON[0]){
-                result.innerHTML = `<label class="error">There aren't media available.</label>`;
-            }else{
-                result.innerHTML = "";
-                addTV(result,responseJSON);
-                watchSerialResults();
-            }
-        })
-        .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchAllNews(){
-    let url = "/news";
-    let settings = {
-        method: 'GET'
-    };
-    
-    let result = document.querySelector( '.news' );
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(responseJSON[0]){
-                result.innerHTML = "";
-                addNews(result,responseJSON);
-            }
-        })
-        .catch( err=> {
-            result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchAdd(page,id,title){
+function fetchAll(page, place, next){
+    //tvs or quotes or news
+    //no token
     let url = `/${page}`;
-    let data = {
-        userId: user._id,
-        tvId: id,
-        title: title
+    let settings = {
+        method: 'GET'
     };
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        if(responseJSON[0]){
+            next(place, responseJSON);
+        } else {
+            if(page != 'news'){
+                place.innerHTML += 'No information available';
+            }
+        }
+    }).catch( err=> {
+        console.log(err.message);
+    });
+}
+
+function fetchBy(page, place, next){
+    //origin index
+    //tv or quote or comment
+    //no token
+    let url = `/${page}`;
+    let settings = {
+        method: 'GET'
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        if(responseJSON[0]){
+            next(place, responseJSON);
+        } else {
+            place.innerHTML += 'No information available';
+        }
+    }).catch( err=> {
+        console.log(err.message);
+    });
+}
+
+function fetchAdd(page,data){
+    //origin index
+    //wish or watch
+    //token needed
+    //new token
+    let url = `/${page}`;
+    
     let settings = {
         method: 'POST',
         headers: {
+            token: localStorage.getItem( 'token' ),
             'Content-Type': 'application/json'
         },
         body: JSON.stringify( data )
     };
     
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            location.reload();
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
-}
-
-function fetchComment(id){
-    let url = `/comment?id=${id}`;
-    let settings = {
-        method: 'GET'
-    };
-    
-    fetch( url, settings )
-        .then( response => {
-            if( response.ok ){
-                return response.json();
-            }
-            throw new Error( response.statusText );
-        })
-        .then( responseJSON => {
-            if(responseJSON[0]){
-                fetchQuote(undefined,undefined,responseJSON[0].fromId);
-            }
-        })
-        .catch( err=> {
-            //result.innerHTML = `<label class="error">${err.message}</label>`;
-        });
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        localStorage.clear;
+        localStorage.setItem('token',responseJSON);
+        validateToken();
+    }).catch( err=> {
+        console.log("missing code");
+        //result.innerHTML = `<label class="error">${err.message}</label>`;
+    });
 }
 
 function watchSerialResults(){
+    //origin index
     let serialList = document.querySelectorAll( '.tv' );
     
     for(let i=0; i<serialList.length; i++){
@@ -355,134 +163,85 @@ function watchSerialResults(){
             let id = event.currentTarget.id;
             if(event.target.id == "add-wish"){
                 let title = event.currentTarget.querySelector('.tv-title').innerHTML;
-                fetchAdd('wish',id,title);
+                fetchAdd('wish',{tvId: id,title});
             }
             else if(event.target.id == "add-watch"){
                 let title = event.currentTarget.querySelector('.tv-title').innerHTML;
-                fetchAdd('watch',id,title);
-            }
-            else{
-                let userid = urlParams.get('id');
-                let nextpage = 'serial.html?';
-                if(userid){
-                    nextpage += `id=${userid}&`;
-                }
-                nextpage += `show=${id}`;
-                location.href= nextpage;
+                fetchAdd('watch',{tvId: id,title});
+            } else {
+                location.href= `serial.html?show=${id}`;
             }
         });
     }
 }
 
 function watchQuotesResults(){
-    let serialList = document.querySelectorAll( '.quote' );
+    //origin index
+    let quoteList = document.querySelectorAll( '.quote' );
     
-    for(let i=0; i<serialList.length; i++){
-        serialList[i].addEventListener( 'click', (event)=>{
+    for(let i=0; i<quoteList.length; i++){
+        quoteList[i].addEventListener( 'click', (event)=>{
             event.preventDefault();
-            let id = event.currentTarget.querySelector('.quote-from').id;
-            let userid = urlParams.get('id');
-            let nextpage = 'serial.html?';
-            if(userid){
-                nextpage += `id=${userid}&`;
-            }
-            nextpage += `show=${id}`;
-            location.href= nextpage;
+            let id = event.currentTarget.id;
+            fetchBy(`quote?id=${id}`,'quote',loadpage);
         });
     }
 }
 
-function watchNewsResults(){
-    let newsList = document.querySelector( '.news' );
-    
-    newsList.addEventListener( 'click',(event)=>{
-        let object = event.target;
-        if(event.target.parentNode.className == "news-new"){
-            object = event.target.parentNode;
-        }
-        if(object){
-            let type = object.querySelector('.news-new-title').innerHTML;
-            let id = object.getAttribute('go');
-            if(type == "New Serial"){
-                let temp = `serial.html?`;
-                if(user){
-                    temp += `id=${user._id}&`;
-                }
-                temp += `show=${id}`;
-                location.href = temp;
-            }
-            else if(type == "New Quote"){
-                fetchQuote(undefined,undefined,id);
-            }
-            else if(type == "New Comment"){
-                fetchComment(id);
-            }
-        }
-        //console.log(event.target.parentNode.className);
-    });
+function loadpage(step,arrey){
+    //origin index
+    if(step == 'quote'){
+        location.href= `serial.html?show=${arrey[0].fromId}`;
+    } else if(step == 'comment'){
+        fetchBy(`quote?id=${arrey[0].fromId}`,'quote',loadpage);
+    }
 }
 
-function watchBtn(){
-    let userid = urlParams.get('id');
-    let btn = document.querySelector( '.account' );
+function watchNewsResults(){
+    //origin index
+    let serialList = document.querySelectorAll( '.news-new' );
+    
+    for(let i=0; i<serialList.length; i++){
+        serialList[i].addEventListener( 'click', (event)=>{
+            event.preventDefault();
+            let id = event.currentTarget.getAttribute('go');
+            let topic = event.currentTarget.querySelector('.news-new-title').innerHTML;
+            if(topic == "New Serial"){
+                location.href= `serial.html?show=${id}`;
+            }
+            else if(topic == "New Quote"){
+                fetchBy(`quote?id=${id}`,'quote',loadpage);
+            }
+            else if(topic == "New Comment"){
+                fetchBy(`comment?id=${id}`,'comment',loadpage);
+            }
+        });
+    }
+}
 
-    btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`account.html?id=${userid}`;
-        }
-        else{
-            location.href='login.html';
-        }
-    });
-
-    btn = document.querySelector( '.quotePage');
-
-    btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`quotes.html?id=${userid}`;
-        }
-        else{
-            location.href='quotes.html';
-        }
-    });
-
-    btn = document.querySelector( '.serialPage');
-
-    btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`serial.html?id=${userid}`;
-        }
-        else{
-            location.href='serial.html';
-        }
-    });
-
-    btn = document.querySelector( '.indexPage');
-
-    btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`index.html?id=${userid}`;
-        }
-        else{
-            location.href='index.html';
-        }
-    });
-
-    btn = document.querySelector('#serial-search');
+function watchSerialBtns(){
+    //origin index
+    let area = document.querySelector('.serial-results');
+    let area2 = document.querySelector('.quotes-results');
+    let btn = document.querySelector('#serial-search');
     
     btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
         let search = document.querySelector( '.serial-search').value;
+        document.querySelector( '.serial-search').value = "";
         if( search != "" ){
             let radioBtn = document.getElementsByName('filter');
+            area.innerHTML = "";
+            area2.innerHTML = "";
             if(radioBtn[1].checked){
-                fetchTV("Movie",search);
-                fetchQuote("Movie",search);
+                fetchBy(`tv?title=${search}&type=Movie`,area,addTV);
+                fetchBy(`quote?from=${search}&type=Movie`,area2,addQuotes);
             } else if(radioBtn[2].checked){
-                fetchTV("Serie",search);
-                fetchQuote("Serie",search);
+                fetchBy(`tv?title=${search}&type=Serie`,area,addTV);
+                fetchBy(`quote?from=${search}&type=Serie`,area2,addQuotes);
             } else {
-                fetchTV(undefined,search);
-                fetchQuote(undefined,search);
+                fetchBy(`tv?title=${search}`,area,addTV);
+                fetchBy(`quote?from=${search}`,area2,addQuotes);
             }
         }
     });
@@ -490,6 +249,7 @@ function watchBtn(){
     btn = document.querySelector('.serial-filter');
     
     btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
         let radioBtn = document.getElementsByName('filter');
         if(event.target = "label"){
             if(event.target.innerHTML == "All"){
@@ -500,64 +260,130 @@ function watchBtn(){
                 radioBtn[2].checked = "checked";
             }
         }
+        area.innerHTML = "";
+        area2.innerHTML = "";
         if(radioBtn[0].checked){
-            fetchAllTV();
-            fetchAllQuotes();
+            fetchAll('tvs',area,addTV);
+            fetchAll('quotes',area2,addQuotes);
         } else if(radioBtn[1].checked){
-            fetchTV("Movie");
-            fetchQuote("Movie");
+            fetchBy(`tv?type=Movie`,area,addTV);
+            fetchBy(`quote?type=Movie`,area2,addQuotes);
         } else if(radioBtn[2].checked){
-            fetchTV("Serie");
-            fetchQuote("Serie");
+            fetchBy(`tv?type=Serie`,area,addTV);
+            fetchBy(`quote?type=Serie`,area2,addQuotes);
         }
+    });
+}
+
+function loadingPage(){
+    //unique
+    let area;
+    if(user){
+        area = document.querySelector('.account');
+        area.innerHTML = "My account";
+    }
+    area = document.querySelector('.serial-results');
+    area.innerHTML = "";
+    fetchAll('tvs',area,addTV);
+    watchSerialBtns();
+    area = document.querySelector('.quotes-results');
+    area.innerHTML = "";
+    fetchAll('quotes',area,addQuotes);
+    area = document.querySelector('.news');
+    area.innerHTML = "";
+    fetchAll('news',area,addNews);
+}
+
+function validateToken(){
+    //origin index
+    //token needed
+    let url = '/valid/token';
+    let settings = {
+        method: 'GET',
+        headers: {
+            token: localStorage.getItem( 'token' )
+        }
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        user = responseJSON.userData;
+        localStorage.setItem('token',responseJSON.token);
+        loadingPage();
+    }).catch( err=> {
+        loadingPage();
+    });
+}
+
+function watchMoveBtn(){
+    //origin index
+    let btn = document.querySelector( '.account' );
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        if(user){
+            location.href='account.html';
+        } else {
+            location.href= `login.html`;
+        }
+    });
+
+    btn = document.querySelector( '.quotePage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        location.href='quotes.html';
+    });
+
+    btn = document.querySelector( '.serialPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        location.href='serial.html';
+    });
+
+    btn = document.querySelector( '.indexPage');
+
+    btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
+        location.href='index.html';
     });
 
     btn = document.querySelector('.mapPage');
 
     btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
         if(event.target.tagName == "LI"){
-            let temp = `${event.target.getAttribute('go')}.html`
-            if(user){
-                temp += `?id=${user._id}`;
-            }
-            location.href = temp;
+            location.href = `${event.target.getAttribute('go')}.html`;
         }
     });
 
     btn = document.querySelector('.aboutUs');
 
     btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
         if(event.target.tagName == "LI"){
-            let temp = `page.html?`;
-            if(user){
-                temp += `id=${user._id}&`;
-            }
-            temp += `show=${event.target.getAttribute('go')}`;
-            location.href = temp;
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
         }
     });
 
     btn = document.querySelector('.information');
 
     btn.addEventListener( 'click', (event)=>{
+        event.preventDefault();
         if(event.target.tagName == "LI"){
-            let temp = `page.html?`;
-            if(user){
-                temp += `id=${user._id}&`;
-            }
-            temp += `show=${event.target.getAttribute('go')}`;
-            location.href = temp;
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
         }
     });
 }
 
 function init(){
-    fetchUser();
-    fetchAllQuotes();
-    fetchAllNews();
-
-    watchBtn();
-    watchNewsResults();
+    watchMoveBtn();
+    validateToken();
 }
 
 init();

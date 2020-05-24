@@ -1,23 +1,91 @@
 const express = require( 'express' );
 const bodyParser = require( 'body-parser' );
 const morgan = require( 'morgan' );
-const uuid = require( 'uuid' );
+const mongoose = require( "mongoose" );
+const bcrypt = require( 'bcryptjs' );
+const jsonwebtoken = require( 'jsonwebtoken' );
 const app = express();
 const jsonParser = bodyParser.json();
-const {Users,TV,Quotes,Comments,WatchedLists,WishLists,News} = require( "./model.js" );
-const mongoose = require( "mongoose" );
+const {Users,TV,Quotes,Comments,News} = require( "./model.js" );
 const cors = require( './middleware/cors' );
 const PORT = 8080;
-const DATABASE_URL = 'mongodb://localhost/bookmarksdb';
-//const {DATABASE_URL, PORT} = require('./config');
+const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
+const SECRET_TOKEN = 'serialquotes';
+//const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
 app.use( morgan( 'dev' ));
 
-app.get( '/users', (req,res)=>{
-    console.log( "Getting all users" );
-    Users.getAllUsers().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+app.get( '/valid/token', (req,res) => {
+    console.log("Validing the token");
+    let token = req.headers.token;
+
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id
+        }
+        return Users.getUserBy({_id: userData.id}).then( result2 => {
+            return Users.checkUserAdmin(userData.id).then( result3 => {
+                let result = result2[0];
+                userData.username = result.username;
+                userData.wish = result.wish;
+                userData.watch = result.watch;
+                userData.like = result.like;
+                userData.admin = false;
+                if(result3[0]){
+                    userData.admin = true;
+                }
+                
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( {userData,token} );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    })
+})
+
+app.post( '/user/login', jsonParser, ( req, res ) => {
+    console.log("Getting token for a user");
+    let username = req.body.username;
+    let password = req.body.password;
+
+    if( !username || !password ){
+        res.statusMessage = "Please send the username and password.";
+        return res.status(406).end();
+    }
+
+    Users.checkUser(username).then( result => {
+        bcrypt.compare( password, result.password ).then( result2 => {
+            if(result2){
+                let userData = {
+                    id: result._id,
+                    username: result.username,
+                    admin: result.admin,
+                    wish: result.wish,
+                    watch: result.watch,
+                    like: result.like
+                }
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }
+            res.statusMessage = "Wrong credentials provieded.";
+            return res.status(409).end();
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.get( '/tvs', (req,res)=>{
@@ -30,21 +98,6 @@ app.get( '/quotes', (req,res)=>{
     Quotes.getAllQuotes().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
-app.get( '/comments', (req,res)=>{
-    console.log( "Getting all comments" );
-    Comments.getAllComments().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
-app.get( '/watchedlists', (req,res)=>{
-    console.log( "Getting all watched lists" );
-    WatchedLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
-app.get( '/Wishlists', (req,res)=>{
-    console.log( "Getting all Wish lists" );
-    WishLists.getAllList().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
 app.get( '/news', (req,res)=>{
     console.log( "Getting all news" );
     News.getAllNews().then( result => {return res.status(200).json( result );}).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -52,6 +105,8 @@ app.get( '/news', (req,res)=>{
 
 app.get( '/user', (req,res)=>{
     console.log("Getting user");
+
+    let token = req.headers.token;
     let id = req.query.id;
     let username = req.query.username;
     let admin = req.query.admin;
@@ -59,27 +114,29 @@ app.get( '/user', (req,res)=>{
         res.statusMessage = "Please send the 'id' or the 'username' or the 'admin' as parameter.";
         return res.status(406).end();
     }
-    let filter = '{';
+    let filter = {};
     if(id){
-        filter += `"_id":"${id}"`;
-        if(username || admin!=undefined){
-            filter += `,`;
-        }
+        filter._id= id;
     }
     if(username){
-        filter += `"username":"${username}"`;
-        if(admin!=undefined){
-            filter += `,`;
-        }
+        filter.username = username;
     }
     if(admin!=undefined){
-        filter += `"admin":"${admin}"`;
+        filter.admin = admin;
     }
-    filter += '}';
-    filter = JSON.parse(filter);
-    Users.getUserBy(filter).then( result => {
-        return res.status( 200 ).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        if(!decoded.admin){
+            res.statusMessage = "Your have not the right permissions.";
+            return res.status(409).end();
+        }
+        return Users.getUserBy(filter).then( result => {
+            return res.status( 200 ).json( result );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.get( '/tv', (req,res)=>{
@@ -91,24 +148,16 @@ app.get( '/tv', (req,res)=>{
         res.statusMessage = "Please send the 'id' or the 'title' or the 'type' as parameter.";
         return res.status(406).end();
     }
-    let filter = '{';
+    let filter = {};
     if(id){
-        filter += `"_id":"${id}"`;
-        if(title || type){
-            filter += `,`;
-        }
+        filter._id = id;
     }
     if(title){
-        filter += `"title": "${title}"`;
-        if(type){
-            filter += `,`;
-        }
+        filter.title = {$regex: `.*${title}.*`};
     }
     if(type){
-        filter += `"type":"${type}"`;
+        filter.type = type;
     }
-    filter += '}';
-    filter = JSON.parse(filter);
     TV.getTVBy(filter).then( result => {
         return res.status( 200 ).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -117,51 +166,44 @@ app.get( '/tv', (req,res)=>{
 app.get( '/quote', (req,res)=>{
     console.log("Getting quote");
     let id = req.query.id;
+    let quote = req.query.quote;
     let from = req.query.from;
     let fromId = req.query.fromId;
     let type = req.query.type;
     let by = req.query.by;
+    let byId = req.query.byId;
     let status = req.query. status;
-    if ( !id && !from && !fromId && !type && !by && !status ){
-        res.statusMessage = "Please send the 'id' or the 'from' or the 'fromId' or the 'type' or the 'by' or the 'status' as parameter.";
+    if ( !id && !quote && !from && !fromId && !type && !by && !byId && !status ){
+        res.statusMessage = "Please send the 'id' or the 'quote' or the 'from' or the 'fromId' or the 'type' or the 'by' or the 'byId' or the 'status' as parameter.";
         return res.status(406).end();
     }
-    let filter = '{';
+    let filter = {};
     if(id){
-        filter += `"_id":"${id}"`;
-        if(from || fromId || type || by || status){
-            filter += `,`;
-        }
+        filter._id = id;
+    }
+    if(quote){
+        filter.quote = {$regex: `.*${quote}.*`};
     }
     if(from){
-        filter += `"from":"${from}"`;
-        if(fromId || type || by || status){
-            filter += `,`;
-        }
+        filter.from = {$regex: `.*${from}.*`};
     }
     if(fromId){
-        filter += `"fromId":"${fromId}"`;
-        if(type || by || status){
-            filter += `,`;
-        }
+        filter.fromId = fromId;
     }
     if(type){
-        filter += `"type":"${type}"`;
-        if(by || status){
-            filter += `,`;
-        }
+        filter.type = type;
     }
     if(by){
-        filter += `"by":"${by}"`;
-        if(status){
-            filter += `,`;
-        }
+        filter.by = by;
+    }
+    if(byId){
+        filter.byId = byId;
     }
     if(status){
-        filter += `"status":"${status}"`;
+        filter.status = status;
+    } else {
+        filter.status = "Approved";
     }
-    filter += '}';
-    filter = JSON.parse(filter);
     Quotes.getQuoteBy(filter).then( result => {
         return res.status( 200 ).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
@@ -178,81 +220,31 @@ app.get( '/random', (req,res)=>{
 app.get( '/comment', (req,res)=>{
     console.log("Getting comment");
     let id = req.query.id;
+    let comment = req.query.comment;
     let fromId = req.query.fromId;
     let by = req.query.by;
-    if ( !id && !fromId && !by ){
-        res.statusMessage = "Please send the 'id' or the 'fromId' or the 'by' as parameter.";
+    let byId = req.query.byId;
+    if ( !id && !comment && !fromId && !by && !byId){
+        res.statusMessage = "Please send the 'id' or the 'comment' or the 'fromId' or the 'by' as parameter.";
         return res.status(406).end();
     }
-    let filter = '{';
+    let filter = {};
     if(id){
-        filter += `"_id":"${id}"`;
-        if( fromId || by){
-            filter += `,`;
-        }
+        filter._id = id;
+    }
+    if(comment){
+        filter.comment = {$regex: `.*${comment}.*`};
     }
     if(fromId){
-        filter += `"fromId":"${fromId}"`;
-        if(by){
-            filter += `,`;
-        }
+        filter.fromId = fromId;
     }
     if(by){
-        filter += `"by":"${by}"`;
+        filter.by = by;
     }
-    filter += '}';
-    filter = JSON.parse(filter);
+    if(by){
+        filter.byId = byId;
+    }
     Comments.getCommentBy(filter).then( result => {
-        return res.status( 200 ).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
-app.get( '/watched', (req,res)=>{
-    console.log("Getting watched List");
-    let id = req.query.id;
-    let userId = req.query.userId;
-    if ( !id && !userId ){
-        res.statusMessage = "Please send the 'id' or the 'userId' as parameter.";
-        return res.status(406).end();
-    }
-    let filter = '{';
-    if(id){
-        filter += `"_id":"${id}"`;
-        if( userId){
-            filter += `,`;
-        }
-    }
-    if(userId){
-        filter += `"userId":"${userId}"`;
-    }
-    filter += '}';
-    filter = JSON.parse(filter);
-    WatchedLists.getListBy(filter).then( result => {
-        return res.status( 200 ).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-});
-
-app.get( '/wish', (req,res)=>{
-    console.log("Getting wish List");
-    let id = req.query.id;
-    let userId = req.query.userId;
-    if ( !id && !userId ){
-        res.statusMessage = "Please send the 'id' or the 'userId' as parameter.";
-        return res.status(406).end();
-    }
-    let filter = '{';
-    if(id){
-        filter += `"_id":"${id}"`;
-        if( userId){
-            filter += `,`;
-        }
-    }
-    if(userId){
-        filter += `"userId":"${userId}"`;
-    }
-    filter += '}';
-    filter = JSON.parse(filter);
-    WishLists.getListBy(filter).then( result => {
         return res.status( 200 ).json( result );
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
@@ -262,50 +254,43 @@ app.post( '/user', jsonParser, (req,res)=>{
 
     let username = req.body.username;
     let password = req.body.password;
-    let admin = req.body.admin;
 
     if ( !username || !password ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
-    
-    if(admin == undefined){
-        admin = false;
+
+    if( password==username || username.length<5 || password.length<5 ){
+        res.statusMessage = "The information inserted is invalid, check that your password and username are diferente and longer than 5 caracters.";
+        return res.status(406).end();
     }
-    
-    let newUser = {username, password, admin};
-    Users.createUser(newUser).then( result => {
-        let userId = result._id;
-        //let list = [];
-        let newList = {userId}//, list};
-        WatchedLists.createList(newList).then( result2 => {
-            console.log(result2);
-            WishLists.createList(newList).then( result3 => {
-                console.log(result3);
-                let newNews = {
-                    type: "New User",
-                    about: username,
-                    aboutId: userId,
-                    date: Date()
+
+    bcrypt.hash(password,11).then( hashedPassword => {
+        let newUser = {username, password: hashedPassword};
+        Users.createUser(newUser).then( result => {
+            let userData = {};
+            userData.id = result._id;
+            userData.username = result.username;
+            userData.wish = result.wish;
+            userData.watch = result.watch;
+            userData.like = result.like;
+            userData.admin = result.admin;
+            
+            return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                if(err){
+                    res.statusMessage = err.message;
+                    return res.status(409).end();
                 }
-                News.createNews(newNews).then( result4 => {
-                    News.getAllNews().then( result5 => {
-                        if(result5.length == 21){
-                            News.deleteNewsBy({_id: result5[0]._id}).then( result6 => {
-                                return res.status(201).json( result );
-                            }).catch( err => {res.statusMessage = "Step 6";return res.status(500).end();});
-                        }
-                        return res.status(201).json( result );
-                    }).catch( err => {res.statusMessage = "Step 5";return res.status(500).end();});
-                }).catch( err => {res.statusMessage = "Step 4";return res.status(500).end();});
-            }).catch( err => {res.statusMessage = "Step 3";return res.status(500).end();});
-        }).catch( err => {res.statusMessage = "Step 2";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Step 1";return res.status(500).end();});
+                return res.status(201).json( token );
+            });
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
 
 app.post( '/tv', jsonParser, (req,res)=>{
     console.log( "Adding a new tv to the list");
 
+    let token = req.headers.token;
     let title = req.body.title;
     let type = req.body.type;
     let description = req.body.description;
@@ -316,143 +301,171 @@ app.post( '/tv', jsonParser, (req,res)=>{
         return res.status(406).end();
     }
 
-    let newTV = {title, type, description, image};
-    console.log(newTV);
-    TV.createTV(newTV).then( result => {
-        console.log(result);
-        let newNews = {
-            type: "New Serial",
-            about: title,
-            aboutId: result._id,
-            date: Date()
+    if ( title=="" || (type!="Serie" && type!="Movie") || description=="" || image=="" ){
+        res.statusMessage = "The information is wrong.";
+        return res.status(406).end();
+    }
+
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-        News.createNews(newNews).then( result2 => {
-            News.getAllNews().then( result3 => {
-                if(result3.length == 21){
-                    News.deleteNewsBy({_id: result3[0]._id}).then( result4 => {
-                        return res.status(201).json( result );
-                    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-                }
-                return res.status(201).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        if(!decoded.admin){
+            res.statusMessage = "Your have not the right permissions.";
+            return res.status(409).end();
+        }
+        let newTV = {title, type, description, image};
+        return TV.createTV(newTV).then( result => {
+            return res.status(201).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.post( '/quote', jsonParser, (req,res)=>{
     console.log( "Adding a new quote to the list");
 
+    let token = req.headers.token;
     let quote = req.body.quote;
     let from = req.body.from;
     let fromId = req.body.fromId;
     let type = req.body.type;
-    let by = req.body.by;
     let date = req.body.date;
 
-    if ( !quote || !from || !fromId || !type || !by || !date ){
+    if ( !quote || !from || !fromId || !type || !date ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
-
-    let status = "To be approved";
-
-    let newQuote = {quote, from, fromId, type, by, date, status};
-    Quotes.createQuote(newQuote).then( result => {
-        let newNews = {
-            type: "New Quote",
-            about: quote,
-            aboutId: result._id,
-            date: Date()
+    
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-        News.createNews(newNews).then( result2 => {
-            News.getAllNews().then( result3 => {
-                if(result3.length == 21){
-                    News.deleteNewsBy({_id: result3[0]._id}).then( result4 => {
-                        return res.status(201).json( result );
-                    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-                }
-                return res.status(201).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        let newQuote = {quote, from, fromId, type, by: decoded.username, byId: decoded.id, date,like:0};
+        console.log(newQuote);
+        return Quotes.createQuote(newQuote).then( result => {
+            console.log(result);
+            return res.status(201).json( result );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});;
+    });
 });
 
 app.post( '/comment', jsonParser, (req,res)=>{
     console.log( "Adding a new comment");
 
+    let token = req.headers.token;
     let comment = req.body.comment;
     let fromId = req.body.fromId;
-    let by = req.body.by;
     let date = req.body.date;
 
-    if ( !comment || !fromId || !by || !date ){
+    if ( !comment || !fromId || !date ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let newComment = {comment, fromId, by, date};
-    Comments.createComment(newComment).then( result => {
-        let newNews = {
-            type: "New Comment",
-            about: comment,
-            aboutId: result._id,
-            date: Date()
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-        News.createNews(newNews).then( result2 => {
-            News.getAllNews().then( result3 => {
-                if(result3.length == 21){
-                    News.deleteNewsBy({_id: result3[0]._id}).then( result4 => {
-                        return res.status(201).json( result );
-                    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-                }
-                return res.status(201).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        let newComment = {comment, fromId, by: decoded.username, byId: decoded.id, date};
+        return Comments.createComment(newComment).then( result => {
+            return res.status(201).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.post( '/wish', jsonParser, (req,res)=>{
     console.log( "Adding a new element to the list");
 
-    let userId = req.body.userId;
+    let token = req.headers.token;
     let tvId = req.body.tvId;
     let title = req.body.title;
 
-    if ( !userId || !tvId || !title ){
+    if ( !tvId || !title ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let newElement = {tvId, title};
-    WishLists.addElementBy({userId},newElement).then( result => {
-        return res.status(201).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        return Users.addWishById(userData.id, {tvId,title}).then( result2 => {
+            return Users.getUserBy({_id: userData.id}).then( result => {
+                result = result[0];
+                userData.wish = result.wish;
+                userData.watch = result.watch;
+                userData.like = result.like;
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.post( '/watch', jsonParser, (req,res)=>{
     console.log( "Adding a new element to the list");
 
-    let userId = req.body.userId;
+    let token = req.headers.token;
     let tvId = req.body.tvId;
     let title = req.body.title;
 
-    if ( !userId || !tvId || !title ){
+    if ( !tvId || !title ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let newElement = {tvId, title};
-    console.log(newElement);
-    WishLists.deleteElementBy({userId},newElement).then( result => {
-        WatchedLists.addElementBy({userId},newElement).then( result => {
-            return res.status(201).json( result );
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        return Users.addWatchById(userData.id, {tvId,title}).then( result2 => {
+            return Users.getUserBy({_id: userData.id}).then( result => {
+                result = result[0];
+                userData.wish = result.wish;
+                userData.watch = result.watch;
+                userData.like = result.like;
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/user/:id', (req, res)=>{
     console.log( "Removing a user by id");
     
+    let token = req.headers.token;
     let id = req.params.id;
 
     if ( !id ){
@@ -460,20 +473,25 @@ app.delete( '/user/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    WatchedLists.deleteListBy({userId: id}).then( result2 => {
-        WishLists.deleteListBy({userId: id}).then( result3 => {
-            Users.deleteUserById(id).then( result => {
-                News.deleteNewsBy({aboutId: id}).then( result4 => {
-                    return res.status(200).json( result );
-                }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        if(!decoded.admin && decoded.id != id){
+            res.statusMessage = "Your have not the right permissions.";
+            return res.status(409).end();
+        }
+        return Users.deleteUserById(id).then( result => {
+            return res.status(200).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/tv/:id', (req, res)=>{
     console.log( "Removing a tv by id");
     
+    let token = req.headers.token;
     let id = req.params.id;
 
     if ( !id ){
@@ -481,35 +499,48 @@ app.delete( '/tv/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    Quotes.getQuoteBy({fromId: id}).then( result2 =>{
-        for(let i=0; i<result2.length; i++){
-            News.deleteNewsBy({aboutId: result2[i]._id}).then( result3 => {
-                return res.status(200).json( result3 );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            Comments.getCommentBy({fromId: result2[i]._id}).then( result4 => {
-                for(let j=0; j<result4.length; j++){
-                    News.deleteNewsBy({aboutId: result4[j]._id}).then( result5 => {
-                        return res.status(200).json( result5 );
-                    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-                }
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            Comments.deleteCommentBy({fromId: result2[i]._id}).then( result6 => {
-                return res.status(200).json( result6 );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    Quotes.deleteQuoteBy({fromId: id}).then( result7 =>{
-        TV.deleteTVById(id).then( result => {
-            News.deleteNewsBy({aboutId: id}).then( result8 =>{
-                return res.status(200).json( result );
+        if(!decoded.admin){
+            res.statusMessage = "Your have not the right permissions.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        return TV.deleteTVById(id).then( result => {
+            console.log("1111");
+            console.log(result);
+            return Users.getUserBy({_id: decoded.id}).then( result2 => {
+                result2 = result2[0];
+                userData.wish = result2.wish;
+                userData.watch = result2.watch;
+                userData.like = result2.like;
+                console.log(userData);
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
             }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/quote/:id', (req, res)=>{
     console.log( "Removing a quote by id");
     
+    let token = req.headers.token;
     let id = req.params.id;
 
     if ( !id ){
@@ -517,25 +548,21 @@ app.delete( '/quote/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    Comments.getCommentBy({fromId: id}).then( result4 => {
-        for(let j=0; j<result4.length; j++){
-            News.deleteNewsBy({aboutId: result4[j]._id}).then( result5 => {
-                return res.status(200).json( result5 );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-        Comments.deleteCommentBy({fromId: id}).then( result2 => {
-            Quotes.deleteQuoteBy({_id: id}).then( result => {
-                News.deleteNewsBy({aboutId: id}).then( result3 => {
-                    return res.status(200).json( result );
-                }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        return Quotes.deleteQuoteById({_id: id}).then( result => {
+            return res.status(200).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/comment/:id', (req, res)=>{
     console.log( "Removing a comment by id");
     
+    let token = req.headers.token;
     let id = req.params.id;
 
     if ( !id ){
@@ -543,16 +570,21 @@ app.delete( '/comment/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    Comments.deleteCommentBy({_id: id}).then( result => {
-        News.deleteNewsBy({aboutId: id}).then( result2 => {
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        return Comments.deleteCommentById({_id: id}).then( result => {
             return res.status(200).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/news/:id', (req, res)=>{
     console.log( "Removing a news by id");
     
+    let token = req.headers.token;
     let id = req.params.id;
 
     if ( !id ){
@@ -560,75 +592,161 @@ app.delete( '/news/:id', (req, res)=>{
         return res.status(406).end();
     }
 
-    News.deleteNewsBy({_id: id}).then( result => {
-        return res.status(200).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        if(!decoded.admin){
+            res.statusMessage = "Your have not the right permissions.";
+            return res.status(409).end();
+        }
+        return News.deleteNewsBy({_id: id}).then( result => {
+            return res.status(200).json( result );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/wish', jsonParser, (req,res)=>{
     console.log( "Deleteing a element from the list");
 
-    let userId = req.body.userId;
+    let token = req.headers.token;
     let tvId = req.body.tvId;
-    let title = req.body.title;
 
-    if ( !userId || !tvId || !title ){
+    if ( !tvId ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let newElement = {tvId, title};
-    WishLists.deleteElementBy({userId},newElement).then( result => {
-        return res.status(201).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        let newElement = {tvId};
+        return Users.deleteWishById(userData.id,newElement).then( result2 => {
+            return Users.getUserBy({_id: userData.id}).then( result => {
+                result = result[0];
+                userData.wish = result.wish;
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.delete( '/watch', jsonParser, (req,res)=>{
     console.log( "Deleteing a element from the list");
 
-    let userId = req.body.userId;
+    let token = req.headers.token;
     let tvId = req.body.tvId;
-    let title = req.body.title;
 
-    if ( !userId || !tvId || !title ){
+    if ( !tvId ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let newElement = {tvId, title};
-    WatchedLists.deleteElementBy({userId},newElement).then( result => {
-        return res.status(201).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        let newElement = {tvId};
+        return Users.deleteWatchById(userData.id,newElement).then( result2 => {
+            return Users.getUserBy({_id: userData.id}).then( result => {
+                result = result[0];
+                userData.watch = result.watch;
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.patch( '/user', jsonParser, (req, res)=>{
     console.log( "Updating a user by id");
 
+    let token = req.headers.token;
     let id = req.body.id;
     let username = req.body.username;
     let password = req.body.password;
     let admin = req.body.admin;
 
-    if ( !id || !username || !password || admin==undefined ){
+    if ( !id || (!username && !password && admin==undefined) ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let user = {username, password, admin};
-    Users.getUserBy({_id: id}).then( result2 => {
-        if(username!=result2[0].username){
-            Comments.editCommentBy({by: result2[0].username},{by:username}).then( result3 => {
-                Quotes.editQuoteBy({by: result2[0].username},{by:username}).then( result4 => {
-                    News.editNewsBy({aboutId: id},{about: username}).then( result5 => {
-                        return res.status(200).json( result2 );
-                    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-                }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    temp = {};
+    if(username){
+        temp.username = username;
+    }
+    if(password){
+        temp.password = password;
+    }
+    if(admin!=undefined){
+        temp.admin = admin;
+    }
+
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
-    Users.editUserById(id, user).then( result => {
-        return res.status(202).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        return Users.editUserById({_id: id}, temp).then( result3 => {
+            if(id == decoded.id){
+                return Users.getUserBy({_id: userData.id}).then( result2 => {
+                    let result = result2[0];
+                    userData.username = result.username;
+                    if(temp.admin != undefined){
+                        userData.admin = temp.admin;
+                    }
+                    return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                        if(err){
+                            res.statusMessage = err.message;
+                            return res.status(409).end();
+                        }
+                        return res.status(200).json( token );
+                    });
+                }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+            }
+            return res.status(200).json( result3 );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.patch( '/tv', jsonParser, (req, res)=>{
@@ -640,117 +758,99 @@ app.patch( '/tv', jsonParser, (req, res)=>{
     let description = req.body.description;
     let image = req.body.image;
 
-    if ( !id || !title || !type || !description || !image ){
+    if ( !id || (!title && !type && !description && !image) ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let tv = {title, type, description, image};
-    TV.getTVBy({_id: id}).then( result2 => {
-        if(title != result2[0].title){
-            Quotes.editQuoteBy({fromId: id}, {from: title}).then( result => {
-                return res.status(202).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            WatchedLists.editTitleByFromId({"list.tvId": id}, title).then( result => {
-                return res.status(202).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            WishLists.editTitleByFromId({"list.tvId": id}, title).then( result => {
-                return res.status(202).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
-            News.editNewsBy({aboutId: id}, {about: title}).then( result => {
-                return res.status(202).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    let temp = {};
+    if(title){
+        temp.title = title;
+    }
+    if(type){
+        temp.type = type;
+    }
+    if(description){
+        temp.description = description;
+    }
+    if(image){
+        temp.image = image;
+    }
+
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-        TV.editTVById(id, tv).then( result => {
+        if(!decoded.admin){
+            res.statusMessage = "Your have not the right permissions.";
+            return res.status(409).end();
+        }
+        return TV.editTVById(id, temp).then( result => {
             return res.status(202).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database2";return res.status(500).end();});
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database3";return res.status(500).end();});
+    });
 });
 
 app.patch( '/quote', jsonParser, (req, res)=>{
     console.log( "Updating a quote by id");
 
+    let token = req.headers.token;
     let id = req.body.id;
     let quote = req.body.quote;
-    let from = req.body.from;
-    let fromId = req.body.fromId;
-    let by = req.body.by;
-    let date = req.body.date;
     let status = req.body.status;
 
-    if ( !id && !quote && !from && !fromId && !by && !date ){
+    if ( !id || (!quote && !status) ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let quote2 = '{';
+    let quote2 = {};
     if(quote){
-        quote2 += `"quote":"${quote}"`;
-        if( from || fromId || by || date || status){
-            quote2 += `,`;
-        }
-    }
-    if(from){
-        quote2 += `"from":"${from}"`;
-        if( fromId || by || date || status){
-            quote2 += `,`;
-        }
-    }
-    if(fromId){
-        quote2 += `"fromId":"${fromId}"`;
-        if( by || date || status){
-            quote2 += `,`;
-        }
-    }
-    if(by){
-        quote2 += `"by":"${by}"`;
-        if( date || status){
-            quote2 += `,`;
-        }
-    }
-    if(date){
-        quote2 += `"date":"${date}"`;
-        if( status){
-            quote2 += `,`;
-        }
+        quote2.quote = quote;
     }
     if(status){
-        quote2 += `"status":"${status}"`;
+        quote2.status = status;
     }
-    quote2 += '}';
-    console.log(quote2);
-    quote2 = JSON.parse(quote2);
     
-    Quotes.editQuoteBy({_id: id}, quote2).then( result => {
-        if(quote){
-            News.editNewsBy({aboutId: id}, {about: quote}).then( result2 => {
-                return res.status(202).json( result );
-            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
         }
-        return res.status(202).json( result );
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+        if(quote2.status){
+            if(!decoded.admin){
+                res.statusMessage = "Your have not the right permissions.";
+                return res.status(409).end();
+            }
+        }
+        return Quotes.editQuoteById({_id: id}, quote2).then( result => {
+            return res.status(202).json( result );
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+    });
 });
 
 app.patch( '/comment', jsonParser, (req, res)=>{
     console.log( "Updating a comment by id");
 
+    let token = req.headers.token;
     let id = req.body.id;
     let comment = req.body.comment;
-    let fromId = req.body.fromId;
-    let by = req.body.by;
-    let date = req.body.date;
 
-    if ( !id || !comment || !fromId || !by || !date ){
+    if ( !id || !comment ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
 
-    let comment2 = {comment, fromId, by, date};
-    Comments.editCommentBy({_id: id}, comment2).then( result => {
-        News.editNewsBy({aboutId: id}, {about: comment}).then( result2 => {
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        return Comments.editCommentById({_id: id}, comment).then( result => {
             return res.status(202).json( result );
-        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
-    }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();}); 
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
 });
 
 app.listen( PORT, ()=>{

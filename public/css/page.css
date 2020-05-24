@@ -82,6 +82,11 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     margin-top: 20px;
 }
 
+.develop-label{
+    display: none;
+    flex-direction: column;
+}
+
 .develop{
     display: flex;
     flex-direction: row;
@@ -127,12 +132,82 @@ img{
 }
 
 .contact, .api, .use{
-    display: flex;
+    display: none;
     flex-direction: column;
 }
 
+.contact > div {
+    background-color: #5b5b5b;
+    margin: 10px 40px 10px 40px;
+    padding: 10px;
+    color: white;
+    font-size: larger;
+    border-radius: 10px;
+}
+
+form{
+    display: flex;
+    flex-direction: column;
+    background-color: rgb(244,238,177);
+    margin: 10px 20px 10px 20px;
+    padding: 10px;
+    color: black;
+    border-radius: 10px;
+}
+
+form > div{
+    display: flex;
+    margin: 5px
+}
+
+.type{
+    align-self: center;
+}
+
+.type > label{
+    width: 60px;
+}
+
+.mess > input {
+    flex: 1;
+}
+
+.mess > label{
+    width: 100px;
+}
+
+.response{
+    opacity: 0;
+    background-color: rgb(255, 128, 128);
+    align-self: center;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+form > button{
+    width: 200px;
+    align-self: center;
+}
+
 .paragraf{
-    margin-left: 30px;
+    margin: 0px 0px 20px 30px;
+}
+
+.code{
+    background-color: rgb(244,238,177);
+    border: solid 5px;
+    border-radius: 10px;
+    border-color: #5b5b5b;
+    margin: 0px 30px 30px 30px;
+    padding: 10px;
+    align-self: center;
+}
+
+.code > div{
+    display: flex;
+    flex-direction: column;
+    margin-left: 60px;
 }
 
 footer{
@@ -152,4 +227,15 @@ li:hover{
     cursor: pointer;
     background-color: #212121;
     border-radius: 10px;
+}
+
+@media(max-width:1100px){
+    .develop{
+        flex-direction: column;
+    }
+    
+    .develop > div{
+        width: 340px;
+        align-self: center;
+    }
 }

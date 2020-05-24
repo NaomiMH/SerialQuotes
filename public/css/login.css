@@ -63,7 +63,7 @@ body::-webkit-scrollbar{
     justify-content: center;
 }
 
-.login{
+.login, .signup{
     display: flex;
     flex-direction: column;
     background-color: rgb(255, 128, 128);
@@ -74,6 +74,10 @@ body::-webkit-scrollbar{
     border: solid 5px;
     border-color: rgb(244,238,177);
     border-radius: 10px;
+}
+
+.signup{
+    display: none;
 }
 
 .login-title, .signup-title{
@@ -103,16 +107,8 @@ body::-webkit-scrollbar{
 
 .login-error, .signup-error-user{
     opacity: 0;
-}
-
-.signup{
-    display: none;
-    flex-direction: column;
-    background-color: lightsalmon;
-    height: 300px;
-    width: 500px;
-    align-items: center;
-    justify-content: space-evenly;
+    width: 400px;
+    text-align: center;
 }
 
 footer{

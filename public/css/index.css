@@ -130,7 +130,7 @@ body::-webkit-scrollbar, .news::-webkit-scrollbar, .serial-results::-webkit-scro
     height: 95%;
     overflow: overlay;
     padding-right: 10px;
-    justify-content: space-between;
+    justify-content: space-around;
     -ms-overflow-style: none;
 }
 

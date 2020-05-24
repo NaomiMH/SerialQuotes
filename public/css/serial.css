@@ -87,7 +87,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
 }
 
 .serial-results{
-    display: flex;
+    display: none;
     flex-wrap: wrap;
     height: 95%;
     overflow: overlay;
@@ -267,6 +267,7 @@ body::-webkit-scrollbar, .achievements::-webkit-scrollbar, .serial-results::-web
 }
 
 .new-quote{
+    display: none;
     border: solid;
     width: 650px;
     padding: 10px;

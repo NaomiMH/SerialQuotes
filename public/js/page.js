@@ -1,90 +1,107 @@
 const urlParams = new URLSearchParams(window.location.search);
 let user;
 
-function fetchUser(){
-    let userid = urlParams.get('id');
-    let result = document.querySelector('.account');
-    if(userid){
-        let url = `/user?id=${userid}`;
-        let settings = {
-            method: 'GET'
-        }
-        
-        fetch( url, settings )
-            .then( response => {
-                if( response.ok ){
-                    return response.json();
-                }
-                throw new Error( response.statusText );
-            })
-            .then( responseJSON => {
-                result.innerHTML = "";
-                if(responseJSON[0]){
-                    result.innerHTML += 'My account';
-                    user=responseJSON[0];
-                }
-            })
-            .catch( err=> {
-                cosole.log(err.message);
-            });
+function loadingPage(){
+    console.log("1");
+    let area;
+    if(user){
+        area = document.querySelector('.account');
+        area.innerHTML = "My account";
     }
+    let page = urlParams.get('show');
+    if(page == 'use'){
+        area = document.querySelector('.use');
+        area.style.display = 'flex';
+    } else if(page == 'api'){
+        area = document.querySelector('.api');
+        area.style.display = 'flex';
+    } else if(page == 'contact'){
+        area = document.querySelector('.contact');
+        area.style.display = 'flex';
+    } else if(page == 'develop'){
+        area = document.querySelector('.develop-label');
+        area.style.display = 'flex';
+    }
+    area = document.querySelector('.menu');
+    area.addEventListener('click',(event)=>{
+        event.preventDefault();
+        let menu = event.target.id;
+        if(page != menu){
+            location.href = `page.html?show=${menu}`;
+        }
+    });
+    area = document.querySelector('#send');
+    area.addEventListener('click',(event)=>{
+        event.preventDefault();
+        let message = document.querySelector('.response');
+        let input = document.querySelectorAll('input');
+        for(let i=0; i<input.length; i++){
+            input[i].value="";
+        }
+        message.style.opacity = 1;
+    })
 }
 
-function watchBtn(){
-    let userid = urlParams.get('id');
+function validateToken(){
+    //origin index
+    //token needed
+    let url = '/valid/token';
+    let settings = {
+        method: 'GET',
+        headers: {
+            token: localStorage.getItem( 'token' )
+        }
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        user = responseJSON.userData;
+        localStorage.setItem('token',responseJSON.token);
+        loadingPage();
+    }).catch( err=> {
+        loadingPage();
+    });
+}
+
+function watchMoveBtn(){
+    //origin index
     let btn = document.querySelector( '.account' );
 
     btn.addEventListener( 'click', (event)=>{
         if(user){
-            location.href=`account.html?id=${userid}`;
-        }
-        else{
-            location.href='login.html';
+            location.href='account.html';
+        } else {
+            location.href= `login.html`;
         }
     });
 
     btn = document.querySelector( '.quotePage');
 
     btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`quotes.html?id=${userid}`;
-        }
-        else{
-            location.href='quotes.html';
-        }
+        location.href='quotes.html';
     });
 
     btn = document.querySelector( '.serialPage');
 
     btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`serial.html?id=${userid}`;
-        }
-        else{
-            location.href='serial.html';
-        }
+        location.href='serial.html';
     });
 
     btn = document.querySelector( '.indexPage');
 
     btn.addEventListener( 'click', (event)=>{
-        if(user){
-            location.href=`index.html?id=${userid}`;
-        }
-        else{
-            location.href='index.html';
-        }
+        location.href='index.html';
     });
 
     btn = document.querySelector('.mapPage');
 
     btn.addEventListener( 'click', (event)=>{
         if(event.target.tagName == "LI"){
-            let temp = `${event.target.getAttribute('go')}.html`
-            if(user){
-                temp += `?id=${user._id}`;
-            }
-            location.href = temp;
+            location.href = `${event.target.getAttribute('go')}.html`;
         }
     });
 
@@ -92,12 +109,7 @@ function watchBtn(){
 
     btn.addEventListener( 'click', (event)=>{
         if(event.target.tagName == "LI"){
-            let temp = `page.html?`;
-            if(user){
-                temp += `id=${user._id}&`;
-            }
-            temp += `show=${event.target.getAttribute('go')}`;
-            location.href = temp;
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
         }
     });
 
@@ -105,20 +117,14 @@ function watchBtn(){
 
     btn.addEventListener( 'click', (event)=>{
         if(event.target.tagName == "LI"){
-            let temp = `page.html?`;
-            if(user){
-                temp += `id=${user._id}&`;
-            }
-            temp += `show=${event.target.getAttribute('go')}`;
-            location.href = temp;
+            location.href = `page.html?show=${event.target.getAttribute('go')}`;
         }
     });
 }
 
 function init(){
-    fetchUser();
-
-    watchBtn();
+    watchMoveBtn();
+    validateToken();
 }
 
 init();

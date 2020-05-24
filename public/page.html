@@ -16,13 +16,13 @@
             <label class="account">Log In</label>
         </section>
         <section class="menu">
-            <label>Development</label>
-            <label>Contact Us</label>
-            <label>API</label>
-            <label>How to use the page</label>
+            <label id="develop">Development</label>
+            <label id="contact">Contact Us</label>
+            <label id="api">API</label>
+            <label id="use">How to use the page</label>
         </section>
         <section class="results">
-            <div class="develop-label" id="show">
+            <div class="develop-label">
                 <label class="subTitle">Development Team</label>
                 <div class="develop">
                     <div>
@@ -50,30 +50,237 @@
                     </div>
                 </div>
             </div>
-            <div class="contact" id="show">
+            <div class="contact">
                 <label class="subTitle">Contact Us</label>
-                <label class="paragraf">Tell us your sugestions, opinions about the page and more:</label>
-                <form>
-                    <label>Type: </label>
-                    <select id="create-type">
-                        <option selected>Opinion</option>
-                        <option>Sugestion</option>
-                        <option>Problem</option>
-                        <option>Daubt</option>
-                        <option>Bug</option>
-                    </select>
-                    <label>Message: </label>
-                    <input type="text">
-                    <label class="response">You are been listen, waite for our replay.</label>
-                    <button id="send">Send</button>
-                </form>
-                <label class="paragraf">We are here for you.</label>
+                <div>
+                    <label class="paragraf">Tell us your sugestions, opinions about the page and more:</label>
+                    <form>
+                        <div class="mess">
+                            <label>Your name:</label>
+                            <input type="text">
+                        </div>
+                        <div class="mess">
+                            <label>Your email:</label>
+                            <input type="text">
+                        </div>
+                        <div class="type">
+                            <label>Type: </label>
+                            <select>
+                                <option selected>Opinion</option>
+                                <option>Sugestion</option>
+                                <option>Problem</option>
+                                <option>Daubt</option>
+                                <option>Bug</option>
+                            </select>
+                        </div>
+                        <div class="mess">
+                            <label>Message: </label>
+                            <input type="text">
+                        </div>
+                        <label class="response">Your message has been recived, waite for our replay.</label>
+                        <button id="send">Send</button>
+                    </form>
+                    <label class="paragraf">We are here for you.</label>
+                </div>
             </div>
-            <div class="api" id="show">
-                <label class="subTitle">Titulo</label>
-                <label class="paragraf">Bla bla bla bla. Bla bla bla bla. Bla bla bla bla. Bla bla bla bla</label>
+            <div class="api">
+                <label class="subTitle">API Random Quote</label>
+                <label class="paragraf">Do you like our quotes? You can use our API to fetch a random quote from all those we have added on our server.</label>
+                <label class="paragraf">Obtain a random quote:</label>
+                <label class="paragraf">In order to access to this resource, you must perform a GET to the /random endpoint.</label>
+                <div class="code">
+                    <label class="paragraf">{</label>
+                    <div>
+                        <label class="paragraf">"_id": "5ec0c1125adce40260918a8e",</label>
+                        <label class="paragraf">"quote": "In a world of locked rooms the man with the key is king. And honey, you should see me in a crown.",</label>
+                        <label class="paragraf">"from": "Sherlock",</label>
+                        <label class="paragraf">"fromId": "5ec0befe5adce40260918a80",</label>
+                        <label class="paragraf">"type": "Serie",</label>
+                        <label class="paragraf">"by": "Mario",</label>
+                        <label class="paragraf">"date": "2020-05-17T04:44:02.000Z",</label>
+                    </div>
+                    <label class="paragraf">}</label>
+                </div>
+                <label class="paragraf">API resource list:</label>
+                <div class="code">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>_id</td>
+                                <td>Contains the unique identifier of the quote on our database</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>quote</td>
+                                <td>Contains a random quote from our server</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>from</td>
+                                <td>Contains the name of the media to which the quote belongs</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>fromId</td>
+                                <td>Contains the id of the show</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>type</td>
+                                <td>Contains information about the media, defining if it is a series or a movie</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>by</td>
+                                <td>Contains the username of the creator of the quote</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>date</td>
+                                <td>Contains the date in which the quote was submitted</td>
+                                <td>Date</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <label class="subTitle">API All Tv Shows</label>
+                <label class="paragraf">Obtain every single one of our tv shows:</label>
+                <label class="paragraf">In order to access to this resource, you must perform a GET to the / tvs endpoint.</label>
+                <div class="code">
+                    <label class="paragraf">[{</label>
+                    <div>
+                        <label class="paragraf">"_id": "5ec0be6e5adce40260918a7c",</label>
+                        <label class="paragraf">"title": "New Doctor Who",</label>
+                        <label class="paragraf">"type": "Serie",</label>
+                        <label class="paragraf">"description": "Doctor Who is a British science fiction television programme produced by the BBC since 1963. The programme depicts the adventures of a Time Lord called \"the Doctor\", an extraterrestrial being, to all appearances human. The Doctor explores the universe in a time-travelling space ship called the TARDIS. Its exterior appears as a blue British police box, which was a common sight in Britain in 1963 when the series first aired. Accompanied by a number of companions, the Doctor combats a variety of foes while working to save civilizations and help people in need.",</label>
+                        <label class="paragraf">"image": "https://upload.wikimedia.org/wikipedia/en/thumb/0/05/Doctor_Who_-_Current_Titlecard.png/375px-Doctor_Who_-_Current_Titlecard.png"</label>
+                    </div>
+                    <label class="paragraf">}]</label>
+                </div>
+                <label class="paragraf">API resource list:</label>
+                <div class="code">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>_id</td>
+                                <td>Contains the unique identifier of the quote on our database</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>title</td>
+                                <td>Contains the title of the tv show</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>type</td>
+                                <td>Contains information about the media, defining if it is a series or a movie</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>description</td>
+                                <td>Contains the name of the media to which the quote belongs</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>image</td>
+                                <td>Contains the URL with an image of the show </td>
+                                <td>String</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <label class="subTitle">API One Tv Shows</label>
+                <label class="paragraf">Obtain one of our tv shows:</label>
+                <label class="paragraf">In order to access to this resource, you must perform a GET to the /tv endpoint with one of the next parameters.</label>
+                <div class="code">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>PArameters</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>id</td>
+                                <td>Unique id of the series or movie that is being requested.</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>title</td>
+                                <td>Title of the series or movie that is being requested.</td>
+                                <td>String</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="code">
+                    <label class="paragraf">[{</label>
+                    <div>
+                        <label class="paragraf">"_id": "5ec0beaa5adce40260918a7e",</label>
+                        <label class="paragraf">"title": "Classic Doctor Who",</label>
+                        <label class="paragraf">"type": "Serie",</label>
+                        <label class="paragraf">"description": "The adventures in time and space of the Doctor, a Time Lord who changes appearance and personality by regenerating when near death, and is joined by companions in battles against aliens and other megalomaniacs.",</label>
+                        <label class="paragraf">"image": "https://m.media-amazon.com/images/M/MV5BMTI0NTY5MzQzNF5BMl5BanBnXkFtZTcwMTA3OTQ1MQ@@._V1_UY268_CR0,0,182,268_AL_.jpg"</label>
+                    </div>
+                    <label class="paragraf">}]</label>
+                </div>
+                <label class="paragraf">API resource list:</label>
+                <div class="code">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>_id</td>
+                                <td>Contains the unique identifier of the quote on our database</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>title</td>
+                                <td>Contains the title of the tv show</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>type</td>
+                                <td>Contains information about the media, defining if it is a series or a movie</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>description</td>
+                                <td>Contains the name of the media to which the quote belongs</td>
+                                <td>String</td>
+                            </tr>
+                            <tr>
+                                <td>image</td>
+                                <td>Contains the URL with an image of the show </td>
+                                <td>String</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-            <div class="use" id="show">
+            <div class="use">
                 <label class="subTitle">Titulo</label>
                 <label class="paragraf">Bla bla bla bla. Bla bla bla bla. Bla bla bla bla. Bla bla bla bla</label>
             </div>
