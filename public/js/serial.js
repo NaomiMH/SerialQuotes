@@ -130,8 +130,17 @@ function addQuote(place,arrey){
                         <button class="quote-edit-save">Save</button>
                     </div>
                     <label>By: </label>
-                    <label class="quote-by">${arrey[i].by}</label>
-                    <label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+                    <label class="quote-by">${arrey[i].by} </label>
+                    <label>| Likes: ${arrey[i].like}</label>`;
+            if(user){
+                if(!user.like.find( quote => quote.quoteId === arrey[i]._id)){
+                    temp += `<button id="add-like"></button>`;
+                } else {
+                    temp += `<button id="like-add"></button>`;
+                }
+            }
+            temp +=
+                    `<label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
                 </div>
                 <section class="comments-results ${arrey[i]._id}">
                 </section>`;
@@ -263,7 +272,10 @@ function fetchDelete(page,id){
     let url = `/${page}/${id}`;
     
     let settings = {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            token: localStorage.getItem( 'token' )
+        }
     };
     
     fetch( url, settings ).then( response => {
@@ -511,6 +523,11 @@ function watchShowResults(){
                     data.comment = String(editComment.querySelector('.comment-edit').value);
                     fetchEdit('comment',data);
                 }
+            } else if(event.target.id == 'add-like'){
+                let data = {};
+                data.quoteId = event.target.parentNode.id;
+                data.quote = event.target.parentNode.querySelector('.quote-quote').innerHTML;
+                fetchAdd('like',data);
             }
         });
     }
@@ -660,18 +677,6 @@ function watchShowAdminBtns(){
         tv.style.display = "flex";
         editTv.style.display = "none";
     });
-
-    /*
-    else if( event.target.id == "delete-Quote"){
-        let quote = event.target.parentNode.parentNode.id;
-        fetchDeleteQuoteById(quote);
-        fetchDeleteCommentByFromId(quote);
-    }
-    else if( event.target.id == "delete-Comment"){
-        let comment = event.target.parentNode.parentNode.id;
-        fetchDeleteCommentById(comment);
-    }
-    */
 }
 
 function loadingPage(){

@@ -177,6 +177,13 @@ const Users = {
     addWishById(id,element){
         return usersCollection.updateMany({_id: id},{$push: {wish: element}}).then( response => {return response;} ).catch( err=>{return err;});
     },
+    addLikeById(id,element){
+        return usersCollection.updateMany({_id: id},{$push: {like: element}}).then( response => {
+            return quotesCollection.updateOne({_id: element.quoteId},{$inc: {like: 1}}).then( response2 => {
+                return response;
+            } ).catch( err=>{return err;});
+        } ).catch( err=>{return err;});
+    },
     editUserById(id,user){
         return usersCollection.updateOne({_id: id},{$set: user}).then( response => {
             if(user.username){
@@ -199,6 +206,13 @@ const Users = {
     deleteWishById(id,element){
         return usersCollection.updateMany({_id: id},{$pull: {wish: element}}).then( response => {
             return response;
+        } ).catch( err=>{return err;});
+    },
+    deleteLikeById(id,element){
+        return usersCollection.updateMany({_id: id},{$pull: {like: element}}).then( response => {
+            return quotesCollection.updateOne({_id: element.quoteId},{$inc: {like: -1}}).then( response2 => {
+                return response;
+            } ).catch( err=>{return err;});
         } ).catch( err=>{return err;});
     },
     deleteUserById(id){
@@ -251,27 +265,24 @@ const TV = {
             return newsCollection.remove({aboutId: id}).then( response2 => {
                 return quotesCollection.find({fromId: id},{_id:1}).then( response3 => {
                     for(let i=0; i<response3.length; i++){
-                        newsCollection.remove({aboutId: response3[i]._id}).then( response4 => {
-                            return commentsCollection.find({fromId: response3[i]._id},{_id:1}).then( response5 => {
-                                for(let j=0; j<response5.length; j++){
-                                    newsCollection.remove({aboutId: response5[j]._id}).then( response6 => {
+                        usersCollection.updateMany({},{$pull: {like: {quoteId: response3[i]._id}}}).then( response6 => {
+                            newsCollection.remove({aboutId: response3[i]._id}).then( response4 => {
+                                return commentsCollection.find({fromId: response3[i]._id},{_id:1}).then( response5 => {
+                                    for(let j=0; j<response5.length; j++){
+                                        newsCollection.remove({aboutId: response5[j]._id}).then( response6 => {
+                                            return response;
+                                        } ).catch( err=>{return err;});
+                                    }
+                                    return commentsCollection.remove({fromId: response3[i]._id}).then( response7 => {
                                         return response;
                                     } ).catch( err=>{return err;});
-                                }
-                                return commentsCollection.remove({fromId: response3[i]._id}).then( response7 => {
-                                    return response;
                                 } ).catch( err=>{return err;});
                             } ).catch( err=>{return err;});
                         } ).catch( err=>{return err;});
                     }
                     return quotesCollection.remove({fromId: id}).then( response6 => {
-                        console.log("trying");
                         return usersCollection.updateMany({},{$pull: {wish: {tvId: id}}}).then( response6 => {
-                            console.log("wish");
-                            console.log(response6);
                             return usersCollection.updateMany({},{$pull: {watch: {tvId: id}}}).then( response6 => {
-                                console.log("watch");
-                                console.log(response6);
                                 return response;
                             } ).catch( err=>{return err;});
                         } ).catch( err=>{return err;});
@@ -305,8 +316,10 @@ const Quotes = {
     editQuoteById(id,quote){
         return quotesCollection.updateMany({_id: id},{$set: quote}).then( response => {
             if(quote.quote){
-                newsCollection.updateMany({aboutId: id},{$set: {about: quote}}).then( response => {
-                    return response;
+                newsCollection.updateMany({aboutId: id},{$set: {about: quote.quote}}).then( response => {
+                    return usersCollection.updateMany({"like.quoteId": id},{$set: {'like.$.quote': quote.quote}}).then( response3 => {
+                        return response;
+                    } ).catch( err=>{return err;});
                 } ).catch( err=>{return err;});
             }
             if(quote.status == "Approved"){
@@ -328,15 +341,17 @@ const Quotes = {
     deleteQuoteById(id){
         return quotesCollection.remove({_id: id}).then( response => {
             return newsCollection.remove({aboutId: id}).then( response2 => {
-                return commentsCollection.find({fromId: id},{_id:1}).then( response3 => {
-                    for(let j=0; j<response3.length; j++){
-                        newsCollection.remove({aboutId: response3[j]._id}).then( response4 => {
-                            return response;
-                        } ).catch( err=>{return err;});
-                    }
-                    return commentsCollection.remove({fromId: id}).then( response5 => {
-                        return usersCollection.updateMany({},{$pull: {like: {quoteId: id}}}).then( response6 => {
-                            return response;
+                return usersCollection.updateMany({},{$pull: {like: {quoteId: id}}}).then( response6 => {
+                    return commentsCollection.find({fromId: id},{_id:1}).then( response3 => {
+                        for(let j=0; j<response3.length; j++){
+                            newsCollection.remove({aboutId: response3[j]._id}).then( response4 => {
+                                return response;
+                            } ).catch( err=>{return err;});
+                        }
+                        return commentsCollection.remove({fromId: id}).then( response5 => {
+                            return usersCollection.updateMany({},{$pull: {like: {quoteId: id}}}).then( response6 => {
+                                return response;
+                            } ).catch( err=>{return err;});
                         } ).catch( err=>{return err;});
                     } ).catch( err=>{return err;});
                 } ).catch( err=>{return err;});

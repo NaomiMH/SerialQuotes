@@ -36,7 +36,7 @@ function addQuotes(place,arrey){
         place.innerHTML += 'No information available';
     } else {
         for (let i=arrey.length-1; i>=0; i--){
-            place.innerHTML += 
+            let temp = 
             `<div class="quote" id="${arrey[i]._id}">
                 <div class="quote-quote-label">
                     <label>"</label>
@@ -51,8 +51,19 @@ function addQuotes(place,arrey){
                     <label>From: </label>
                     <label class="quote-from" id="${arrey[i].fromId}">${arrey[i].from}</label>
                 </div>
-                <label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+                <div class="like-date">`;
+            if(user){
+                if(!user.like.find( quote => quote.quoteId === arrey[i]._id)){
+                    temp += `<button id="add-like"></button>`;
+                } else {
+                    temp += `<button id="like-add"></button>`;
+                }
+            }
+                temp += 
+                    `<label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+                </div>
             </div>`;
+            place.innerHTML += temp;
         }
         watchQuotesResults();
     }
@@ -124,7 +135,7 @@ function fetchBy(page, place, next){
 
 function fetchAdd(page,data){
     //origin index
-    //wish or watch
+    //wish or watch or like
     //token needed
     //new token
     let url = `/${page}`;
@@ -183,7 +194,12 @@ function watchQuotesResults(){
         quoteList[i].addEventListener( 'click', (event)=>{
             event.preventDefault();
             let id = event.currentTarget.id;
-            fetchBy(`quote?id=${id}`,'quote',loadpage);
+            if(event.target.id == 'add-like'){
+                let quote = event.currentTarget.querySelector('.quote-quote').innerHTML;
+                fetchAdd('like',{quoteId: id,quote: quote});
+            } else if(event.target.id != 'like-add'){
+                fetchBy(`quote?id=${id}`,'quote',loadpage);
+            }
         });
     }
 }

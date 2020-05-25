@@ -462,6 +462,57 @@ app.post( '/watch', jsonParser, (req,res)=>{
     });
 });
 
+app.post( '/like', jsonParser, (req,res)=>{
+    console.log( "Adding a new element to the list");
+
+    let token = req.headers.token;
+    let quoteId = req.body.quoteId;
+    let quote = req.body.quote;
+    
+    console.log(quote);
+    console.log(quoteId);
+    if ( !quoteId || !quote ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+    console.log("333");
+
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        console.log(decoded);
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        console.log("1");
+        return Users.addLikeById(userData.id, {quoteId,quote}).then( result2 => {
+            console.log("2");
+            console.log(result2);
+            return Users.getUserBy({_id: userData.id}).then( result => {
+                result = result[0];
+                console.log(result);
+                userData.wish = result.wish;
+                userData.watch = result.watch;
+                userData.like = result.like;
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
+});
+
 app.delete( '/user/:id', (req, res)=>{
     console.log( "Removing a user by id");
     
@@ -689,6 +740,46 @@ app.delete( '/watch', jsonParser, (req,res)=>{
     });
 });
 
+app.delete( '/like', jsonParser, (req,res)=>{
+    console.log( "Deleteing a element from the list");
+
+    let token = req.headers.token;
+    let quoteId = req.body.quoteId;
+
+    if ( !quoteId ){
+        res.statusMessage = "One of the parameters is missing.";
+        return res.status(406).end();
+    }
+
+    jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
+        if(err){
+            res.statusMessage = "Your are not in a session.";
+            return res.status(409).end();
+        }
+        let userData = {
+            id: decoded.id,
+            username: decoded.username,
+            wish: decoded.wish,
+            watch: decoded.watch,
+            like: decoded.like,
+            admin: decoded.admin
+        }
+        return Users.deleteLikeById(userData.id,{quoteId}).then( result2 => {
+            return Users.getUserBy({_id: userData.id}).then( result => {
+                result = result[0];
+                userData.like = result.like;
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(200).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+        }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
+    });
+});
+
 app.patch( '/user', jsonParser, (req, res)=>{
     console.log( "Updating a user by id");
 
@@ -812,6 +903,7 @@ app.patch( '/quote', jsonParser, (req, res)=>{
     if(status){
         quote2.status = status;
     }
+    console.log(quote2);
     
     jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
         if(err){

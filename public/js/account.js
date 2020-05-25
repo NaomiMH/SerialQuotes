@@ -1,10 +1,19 @@
 const urlParams = new URLSearchParams(window.location.search);
 let user;
 
-function addElement(place,id,title,botton){
+function addElement(place,id,title,botton,botton2,botton3){
     let temp = 
     `<div class="element-label">
         <label class="element" id=${id}>${title}</label>`;
+    if(botton3){
+        temp +=
+        `<button class="edit-element">${botton3}</button>`;
+    }
+    if(botton2){
+        temp +=
+        `<input class="edit-input" type="text">
+        <button class="grade-element">${botton2}</button>`;
+    }
     if(botton){
         temp +=
         `<button class="delete-element">${botton}</button>`;
@@ -12,15 +21,6 @@ function addElement(place,id,title,botton){
     temp +=
     `</div>`;
     place.innerHTML += temp;
-}
-
-function addElement2(place,id,message,botton,botton2){
-    place.innerHTML += 
-    `<div class="element-label">
-        <label class="element" id=${id}>${message}</label>
-        <button class="grade-element">${botton}</button>
-        <button class="delete-element">${botton2}</button>
-    </div>`;
 }
 
 function fetchUpdate(data){
@@ -173,7 +173,7 @@ function fetchDeleteElement(page,data){
         },
         body: JSON.stringify( data )
     };
-    console.log(data);
+    
     fetch( url, settings ).then( response => {
         if( response.ok ){
             return response.json();
@@ -189,6 +189,34 @@ function fetchDeleteElement(page,data){
     });
 }
 
+function fetchCreate(page,data){
+    //unique        
+    //tv or quote or comment
+    //token needed
+    let url = `/${page}`;
+    
+    let settings = {
+        method: 'POST',
+        headers: {
+            token: localStorage.getItem( 'token' ),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        location.reload();
+    }).catch( err=> {
+        console.log("error en fethCrete");
+        //result.innerHTML = `${err.message}`;
+    });
+}
+
 function watchAdminBtn(){
     let btn = document.querySelector('#create-save');
     let createForm = document.querySelector('.create-tv');
@@ -200,7 +228,7 @@ function watchAdminBtn(){
         let description = createForm.querySelector('#create-description').value;
         let image = createForm.querySelector('#create-image').value;
 
-        //fetchCreateTV(title,type,description,image);
+        fetchCreate('tv',{title,type,description,image});
     });
 
     btn = document.querySelector('#create-cancel');
@@ -208,7 +236,7 @@ function watchAdminBtn(){
     btn.addEventListener( 'click',(event)=>{
         event.preventDefault();
         createForm.querySelector('#create-title').value = "";
-        createForm.querySelector('#create-type').value = "";
+        createForm.querySelector('#create-type').value = "Movie";
         createForm.querySelector('#create-description').value = "";
         createForm.querySelector('#create-image').value = "";
     });
@@ -239,10 +267,24 @@ function watchBtn(place,element,page,next){
             if(page == 'wish' || page == 'watch'){
                 id = {tvId:id};
                 next(page,id);
-            } else if(page == 'quote2'){
-                next('quote',{id,status: "Approved"});
-            } else if(page == 'quote' || page == 'comment' || page == 'news'){
+            } else if(page == 'like'){
+                id = {quoteId:id};
                 next(page,id);
+            } else if(page == 'quote2'){
+                let data = {id,status: "Approved"};
+                let quote = event.target.parentNode.querySelector('.element').innerHTML;
+                let edit = event.target.parentNode.querySelector('.edit-input').value;
+                if(quote != edit && edit != ""){
+                    data.quote = edit;
+                }
+                next('quote',data);
+            } else if(page == 'quote4'){
+                let quote = event.target.parentNode.querySelector('.element');
+                let edit = event.target.parentNode.querySelector('.edit-input');
+                edit.style.display = "flex";
+                quote.style.display = "none";
+                edit.value = quote.innerHTML;
+                event.target.style.display = "none";
             } else if(page == true || page == false){
                 next({id,admin: page});
             } else {
@@ -253,6 +295,7 @@ function watchBtn(place,element,page,next){
 }
 
 function loadpage(step,arrey){
+    console.log(arrey);
     //origin index
     if(step == 'quote'){
         location.href= `serial.html?show=${arrey[0].fromId}`;
@@ -276,6 +319,16 @@ function watchElement(place,element,topic){
             }
             else if(topic == "comment"){
                 fetchBy(`comment?id=${id}`,'comment',loadpage);
+            } else if(topic == "news"){
+                let type = event.target.getAttribute('type');
+                id = event.target.getAttribute('go');
+                if(type == "New Quote"){
+                    fetchBy(`quote?id=${id}`,'quote',loadpage);
+                } else if(type == "New Comment"){
+                    fetchBy(`comment?id=${id}`,'comment',loadpage);
+                } else if(type == "New Serial"){
+                    location.href= `serial.html?show=${id}`;
+                }
             }
         });
     }
@@ -284,7 +337,8 @@ function watchElement(place,element,topic){
 function watchInter(place){
     if(place.className == 'quotes-type'){
         watchBtn(place,'.delete-element','quote2',fetchEdit);
-        //watchBtn(place,'grade-element','quote3',fetchEdit);
+        watchBtn(place,'.grade-element','quote',fetchDelete);
+        watchBtn(place,'.edit-element','quote4',fetchEdit);
     } else if(place.className == 'my-quotes'){
         watchBtn(place,'.delete-element','quote',fetchDelete);
         watchElement(place,'element','quote');
@@ -295,12 +349,14 @@ function watchInter(place){
         watchBtn(place,'.delete-element','watch',fetchDeleteElement);
         watchElement(place,'element','serial');
     } else if(place.className == 'like-list'){
-        //fill(place,arrey,'title');
+        watchBtn(place,'.delete-element','like',fetchDeleteElement);
+        watchElement(place,'element','quote');
     } else if(place.className == 'my-comments'){
         watchBtn(place,'.delete-element','comment',fetchDelete);
         watchElement(place,'element','comment');
     } else if(place.className == 'news-list'){
         watchBtn(place,'.delete-element','news',fetchDelete);
+        watchElement(place,'element','news');
     } else if(place.className == 'users-list'){
         watchBtn(place,'.delete-element','user',fetchDelete);
         watchBtn(place,'.grade-element',true,fetchUpdate);
@@ -317,16 +373,19 @@ function fill(place,arrey,tipe,botton){
             if(tipe == 'username'){
                 let message = `${arrey[i].username}  wish: ${arrey[i].wish.length}  watch: ${arrey[i].watch.length}  like: ${arrey[i].like.length}`;
                 if(botton=='Upgrade'){
-                    addElement2(place,arrey[i]._id,message,botton,'Delete');
+                    addElement(place,arrey[i]._id,message,'Delete',botton);
                 } else {
                     addElement(place,arrey[i]._id,message,botton);
                 }
             } else if(tipe == 'quote' && place.className == 'quotes-type'){
-                addElement2(place,arrey[i]._id,arrey[i].quote,'Edit','Approve');
+                addElement(place,arrey[i]._id,arrey[i].quote,'Approve','Delete','Edit');
             } else {
                 let message;
                 let id = arrey[i]._id;
                 if(tipe == 'quote'){
+                    message = arrey[i].quote;
+                } else if(tipe == 'quote2'){
+                    id = arrey[i].quoteId;
                     message = arrey[i].quote;
                 } else if(tipe == 'comment'){
                     message = arrey[i].comment;
@@ -335,7 +394,7 @@ function fill(place,arrey,tipe,botton){
                     message = arrey[i].title;
                 } else if(tipe == 'about'){
                     message = `${arrey[i].type}: ${arrey[i].about}`;
-                    id = `${arrey[i]._id} go="${arrey[i].aboutId}"`
+                    id = `${arrey[i]._id} go="${arrey[i].aboutId}" type="${arrey[i].type}"`;
                 }
                 addElement(place,id,message,botton);
             }
@@ -351,6 +410,8 @@ function inter(place,arrey){
         fill(place,arrey,'quote','Delete');
     } else if(place.className == 'wish-list' || place.className == 'watched-list'){
         fill(place,arrey,'title','Delete');
+    } else if(place.className == 'like-list'){
+        fill(place,arrey,'quote2','Delete');
     } else if(place.className == 'like-list'){
         fill(place,arrey,'title');
     } else if(place.className == 'my-comments'){
@@ -453,64 +514,19 @@ function watchBtns(){
         } else if(document.querySelector('.new-password').id == "show"){
             data.password = document.querySelector('#new-password').value;
         }
-        fetchUpdate(data);
+        let error = document.querySelector('.error');
+        if(data.username){
+            if(data.username == user.username || data.username.length < 5){
+                error.innerHTML = "The username need to be diferent than your actual username and longer than 5 characters."
+            }
+        } else if(data.password){
+            if(data.password == user.username || data.password.length < 5){
+                error.innerHTML = "The password need to be diferent than your username and longer than 5 characters."
+            }
+        } else {
+            fetchUpdate(data);
+        }
     });
-    
-    /*
-    view = document.querySelector('.results');
-
-    view.addEventListener( 'click', (event)=>{
-        event.preventDefault();
-        if(event.target.className == "delete-element"){
-            let id = event.target.parentNode.querySelector('.element').id;
-            let type = event.target.parentNode.parentNode.className;
-            if(type == "news-list"){
-                fetchDeleteById('news',id);
-            }
-            else if(type == "my-comments"){
-                fetchDeleteById('comment',id);
-            }
-            else if(type == "quotes-type"){
-                fetchChangeQuote(id,'Approved');
-            }
-            else if(type == "administrator-list"){
-                let username = event.target.parentNode.querySelector('.element').getAttribute('name');
-                let password = event.target.parentNode.querySelector('.element').getAttribute('pass');
-                fetchChangeUser(id,username,password,false);
-            }
-            else if(type == "users-list"){
-                let username = event.target.parentNode.querySelector('.element').getAttribute('name');
-                let password = event.target.parentNode.querySelector('.element').getAttribute('pass');
-                fetchChangeUser(id,username,password,true);
-            }
-            else if(type == "my-quotes"){
-                fetchDeleteById('quote',id);
-            }
-        }
-        else if(event.target.className == "element"){
-            let id = event.target.id;
-            let type = event.target.parentNode.parentNode.className;
-            if(type == "wish-list"){
-                location.href = `serial.html?id=${user._id}&show=${id}`;
-            }
-            else if(type == "watched-list"){
-                location.href = `serial.html?id=${user._id}&show=${id}`;
-            }
-            else if(type == "my-quotes"){
-                let tv = event.target.getAttribute('fromId');
-                location.href = `serial.html?id=${user._id}&show=${tv}`;
-            }
-            else if(type == "my-comments"){
-                let tv = event.target.getAttribute('fromId');
-                location.href = `serial.html?id=${user._id}&show=${tv}`;
-            }
-            else if(type == "quotes-type"){
-                let tv = event.target.getAttribute('fromId');
-                location.href = `serial.html?id=${user._id}&show=${tv}`;
-            }
-            console.log(event.target.parentNode.parentNode.className);
-        }
-    });*/
 }
 
 function validateToken(){

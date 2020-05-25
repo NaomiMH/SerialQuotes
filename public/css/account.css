@@ -128,6 +128,11 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
     margin-bottom: 10px;
 }
 
+.error{
+    font-weight: bold;
+    align-self: center;
+}
+
 .subtitle:hover, .element:hover{
     cursor: pointer;
 }
@@ -196,6 +201,10 @@ body::-webkit-scrollbar, .results::-webkit-scrollbar{
 .delete-everything{
     height: 30px;
     margin: 10px;
+}
+
+.edit-input{
+    display: none;
 }
 
 footer{
