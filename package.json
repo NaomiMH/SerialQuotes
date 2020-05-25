@@ -1,13 +1,13 @@
 {
-  "name": "bookmarks-app",
+  "name": "serialquotes-app",
   "version": "1.0.0",
-  "description": "Laboratory 7",
+  "description": "A website that acts as a social media to quote lovers! contains quotes, coments and reviews of quotes!",
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js"
   },
-  "author": "Naomi Macias Honti A01282098",
+  "author": "Naomi Macias Honti A01282098; Mario Manuel Roque Chairez A01282301",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
