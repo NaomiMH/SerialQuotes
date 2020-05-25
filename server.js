@@ -652,7 +652,7 @@ app.delete( '/news/:id', (req, res)=>{
             res.statusMessage = "Your have not the right permissions.";
             return res.status(409).end();
         }
-        return News.deleteNewsBy({_id: id}).then( result => {
+        return News.deleteNewsById({_id: id}).then( result => {
             return res.status(200).json( result );
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
     });
