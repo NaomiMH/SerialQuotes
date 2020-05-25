@@ -421,7 +421,7 @@ function inter(place,arrey){
     } else if(place.className == 'users-list'){
         fill(place,arrey,'username','Upgrade');
     } else if(place.className == 'administrator-list'){
-        fill(place,arrey,'username','Degrade');
+        fill(place,arrey,'username','Downgrade');
     }
 }
 

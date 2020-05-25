@@ -42,7 +42,7 @@ function addInfoTv(place,object){
             if(user.admin){
                 temp +=
                     `<div class="admin-menu">
-                        <button id="delete-TV">Delete All</button>
+                        <button id="delete-TV">Delete this content</button>
                         <button id="edit-TV">Edit</button>
                     </div>`;
             }
@@ -101,7 +101,7 @@ function addQuote(place,arrey){
                 if(user.admin || user.username == arrey[i].by){
                     temp += 
                         `<div class="admin-menu">
-                            <button id="delete-Quote">Delete All</button>
+                            <button id="delete-Quote">Delete quote</button>
                             <button id="edit-Quote">Edit</button>
                         </div>`;
                 }
@@ -148,7 +148,7 @@ function addQuote(place,arrey){
                 temp +=
                     `<div class="new-comment">
                         <label>Add a new comment:</label>
-                        <input type="text" class="new-comment-input">
+                        <input type="text" class="new-comment-input" placeholder="Type a comment on this quote">
                         <button class="add-comment-btn">Add</button>
                     </div>`;
             }
@@ -174,7 +174,7 @@ function addComment(place,arrey){
                 if(user.admin || user.username == arrey[i].by){
                     temp +=
                     `<div class="admin-menu">
-                        <button id="delete-Comment">Delete</button>
+                        <button id="delete-Comment">Delete comment</button>
                         <button id="edit-Comment">Edit</button>
                     </div>`;
                 }

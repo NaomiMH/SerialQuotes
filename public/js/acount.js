@@ -100,7 +100,7 @@ function fetchAllAchi(place){
                     addElement(place,responseJSON[i]._id,`${responseJSON[i].type}:${responseJSON[i].about}`,'Delete');
                 }
             } else {
-                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                place.innerHTML = '<div class="element-label">No content found</div>';
             }
         })
         .catch( err=> {
@@ -126,7 +126,7 @@ function fetchAllSeenList(place){
             if(responseJSON[0]){
                 let cant = responseJSON[0].list.length;
                 if(cant==0){
-                    place.innerHTML = '<div class="element-label">No archivements found</div>';
+                    place.innerHTML = '<div class="element-label">No content found</div>';
                 } else {
                     for(let i=0; i<cant; i++){
                         addElement(place,responseJSON[0].list[i].tvId,responseJSON[0].list[i].title,'Delete');
@@ -192,7 +192,7 @@ function fetchAllQuotes(place){
                     addElement(place,responseJSON[i]._id,responseJSON[i].quote,'Delete');
                 }
             } else {
-                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                place.innerHTML = '<div class="element-label">No quotes found</div>';
             }
         })
         .catch( err=> {
@@ -220,7 +220,7 @@ function fetchAllComments(place){
                     addElement(place,responseJSON[i]._id,responseJSON[i].comment,'Delete');
                 }
             } else {
-                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                place.innerHTML = '<div class="element-label">No comments found</div>';
             }
         })
         .catch( err=> {
@@ -248,7 +248,7 @@ function fetchQuote(place,status){
                     addElement(place,responseJSON[i]._id,responseJSON[i].quote,'Approve');
                 }
             } else {
-                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                place.innerHTML = '<div class="element-label">No quotes found</div>';
             }
         })
         .catch( err=> {
@@ -279,7 +279,7 @@ function fetchUsers(place,admin){
                     addElement(place,responseJSON[i]._id,responseJSON[i].username,'Delete');
                 }
             } else {
-                place.innerHTML = '<div class="element-label">No archivements found</div>';
+                place.innerHTML = '<div class="element-label">No users found</div>';
             }
         })
         .catch( err=> {
