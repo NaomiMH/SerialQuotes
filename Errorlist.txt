@@ -1,0 +1,13 @@
+>>>> No importa lo que se haga no se realiza el patch cuando se intenta cambiar informacion de una serie o pelicula cuando eres admin
+
+>> Cambiar boton de like
+
+>> Agregar imagen alternativa para cuando no se encuentra la imagen de la serie o pelicula
+
+>> Cuando se le da click a la random quote no se puede acceder a esa serie.
+
+>>Cambiar nombre de usuario no funciona
+
+>>Cambiar password no funciona 
+
+>> En My comments se muestran comentarios que el usuario no hiso (Comentarios de alguien mas) no importa que tipo de usuario seas
