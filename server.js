@@ -8,10 +8,10 @@ const app = express();
 const jsonParser = bodyParser.json();
 const {Users,TV,Quotes,Comments,News} = require( "./model.js" );
 const cors = require( './middleware/cors' );
-const PORT = 8080;
-const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
-const SECRET_TOKEN = 'serialquotes';
-//const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
+//const PORT = 8080;
+//const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
+//const SECRET_TOKEN = 'serialquotes';
+const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
