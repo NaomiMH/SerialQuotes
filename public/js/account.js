@@ -64,13 +64,14 @@ function fetchBy(page, place, next){
     let settings = {
         method: 'GET'
     };
-
+    console.log(url);
     fetch( url, settings ).then( response => {
         if( response.ok ){
             return response.json();
         }
         throw new Error( response.statusText );
     }).then( responseJSON => {
+        console.log(responseJSON);
         next(place, responseJSON);
     }).catch( err=> {
         console.log(err.message);
@@ -160,7 +161,7 @@ function fetchDelete(page,id){
 
 function fetchDeleteElement(page,data){
     //origin serial
-    //wish or watch or tv
+    //wish or watch or tv or like
     //token needed
     //new token
     let url = `/${page}`;
@@ -509,21 +510,22 @@ function watchBtns(){
         event.preventDefault();
         let data = {};
         data.id = user.id;
+        let error = document.querySelector('.error');
+        let flag = false;
         if(document.querySelector('.new-username').id == "show"){
             data.username = document.querySelector('#new-username').value;
+            if(data.username == user.username || data.username.length < 5){
+                error.innerHTML = "The username need to be diferent than your actual username and longer than 5 characters.";
+                flag = true;
+            }
         } else if(document.querySelector('.new-password').id == "show"){
             data.password = document.querySelector('#new-password').value;
-        }
-        let error = document.querySelector('.error');
-        if(data.username){
-            if(data.username == user.username || data.username.length < 5){
-                error.innerHTML = "The username need to be diferent than your actual username and longer than 5 characters."
-            }
-        } else if(data.password){
             if(data.password == user.username || data.password.length < 5){
-                error.innerHTML = "The password need to be diferent than your username and longer than 5 characters."
+                error.innerHTML = "The password need to be diferent than your username and longer than 5 characters.";
+                flag = true;
             }
-        } else {
+        }
+        if(!flag){
             fetchUpdate(data);
         }
     });

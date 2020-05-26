@@ -1,6 +1,11 @@
 const urlParams = new URLSearchParams(window.location.search);
 let user;
 
+
+function standby(id) {
+    document.getElementById(id).src = 'https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg'
+}
+
 function addTV(place,arrey){
     //origin index
     if(!arrey[0]){
@@ -9,7 +14,7 @@ function addTV(place,arrey){
         for (let i=arrey.length-1; i>=0; i--){
             let temp = 
             `<div class="tv" id="${arrey[i]._id}">
-                <img alt="image" src="${arrey[i].image}">
+                <img alt="image" id="image-${arrey[i]._id}" src="${arrey[i].image}" onerror=standby("image-${arrey[i]._id}")>
                 <label class="tv-title">${arrey[i].title}</label>
                 <label class="tv-description">${arrey[i].description}</label>
                 <label class="tv-type">${arrey[i].type}</label>`;
@@ -54,9 +59,9 @@ function addQuotes(place,arrey){
                 <div class="like-date">`;
             if(user){
                 if(!user.like.find( quote => quote.quoteId === arrey[i]._id)){
-                    temp += `<button id="add-like"></button>`;
+                    temp += `<div id="add-like"></div>`;
                 } else {
-                    temp += `<button id="like-add"></button>`;
+                    temp += `<div id="like-add"></div>`;
                 }
             }
                 temp += 
@@ -164,6 +169,37 @@ function fetchAdd(page,data){
     });
 }
 
+function fetchDeleteElement(page,data){
+    //origin serial
+    //wish or watch or tv or like
+    //token needed
+    //new token
+    let url = `/${page}`;
+    
+    let settings = {
+        method: 'DELETE',
+        headers: {
+            token: localStorage.getItem( 'token' ),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        localStorage.clear();
+        localStorage.setItem('token',responseJSON);
+        //validateToken();
+        location.reload();
+    }).catch( err=> {
+        //result.innerHTML = `${err.message}`;
+    });
+}
+
 function watchSerialResults(){
     //origin index
     let serialList = document.querySelectorAll( '.tv' );
@@ -197,7 +233,9 @@ function watchQuotesResults(){
             if(event.target.id == 'add-like'){
                 let quote = event.currentTarget.querySelector('.quote-quote').innerHTML;
                 fetchAdd('like',{quoteId: id,quote: quote});
-            } else if(event.target.id != 'like-add'){
+            } else if(event.target.id == 'like-add'){
+                fetchDeleteElement('like',{quoteId: id});
+            } else {
                 fetchBy(`quote?id=${id}`,'quote',loadpage);
             }
         });
@@ -253,8 +291,8 @@ function watchSerialBtns(){
                 fetchBy(`tv?title=${search}&type=Movie`,area,addTV);
                 fetchBy(`quote?from=${search}&type=Movie`,area2,addQuotes);
             } else if(radioBtn[2].checked){
-                fetchBy(`tv?title=${search}&type=Serie`,area,addTV);
-                fetchBy(`quote?from=${search}&type=Serie`,area2,addQuotes);
+                fetchBy(`tv?title=${search}&type=Series`,area,addTV);
+                fetchBy(`quote?from=${search}&type=Series`,area2,addQuotes);
             } else {
                 fetchBy(`tv?title=${search}`,area,addTV);
                 fetchBy(`quote?from=${search}`,area2,addQuotes);
@@ -265,15 +303,15 @@ function watchSerialBtns(){
     btn = document.querySelector('.serial-filter');
     
     btn.addEventListener( 'click', (event)=>{
-        event.preventDefault();
+        //event.preventDefault();
         let radioBtn = document.getElementsByName('filter');
-        if(event.target = "label"){
+        if(event.target.tagName == "LABEL"){
             if(event.target.innerHTML == "All"){
-                radioBtn[0].checked = "checked";
+                radioBtn[0].checked = true;
             } else if(event.target.innerHTML == "Movies"){
-                radioBtn[1].checked = "checked";
+                radioBtn[1].checked = true;
             } else if(event.target.innerHTML == "Series"){
-                radioBtn[2].checked = "checked";
+                radioBtn[2].checked = true;
             }
         }
         area.innerHTML = "";
@@ -285,8 +323,8 @@ function watchSerialBtns(){
             fetchBy(`tv?type=Movie`,area,addTV);
             fetchBy(`quote?type=Movie`,area2,addQuotes);
         } else if(radioBtn[2].checked){
-            fetchBy(`tv?type=Serie`,area,addTV);
-            fetchBy(`quote?type=Serie`,area2,addQuotes);
+            fetchBy(`tv?type=Series`,area,addTV);
+            fetchBy(`quote?type=Series`,area2,addQuotes);
         }
     });
 }

@@ -8,10 +8,10 @@ const app = express();
 const jsonParser = bodyParser.json();
 const {Users,TV,Quotes,Comments,News} = require( "./model.js" );
 const cors = require( './middleware/cors' );
-//const PORT = 8080;
-//const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
-//const SECRET_TOKEN = 'serialquotes';
-const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
+const PORT = 8080;
+const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
+const SECRET_TOKEN = 'serialquotes';
+//const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
@@ -241,7 +241,7 @@ app.get( '/comment', (req,res)=>{
     if(by){
         filter.by = by;
     }
-    if(by){
+    if(byId){
         filter.byId = byId;
     }
     Comments.getCommentBy(filter).then( result => {
@@ -843,6 +843,7 @@ app.patch( '/user', jsonParser, (req, res)=>{
 app.patch( '/tv', jsonParser, (req, res)=>{
     console.log( "Updating a tv by id");
 
+    let token = req.headers.token;
     let id = req.body.id;
     let title = req.body.title;
     let type = req.body.type;
@@ -867,6 +868,7 @@ app.patch( '/tv', jsonParser, (req, res)=>{
     if(image){
         temp.image = image;
     }
+    console.log(token);
 
     jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
         if(err){

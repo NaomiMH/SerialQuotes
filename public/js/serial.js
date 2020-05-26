@@ -1,6 +1,10 @@
 const urlParams = new URLSearchParams(window.location.search);
 let user;
 
+function standby(id) {
+    document.getElementById(id).src = 'https://www.publicdomainpictures.net/pictures/280000/velka/not-found-image-15383864787lu.jpg'
+}
+
 function addTV(place,arrey){
     //origin index
     if(!arrey[0]){
@@ -9,7 +13,7 @@ function addTV(place,arrey){
         for (let i=arrey.length-1; i>=0; i--){
             let temp = 
             `<div class="tv" id="${arrey[i]._id}">
-                <img alt="image" src="${arrey[i].image}">
+                <img alt="image" id="image-${arrey[i]._id}" src="${arrey[i].image}" onerror=standby("image-${arrey[i]._id}")>
                 <label class="tv-title">${arrey[i].title}</label>
                 <label class="tv-description">${arrey[i].description}</label>
                 <label class="tv-type">${arrey[i].type}</label>`;
@@ -64,7 +68,7 @@ function addInfoTv(place,object){
                 `</div>
                 <div class="show-des-img">
                     <div class="image">
-                        <img class="show-img" alt="image" src="${object.image}">
+                        <img alt="image" id="image-${object._id}" src="${object.image}" onerror=standby("image-${object._id}")>
                     </div>
                     <labe class="show-description">${object.description}</label>
                 </div>`;
@@ -131,16 +135,18 @@ function addQuote(place,arrey){
                     </div>
                     <label>By: </label>
                     <label class="quote-by">${arrey[i].by} </label>
-                    <label>| Likes: ${arrey[i].like}</label>`;
+                    <label>| Likes: ${arrey[i].like}</label>
+                    <div class="like-date">`;
             if(user){
                 if(!user.like.find( quote => quote.quoteId === arrey[i]._id)){
-                    temp += `<button id="add-like"></button>`;
+                    temp += `<div id="add-like"></div>`;
                 } else {
-                    temp += `<button id="like-add"></button>`;
+                    temp += `<div id="like-add"></div>`;
                 }
             }
             temp +=
                     `<label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+                    </div>
                 </div>
                 <section class="comments-results ${arrey[i]._id}">
                 </section>`;
@@ -261,6 +267,7 @@ function fetchEdit(page,data){
     }).then( responseJSON => {
         location.reload();
     }).catch( err=> {
+        console.log(err.message);
         //result.innerHTML = `${err.message}`;
     });
 }
@@ -314,7 +321,7 @@ function fetchDeleteElement(page,data){
     }).then( responseJSON => {
         localStorage.clear();
         localStorage.setItem('token',responseJSON);
-        location.href='index.html';
+        location.reload();
     }).catch( err=> {
         //result.innerHTML = `${err.message}`;
     });
@@ -525,9 +532,13 @@ function watchShowResults(){
                 }
             } else if(event.target.id == 'add-like'){
                 let data = {};
-                data.quoteId = event.target.parentNode.id;
-                data.quote = event.target.parentNode.querySelector('.quote-quote').innerHTML;
+                data.quoteId = event.target.parentNode.parentNode.id;
+                data.quote = event.target.parentNode.parentNode.querySelector('.quote-quote').innerHTML;
                 fetchAdd('like',data);
+            } else if(event.target.id == 'like-add'){
+                let data = {};
+                data.quoteId = event.target.parentNode.parentNode.id;
+                fetchDeleteElement('like',data);
             }
         });
     }
@@ -549,7 +560,7 @@ function watchTVBtns(){
             if(radioBtn[1].checked){
                 fetchBy(`tv?title=${search}&type=Movie`,area,addTV);
             } else if(radioBtn[2].checked){
-                fetchBy(`tv?title=${search}&type=Serie`,area,addTV);
+                fetchBy(`tv?title=${search}&type=Series`,area,addTV);
             } else {
                 fetchBy(`tv?title=${search}`,area,addTV);
             }
@@ -576,7 +587,7 @@ function watchTVBtns(){
         } else if(radioBtn[1].checked){
             fetchBy(`tv?type=Movie`,area,addTV);
         } else if(radioBtn[2].checked){
-            fetchBy(`tv?type=Serie`,area,addTV);
+            fetchBy(`tv?type=Series`,area,addTV);
         }
     });
 }
@@ -684,6 +695,7 @@ function loadingPage(){
     let show = urlParams.get('show');
     let areaSerial = document.querySelector('.serial-results');
     let areaShow = document.querySelector('.show');
+    let areaSubmenu = document.querySelector('.serial-submenu');
     if(user){
         area = document.querySelector('.account');
         area.innerHTML = "My account";
@@ -691,6 +703,7 @@ function loadingPage(){
     if(show){
         areaShow.style.display = "flex";
         areaSerial.style.display = "none";
+        areaSubmenu.style.display = "none";
         let area = document.querySelector('.show-tv');
         area.innerHTML = "";
         fetchBy(`tv?id=${show}`,area,addInfoTv);

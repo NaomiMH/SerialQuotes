@@ -19,9 +19,20 @@ function addQuote(place,object){
                 <label>From: </label>
                 <label class="quote-from" id="${object.fromId}">${object.from}</label>
             </div>
-            <label class="quote-date">${new Date(object.date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+            <div class="like-date">`;
+        if(user){
+            if(!user.like.find( quote => quote.quoteId === object._id)){
+                temp += `<div id="add-like"></div>`;
+            } else {
+                temp += `<div id="like-add"></div>`;
+            }
+        }
+        temp +=
+            `<label class="quote-date">${new Date(object.date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+            </div>
         </div>`;
         place.innerHTML += temp;
+        watchResults(place);
     }
 }
 
@@ -48,7 +59,17 @@ function addQuotes(place,arrey){
                     <label>From: </label>
                     <label class="quote-from" id="${arrey[i].fromId}">${arrey[i].from}</label>
                 </div>
-                <label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+                <div class="like-date">`;
+    if(user){
+        if(!user.like.find( quote => quote.quoteId === arrey[i]._id)){
+            temp += `<div id="add-like"></div>`;
+        } else {
+            temp += `<div id="like-add"></div>`;
+        }
+    }
+    temp +=
+                `<label class="quote-date">${new Date(arrey[i].date).toLocaleDateString('en-US',{day:'numeric',month:'short',year: 'numeric'})}</label>
+                </div>
             </div>`;
             place.innerHTML += temp;
         }
@@ -99,14 +120,88 @@ function fetchBy(page, place, next){
     });
 }
 
+function fetchAdd(page,data){
+    //origin index
+    //wish or watch or like
+    //token needed
+    //new token
+    let url = `/${page}`;
+    
+    let settings = {
+        method: 'POST',
+        headers: {
+            token: localStorage.getItem( 'token' ),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        localStorage.clear;
+        localStorage.setItem('token',responseJSON);
+        //validateToken();
+        location.reload();
+    }).catch( err=> {
+        console.log("missing code");
+        //result.innerHTML = `<label class="error">${err.message}</label>`;
+    });
+}
+
+function fetchDeleteElement(page,data){
+    //origin serial
+    //wish or watch or tv or like
+    //token needed
+    //new token
+    let url = `/${page}`;
+    
+    let settings = {
+        method: 'DELETE',
+        headers: {
+            token: localStorage.getItem( 'token' ),
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify( data )
+    };
+    
+    fetch( url, settings ).then( response => {
+        if( response.ok ){
+            return response.json();
+        }
+        throw new Error( response.statusText );
+    }).then( responseJSON => {
+        localStorage.clear();
+        localStorage.setItem('token',responseJSON);
+        //validateToken();
+        location.reload();
+    }).catch( err=> {
+        //result.innerHTML = `${err.message}`;
+    });
+}
+
 function watchResults(place){
     let serialList = place.querySelectorAll( '.quote' );
     
     for(let i=0; i<serialList.length; i++){
         serialList[i].addEventListener( 'click', (event)=>{
             event.preventDefault();
-            let id = event.currentTarget.querySelector('.quote-from').id;
-            location.href= `serial.html?show=${id}`;
+            if(event.target.id == 'add-like'){
+                let data = {};
+                data.quoteId = event.currentTarget.id;
+                data.quote = event.currentTarget.querySelector('.quote-quote').innerHTML;
+                fetchAdd('like',data);
+            } else if(event.target.id == 'like-add'){
+                let data = {};
+                data.quoteId = event.currentTarget.id;
+                fetchDeleteElement('like',data);
+            } else {
+                let id = event.currentTarget.querySelector('.quote-from').id;
+                location.href= `serial.html?show=${id}`;
+            }
         });
     }
 }

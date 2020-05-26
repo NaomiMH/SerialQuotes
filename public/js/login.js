@@ -21,7 +21,7 @@ function fetchCreateUser(page,data){
         localStorage.clear;
         console.log(responseJSON);
         localStorage.setItem('token',responseJSON);
-        location.href = 'page.html?section=use';
+        location.href = 'page.html?show=use';
     }).catch( err=> {
         let signupError = document.querySelector( '.signup-error-user' );
         signupError.innerHTML = err.message;
