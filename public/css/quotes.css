@@ -186,6 +186,10 @@ li:hover{
     border-radius: 10px;
 }
 
+a{
+    color: white;
+}
+
 @media(max-width:1100px){
     
     .quote{
