@@ -218,22 +218,38 @@ footer{
     padding: 2px 0px 5px 0px;
 }
 
-li{
+footer>div >li{
     list-style: none;
     padding: 0px 15px 0px 15px;
 }
 
-li:hover{
+.itemList{
+    list-style: square;
+    margin-left: 60px;   
+}
+.itemList2{
+    list-style: square;
+    margin-left: 60px;   
+}
+
+footer> div > li:hover{
     cursor: pointer;
     background-color: #212121;
     border-radius: 10px;
+}
+.use{
+    flex-direction: column;
+}
+
+.use > div{
+    width: 80%;
+    align-self: center;
 }
 
 @media(max-width:1100px){
     .develop{
         flex-direction: column;
     }
-    
     .develop > div{
         width: 340px;
         align-self: center;

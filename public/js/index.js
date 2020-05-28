@@ -9,7 +9,7 @@ function standby(id) {
 function addTV(place,arrey){
     //origin index
     if(!arrey[0]){
-        place.innerHTML += 'No information available';
+        place.innerHTML += 'No content found';
     } else {
         for (let i=arrey.length-1; i>=0; i--){
             let temp = 
@@ -105,7 +105,7 @@ function fetchAll(page, place, next){
             next(place, responseJSON);
         } else {
             if(page != 'news'){
-                place.innerHTML += 'No information available';
+                place.innerHTML += 'No content found.';
             }
         }
     }).catch( err=> {
@@ -131,7 +131,7 @@ function fetchBy(page, place, next){
         if(responseJSON[0]){
             next(place, responseJSON);
         } else {
-            place.innerHTML += 'No information available';
+            place.innerHTML += 'No content found.';
         }
     }).catch( err=> {
         console.log(err.message);

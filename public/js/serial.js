@@ -9,6 +9,7 @@ function addTV(place,arrey){
     //origin index
     if(!arrey[0]){
         place.innerHTML += 'No information available';
+        redirect
     } else {
         for (let i=arrey.length-1; i>=0; i--){
             let temp = 
@@ -36,8 +37,12 @@ function addTV(place,arrey){
 
 function addInfoTv(place,object){
     //unique
+    delay = 500;
     if(!object[0]){
-        place.innerHTML = 'No information available';
+        place.innerHTML = '<img id="e404" src="https://cdn.pixabay.com/photo/2018/01/04/15/51/error-3060993_960_720.png"> This webpage does not exists you will be redirected to Home. </img>';
+        setTimeout(function(){
+            location.href='index.html'
+           },delay);
     } else {
         object = object[0];
         place.id = object._id;
@@ -303,7 +308,6 @@ function fetchDeleteElement(page,data){
     //token needed
     //new token
     let url = `/${page}`;
-    
     let settings = {
         method: 'DELETE',
         headers: {
@@ -643,10 +647,11 @@ function watchShowAdminBtns(){
             editTv.style.display = "flex";
 
             editTv.id = tv.id;
+            console.log(tv);
             editTv.querySelector('#edit-title').value = tv.querySelector('.show-title').innerHTML;
             editTv.querySelector('#edit-type').value = tv.querySelector('.show-type').innerHTML;
             editTv.querySelector('#edit-description').value = tv.querySelector('.show-description').innerHTML.trim();
-            editTv.querySelector('#edit-image').value = tv.querySelector('.show-img').src;
+            editTv.querySelector('#edit-image').value = tv.querySelector('.image').src;
         } else if(event.target.id == "delete-TV"){
             let tv = event.target.parentNode.parentNode.id;
             fetchDeleteElement(`tv/${tv}`,{});
@@ -673,7 +678,7 @@ function watchShowAdminBtns(){
         if(description != document.querySelector('.show-description').innerHTML.trim()){
             data.description = description;
         }
-        if(image != document.querySelector('.show-img').src){
+        if(image != document.querySelector('.image').src){
             data.image = image;
         }
         fetchEdit('tv',data);

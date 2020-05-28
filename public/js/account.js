@@ -195,7 +195,6 @@ function fetchCreate(page,data){
     //tv or quote or comment
     //token needed
     let url = `/${page}`;
-    
     let settings = {
         method: 'POST',
         headers: {
@@ -228,7 +227,7 @@ function watchAdminBtn(){
         let type = createForm.querySelector('#create-type').value;
         let description = createForm.querySelector('#create-description').value;
         let image = createForm.querySelector('#create-image').value;
-
+        
         fetchCreate('tv',{title,type,description,image});
     });
 

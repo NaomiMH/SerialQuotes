@@ -8,10 +8,10 @@ const app = express();
 const jsonParser = bodyParser.json();
 const {Users,TV,Quotes,Comments,News} = require( "./model.js" );
 const cors = require( './middleware/cors' );
-const PORT = 8080;
-const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
-const SECRET_TOKEN = 'serialquotes';
-//const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
+//const PORT = 8080;
+//const DATABASE_URL = 'mongodb://localhost/serialquotesdb';
+//const SECRET_TOKEN = 'serialquotes';
+const {DATABASE_URL, PORT, SECRET_TOKEN} = require('./config');
 
 app.use( cors );
 app.use( express.static( "public" ) );
@@ -41,7 +41,7 @@ app.get( '/valid/token', (req,res) => {
                     userData.admin = true;
                 }
                 
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -74,7 +74,7 @@ app.post( '/user/login', jsonParser, ( req, res ) => {
                     watch: result.watch,
                     like: result.like
                 }
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -261,28 +261,34 @@ app.post( '/user', jsonParser, (req,res)=>{
     }
 
     if( password==username || username.length<5 || password.length<5 ){
-        res.statusMessage = "The information inserted is invalid, check that your password and username are diferente and longer than 5 caracters.";
+        res.statusMessage = "The information inserted is invalid, check that your password and username are diferent and longer than 5 characters.";
         return res.status(406).end();
     }
 
-    bcrypt.hash(password,11).then( hashedPassword => {
-        let newUser = {username, password: hashedPassword};
-        Users.createUser(newUser).then( result => {
-            let userData = {};
-            userData.id = result._id;
-            userData.username = result.username;
-            userData.wish = result.wish;
-            userData.watch = result.watch;
-            userData.like = result.like;
-            userData.admin = result.admin;
-            
-            return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
-                if(err){
-                    res.statusMessage = err.message;
-                    return res.status(409).end();
-                }
-                return res.status(201).json( token );
-            });
+    Users.getUserBy({username}).then( result => {
+        if(result[0]){
+            res.statusMessage = "This username already exists.";
+            return res.status(406).end();
+        }
+        bcrypt.hash(password,11).then( hashedPassword => {
+            let newUser = {username, password: hashedPassword};
+            Users.createUser(newUser).then( result => {
+                let userData = {};
+                userData.id = result._id;
+                userData.username = result.username;
+                userData.wish = result.wish;
+                userData.watch = result.watch;
+                userData.like = result.like;
+                userData.admin = result.admin;
+                
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
+                    if(err){
+                        res.statusMessage = err.message;
+                        return res.status(409).end();
+                    }
+                    return res.status(201).json( token );
+                });
+            }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
         }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
     }).catch( err => {res.statusMessage = "Something went wrong with the Database";return res.status(500).end();});
 });
@@ -301,7 +307,7 @@ app.post( '/tv', jsonParser, (req,res)=>{
         return res.status(406).end();
     }
 
-    if ( title=="" || (type!="Serie" && type!="Movie") || description=="" || image=="" ){
+    if ( title=="" || (type!="Series" && type!="Movie") || description=="" || image=="" ){
         res.statusMessage = "The information is wrong.";
         return res.status(406).end();
     }
@@ -407,7 +413,7 @@ app.post( '/wish', jsonParser, (req,res)=>{
                 userData.wish = result.wish;
                 userData.watch = result.watch;
                 userData.like = result.like;
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -450,7 +456,7 @@ app.post( '/watch', jsonParser, (req,res)=>{
                 userData.wish = result.wish;
                 userData.watch = result.watch;
                 userData.like = result.like;
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -469,13 +475,10 @@ app.post( '/like', jsonParser, (req,res)=>{
     let quoteId = req.body.quoteId;
     let quote = req.body.quote;
     
-    console.log(quote);
-    console.log(quoteId);
     if ( !quoteId || !quote ){
         res.statusMessage = "One of the parameters is missing.";
         return res.status(406).end();
     }
-    console.log("333");
 
     jsonwebtoken.verify( token, SECRET_TOKEN, (err,decoded)=> {
         if(err){
@@ -491,9 +494,7 @@ app.post( '/like', jsonParser, (req,res)=>{
             like: decoded.like,
             admin: decoded.admin
         }
-        console.log("1");
         return Users.addLikeById(userData.id, {quoteId,quote}).then( result2 => {
-            console.log("2");
             console.log(result2);
             return Users.getUserBy({_id: userData.id}).then( result => {
                 result = result[0];
@@ -501,7 +502,7 @@ app.post( '/like', jsonParser, (req,res)=>{
                 userData.wish = result.wish;
                 userData.watch = result.watch;
                 userData.like = result.like;
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -568,7 +569,6 @@ app.delete( '/tv/:id', (req, res)=>{
             admin: decoded.admin
         }
         return TV.deleteTVById(id).then( result => {
-            console.log("1111");
             console.log(result);
             return Users.getUserBy({_id: decoded.id}).then( result2 => {
                 result2 = result2[0];
@@ -576,7 +576,7 @@ app.delete( '/tv/:id', (req, res)=>{
                 userData.watch = result2.watch;
                 userData.like = result2.like;
                 console.log(userData);
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -659,7 +659,7 @@ app.delete( '/news/:id', (req, res)=>{
 });
 
 app.delete( '/wish', jsonParser, (req,res)=>{
-    console.log( "Deleteing a element from the list");
+    console.log( "Deleting a element from the list");
 
     let token = req.headers.token;
     let tvId = req.body.tvId;
@@ -687,7 +687,7 @@ app.delete( '/wish', jsonParser, (req,res)=>{
             return Users.getUserBy({_id: userData.id}).then( result => {
                 result = result[0];
                 userData.wish = result.wish;
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -728,7 +728,7 @@ app.delete( '/watch', jsonParser, (req,res)=>{
             return Users.getUserBy({_id: userData.id}).then( result => {
                 result = result[0];
                 userData.watch = result.watch;
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -768,7 +768,7 @@ app.delete( '/like', jsonParser, (req,res)=>{
             return Users.getUserBy({_id: userData.id}).then( result => {
                 result = result[0];
                 userData.like = result.like;
-                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                     if(err){
                         res.statusMessage = err.message;
                         return res.status(409).end();
@@ -826,7 +826,7 @@ app.patch( '/user', jsonParser, (req, res)=>{
                     if(temp.admin != undefined){
                         userData.admin = temp.admin;
                     }
-                    return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '30h'}, (err, token) => {
+                    return jsonwebtoken.sign( userData, SECRET_TOKEN, {expiresIn: '1h'}, (err, token) => {
                         if(err){
                             res.statusMessage = err.message;
                             return res.status(409).end();

@@ -24,7 +24,7 @@ function fetchCreateUser(page,data){
         location.href = 'page.html?show=use';
     }).catch( err=> {
         let signupError = document.querySelector( '.signup-error-user' );
-        signupError.innerHTML = err.message;
+        signupError.innerHTML =  `<u>${err.message}</u>`;
         signupError.style.opacity = 1;
         //result.innerHTML = `<label class="error">${err.message}</label>`;
     });
